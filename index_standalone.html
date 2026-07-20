@@ -1,0 +1,4176 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>לוח שנה פדגוגי ומערכת גאנט בית ספרית (גרסה עצמאית)</title>
+  
+  <!-- FontAwesome Icons & Assistant Font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap">
+  
+  <style>
+    :root {
+      /* Color Palette - Slate & Deep Blue Base */
+      --bg-main: #f1f5f9;
+      --bg-sidebar: #ffffff;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #eff6ff;
+      
+      --success-color: #10b981;
+      --success-light: #ecfdf5;
+      
+      --danger-color: #ef4444;
+      --danger-hover: #dc2626;
+      --danger-light: #fef2f2;
+      
+      --warning-color: #f59e0b;
+      --warning-light: #fffbeb;
+      
+      /* Shadow & Glass Effects */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-backdrop: blur(12px);
+
+      /* Border Radii */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+
+      /* Event Type Custom Color Blocks */
+      --hue-staff: 220;    /* Blue */
+      --hue-admin: 35;     /* Amber */
+      --hue-social: 330;   /* Pink */
+      --hue-academic: 140; /* Green */
+      --hue-trip: 180;     /* Teal */
+      --hue-other: 280;    /* Purple */
+      
+      /* Resolve color variables used by dots and mobile cards */
+      --staff-color: hsl(var(--hue-staff), 90%, 50%);
+      --admin-color: hsl(var(--hue-admin), 90%, 45%);
+      --social-color: hsl(var(--hue-social), 90%, 48%);
+      --academic-color: hsl(var(--hue-academic), 70%, 40%);
+      --trip-color: hsl(var(--hue-trip), 80%, 40%);
+      --other-color: hsl(var(--hue-other), 60%, 45%);
+    }
+
+    /* Reset and Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Assistant', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      direction: rtl;
+      text-align: right;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+    }
+
+    /* Main Layout: Sidebar & Content Area */
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 280px;
+      background-color: var(--bg-sidebar);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex-shrink: 0;
+      z-index: 10;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo i {
+      font-size: 1.8rem;
+    }
+
+    /* User Profile Badge */
+    .user-profile-card {
+      padding: 20px;
+      margin: 16px;
+      background: var(--primary-light);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      object-fit: cover;
+      border: 2px solid white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role-badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      width: max-content;
+      margin-top: 4px;
+    }
+
+    .user-role-badge.admin {
+      background-color: #fee2e2;
+      color: #ef4444;
+    }
+
+    .user-role-badge.teacher {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .user-role-badge.guest {
+      background-color: #f1f5f9;
+      color: #64748b;
+    }
+
+    /* Navigation Menu */
+    .sidebar-menu {
+      list-style: none;
+      padding: 8px 16px;
+      flex-grow: 1;
+    }
+
+    .menu-item {
+      margin-bottom: 8px;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .menu-link:hover {
+      background-color: var(--bg-main);
+      color: var(--primary-color);
+    }
+
+    .menu-item.active .menu-link {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu-link i {
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px;
+      background-color: var(--danger-light);
+      color: var(--danger-color);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: var(--danger-color);
+      color: white;
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+    }
+
+    /* Content Area */
+    .content-area {
+      flex-grow: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Auth / Login View */
+    .login-view {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      position: relative;
+    }
+
+    .login-card {
+      width: 460px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-backdrop);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .login-logo {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .login-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .login-divider::before, .login-divider::after {
+      content: "";
+      flex-grow: 1;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+
+    .login-divider span {
+      padding: 0 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .dev-login-panel {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .dev-login-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .dev-login-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dev-login-btn {
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: white;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dev-login-btn:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .dev-login-btn .email {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .file-protocol-warning {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background-color: #ecfdf5;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      color: #065f46;
+      line-height: 1.4;
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-header {
+      height: 80px;
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .view-title-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .dashboard-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .form-select {
+      padding: 8px 16px 8px 36px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: white;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 12px center;
+      background-size: 14px;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .view-switcher {
+      display: flex;
+      background-color: var(--bg-main);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .switch-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .switch-btn.active {
+      background-color: white;
+      color: var(--primary-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger-hover);
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+    }
+
+    .dashboard-content {
+      flex-grow: 1;
+      padding: 24px 32px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-panel {
+      display: none;
+      flex-grow: 1;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .view-panel.active {
+      display: flex;
+    }
+
+    .calendar-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      background-color: white;
+      padding: 16px 24px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .calendar-month-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .calendar-month-name span.greg-year {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .nav-arrows {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-arrow-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border-color);
+      background-color: white;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .nav-arrow-btn:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .calendar-grid-wrapper {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-height: 500px;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      direction: rtl;
+      background-color: var(--primary-light);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 700;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    .weekday {
+      padding: 12px 0;
+      font-size: 0.95rem;
+      border-left: 1px solid rgba(59, 130, 246, 0.08);
+    }
+
+    .weekday:last-child {
+      border-left: none;
+    }
+
+    .calendar-days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-auto-rows: minmax(120px, 1fr);
+      direction: rtl;
+      flex-grow: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .calendar-day-cell {
+      border-left: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px;
+      min-height: 120px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s ease;
+      cursor: pointer;
+      background-color: white;
+    }
+
+    .calendar-day-cell:nth-child(7n) {
+      border-left: none;
+    }
+
+    .calendar-day-cell:hover {
+      background-color: var(--primary-light) !important;
+    }
+
+    .day-number-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      height: 20px;
+      width: 100%;
+    }
+
+    /* Gregorian Number: top-left corner, small */
+    .gregorian-number-small {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Hebrew Date: Gematria day, top-right corner, small */
+    .hebrew-day-label-small {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .calendar-day-cell.other-month {
+      background-color: #fafafa;
+    }
+
+    .calendar-day-cell.other-month .hebrew-day-label-small,
+    .calendar-day-cell.other-month .gregorian-number-small {
+      color: var(--text-muted);
+    }
+
+    .calendar-day-cell.today {
+      box-shadow: inset 0 0 0 2px var(--primary-color);
+      background-color: rgba(59, 130, 246, 0.02);
+    }
+
+    .calendar-day-cell.holiday {
+      background-color: var(--danger-light);
+      border-bottom-color: rgba(239, 68, 68, 0.15);
+      border-left-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .calendar-day-cell.holiday .hebrew-day-label-small {
+      color: #991b1b;
+    }
+
+    .calendar-day-cell.holiday .holiday-cell-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--danger-color);
+      background-color: rgba(239, 68, 68, 0.08);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      margin-top: auto;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .calendar-day-cell.special-day {
+      background-color: #fefaf0;
+    }
+
+    .calendar-day-cell.special-day .special-cell-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #b45309;
+      background-color: var(--warning-light);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      margin-top: auto;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cell-events-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 6px;
+      flex-grow: 1;
+      overflow-y: auto;
+      max-height: 70px;
+    }
+
+    .event-bar {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 22px;
+      line-height: 16px;
+      position: relative;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+
+    .event-bar:hover {
+      filter: brightness(0.92);
+    }
+
+    .event-bar.single-day {
+      border-radius: var(--radius-sm);
+    }
+
+    .event-bar.start-day {
+      border-top-right-radius: var(--radius-sm);
+      border-bottom-right-radius: var(--radius-sm);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .event-bar.middle-day {
+      border-radius: 0;
+      margin-left: -9px;
+      margin-right: -9px;
+    }
+
+    .event-bar.end-day {
+      border-top-left-radius: var(--radius-sm);
+      border-bottom-left-radius: var(--radius-sm);
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .color-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 24px;
+      padding: 16px;
+      background-color: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .legend-color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .evt-staff {
+      background-color: hsla(var(--hue-staff), 90%, 96%, 1);
+      border-right: 4px solid hsl(var(--hue-staff), 90%, 50%);
+      color: hsl(var(--hue-staff), 90%, 25%);
+    }
+    .legend-evt-staff { background-color: hsl(var(--hue-staff), 90%, 50%); }
+
+    .evt-admin {
+      background-color: hsla(var(--hue-admin), 90%, 95%, 1);
+      border-right: 4px solid hsl(var(--hue-admin), 90%, 45%);
+      color: hsl(var(--hue-admin), 90%, 22%);
+    }
+    .legend-evt-admin { background-color: hsl(var(--hue-admin), 90%, 45%); }
+
+    .evt-social {
+      background-color: hsla(var(--hue-social), 90%, 96%, 1);
+      border-right: 4px solid hsl(var(--hue-social), 90%, 48%);
+      color: hsl(var(--hue-social), 90%, 22%);
+    }
+    .legend-evt-social { background-color: hsl(var(--hue-social), 90%, 48%); }
+
+    .evt-academic {
+      background-color: hsla(var(--hue-academic), 70%, 95%, 1);
+      border-right: 4px solid hsl(var(--hue-academic), 70%, 40%);
+      color: hsl(var(--hue-academic), 70%, 20%);
+    }
+    .legend-evt-academic { background-color: hsl(var(--hue-academic), 70%, 40%); }
+
+    .evt-trip {
+      background-color: hsla(var(--hue-trip), 80%, 94%, 1);
+      border-right: 4px solid hsl(var(--hue-trip), 80%, 40%);
+      color: hsl(var(--hue-trip), 80%, 20%);
+    }
+    .legend-evt-trip { background-color: hsl(var(--hue-trip), 80%, 40%); }
+
+    .evt-other {
+      background-color: hsla(var(--hue-other), 60%, 96%, 1);
+      border-right: 4px solid hsl(var(--hue-other), 60%, 45%);
+      color: hsl(var(--hue-other), 60%, 25%);
+    }
+    .legend-evt-other { background-color: hsl(var(--hue-other), 60%, 45%); }
+
+    .gantt-container {
+      display: flex;
+      flex-direction: column;
+      background-color: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .gantt-header-row {
+      display: flex;
+      direction: rtl;
+      background-color: var(--primary-light);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .gantt-title-col {
+      width: 250px;
+      padding: 16px;
+      border-left: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .gantt-timeline-wrapper {
+      flex-grow: 1;
+      overflow-x: auto;
+    }
+
+    .gantt-timeline-days {
+      display: flex;
+      min-width: 900px;
+      height: 100%;
+    }
+
+    .gantt-timeline-day-header {
+      flex: 1;
+      min-width: 32px;
+      text-align: center;
+      padding: 8px 0;
+      border-left: 1px solid rgba(59, 130, 246, 0.08);
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gantt-timeline-day-header.weekend {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .gantt-rows-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gantt-row {
+      display: flex;
+      direction: rtl;
+      border-bottom: 1px solid var(--border-color);
+      align-items: center;
+      height: 52px;
+    }
+
+    .gantt-row:hover {
+      background-color: #fafafa;
+    }
+
+    .gantt-event-title-cell {
+      width: 250px;
+      padding: 0 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      border-left: 1px solid var(--border-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .gantt-grid-cell-container {
+      flex-grow: 1;
+      position: relative;
+      height: 100%;
+      min-width: 900px;
+    }
+
+    .gantt-bar {
+      position: absolute;
+      top: 10px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      z-index: 2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .gantt-bar:hover {
+      transform: translateY(-1px);
+      filter: brightness(0.95);
+      box-shadow: var(--shadow-md);
+    }
+
+    .gantt-grid-lines {
+      display: flex;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .gantt-grid-line {
+      flex: 1;
+      border-left: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .gantt-grid-line.weekend {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+
+    .gantt-no-data {
+      padding: 40px;
+      text-align: center;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .admin-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .admin-card {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .admin-card-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-card-title i {
+      color: var(--primary-color);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group.hidden {
+      display: none !important;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: white;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
+
+    .admin-table th {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      font-weight: 700;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table td {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .admin-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .switch-control {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+
+    .switch-control input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--text-muted);
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .switch-slider {
+      background-color: var(--success-color);
+    }
+
+    input:checked + .switch-slider:before {
+      transform: translateX(22px);
+    }
+
+    .csv-upload-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .csv-upload-zone:hover {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+
+    .csv-upload-zone i {
+      font-size: 2.5rem;
+      color: var(--text-muted);
+    }
+
+    .csv-upload-zone.dragover {
+      border-color: var(--success-color);
+      background-color: var(--success-light);
+    }
+
+    .danger-zone {
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      background-color: var(--danger-light);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .danger-zone-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .danger-zone-title {
+      font-weight: 800;
+      color: #991b1b;
+      font-size: 1.1rem;
+    }
+
+    .danger-zone-desc {
+      color: #b91c1c;
+      font-size: 0.9rem;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 520px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      animation: modalScale 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalScale {
+      from { transform: scale(0.9) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--danger-color);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .grades-checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      background-color: var(--bg-main);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .grade-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .grade-checkbox-label input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .event-details-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .details-row {
+      display: flex;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+
+    .details-icon {
+      color: var(--primary-color);
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .details-label {
+      font-weight: 700;
+      color: var(--text-secondary);
+      width: 100px;
+      flex-shrink: 0;
+    }
+
+    .details-value {
+      color: var(--text-primary);
+    }
+
+    .details-description-box {
+      background-color: var(--bg-main);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .google-cal-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background-color: white;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .google-cal-link:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .google-cal-link i {
+      color: #ea4335;
+      font-size: 1.2rem;
+    }
+
+    .pin-input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pin-input-box {
+      width: 180px;
+      letter-spacing: 12px;
+      font-size: 2rem;
+      text-align: center;
+      padding: 10px;
+      font-weight: 700;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    .pin-input-box:focus {
+      outline: none;
+      border-color: var(--danger-color);
+    }
+
+    .pin-warning {
+      color: var(--danger-color);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* ====================================================
+       MOBILE RESPONSIVE & UX STYLES
+       ==================================================== */
+    .mobile-events-list-container {
+      display: none;
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-events-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 6px;
+    }
+
+    .mobile-event-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-main);
+      border-right: 4px solid var(--primary-color);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .mobile-event-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .mobile-event-card.evt-staff { border-right-color: var(--staff-color); }
+    .mobile-event-card.evt-admin { border-right-color: var(--admin-color); }
+    .mobile-event-card.evt-social { border-right-color: var(--social-color); }
+    .mobile-event-card.evt-academic { border-right-color: var(--academic-color); }
+    .mobile-event-card.evt-trip { border-right-color: var(--trip-color); }
+    .mobile-event-card.evt-other { border-right-color: var(--other-color); }
+
+    .mobile-event-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mobile-event-title-text {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .mobile-event-desc-text {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+
+    .mobile-event-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+    }
+
+    .mobile-no-events {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 16px 0;
+    }
+
+    .mobile-dots-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: auto;
+      justify-content: center;
+      padding-bottom: 2px;
+    }
+
+    .event-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .event-dot.evt-staff { background-color: var(--staff-color); }
+    .event-dot.evt-admin { background-color: var(--admin-color); }
+    .event-dot.evt-social { background-color: var(--social-color); }
+    .event-dot.evt-academic { background-color: var(--academic-color); }
+    .event-dot.evt-trip { background-color: var(--trip-color); }
+    .event-dot.evt-other { background-color: var(--other-color); }
+
+    .calendar-day-cell.active-day {
+      border: 2px solid var(--primary-color) !important;
+      background-color: var(--primary-light) !important;
+    }
+
+    .mobile-fab {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      left: 20px; /* Floating on the left for easy access with thumb in RTL */
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      z-index: 98;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mobile-fab:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      /* Transform sidebar to horizontal bottom tab navigation */
+      .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        width: 100% !important;
+        height: 60px;
+        flex-direction: row;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+        z-index: 99;
+        padding: 0;
+        border-top: 1px solid var(--border-color);
+        border-right: none;
+      }
+
+      .sidebar-header,
+      .user-profile-card,
+      .sidebar-footer {
+        display: none !important;
+      }
+
+      nav {
+        width: 100%;
+        height: 100%;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .menu-item {
+        flex-grow: 1;
+        margin: 0 !important;
+        border-radius: 0;
+        height: 100%;
+      }
+
+      .menu-link {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        height: 100%;
+        padding: 6px 0;
+        font-size: 0.75rem !important;
+      }
+
+      .menu-link i {
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+      }
+
+      .mobile-only-logout {
+        display: block !important;
+      }
+
+      /* Adapt main app layout */
+      .app-container {
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .content-area {
+        margin-right: 0 !important;
+        padding-bottom: 70px !important; /* spacing for bottom nav bar */
+        overflow-y: auto;
+        height: calc(100vh - 60px);
+      }
+
+      .dashboard-content {
+        padding: 12px 16px !important;
+      }
+
+      /* Stack control filters on mobile */
+      .view-header {
+        height: auto !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 16px !important;
+      }
+
+      .dashboard-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .toolbar-group {
+        width: 100% !important;
+      }
+
+      .form-select {
+        width: 100% !important;
+      }
+
+      .view-switcher {
+        width: 100%;
+        display: flex;
+        margin-right: 0 !important;
+      }
+
+      .switch-btn {
+        flex-grow: 1;
+        justify-content: center;
+      }
+
+      /* Desktop Add Event button - hide on mobile, replaced by FAB */
+      #add-event-btn {
+        display: none !important;
+      }
+
+      /* Decrease grid row size to fit phone height neatly */
+      .calendar-days-grid {
+        grid-auto-rows: minmax(55px, 1fr) !important;
+      }
+
+      .calendar-day-cell {
+        min-height: 55px !important;
+        padding: 4px !important;
+      }
+
+      /* Hide horizontal event bars on mobile grid */
+      .calendar-day-cell .event-bar {
+        display: none !important;
+      }
+
+      /* Show mobile events list view */
+      .mobile-events-list-container {
+        display: block;
+      }
+
+      /* Scrollable Gantt container on mobile */
+      #gantt-chart-container {
+        overflow-x: auto;
+        display: block;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Layout adjustments for Admin View */
+      .admin-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+      }
+
+      .admin-card {
+        padding: 16px !important;
+      }
+
+      .modal-content {
+        width: 95% !important;
+        margin: 10px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .login-card {
+        width: 90% !important;
+        padding: 24px 20px !important;
+      }
+
+      /* Fullscreen Projection Mode (Staff Room TV Display) */
+      body.fullscreen-mode {
+        overflow: hidden !important;
+        background-color: var(--bg-main) !important;
+      }
+
+      body.fullscreen-mode .sidebar,
+      body.fullscreen-mode .view-header,
+      body.fullscreen-mode .mobile-header,
+      body.fullscreen-mode .mobile-nav,
+      body.fullscreen-mode .mobile-fab,
+      body.fullscreen-mode #gantt-grid-container,
+      body.fullscreen-mode .mobile-events-list-container {
+        display: none !important;
+      }
+
+      body.fullscreen-mode .content-area {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 999999 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding: 12px 16px !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        background-color: var(--bg-main) !important;
+        overflow: hidden !important;
+      }
+
+      body.fullscreen-mode .dashboard-content {
+        padding: 0 !important;
+        height: calc(100vh - 24px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+      }
+
+      body.fullscreen-mode .calendar-controls {
+        margin-bottom: 10px !important;
+        padding: 10px 20px !important;
+        box-shadow: var(--shadow-md) !important;
+      }
+
+      body.fullscreen-mode .calendar-grid-wrapper {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        box-shadow: var(--shadow-md) !important;
+      }
+
+      body.fullscreen-mode .calendar-days-grid {
+        flex: 1 !important;
+        display: grid !important;
+        grid-template-rows: repeat(5, 1fr) !important;
+        overflow: hidden !important;
+      }
+
+      body.fullscreen-mode .calendar-day-cell {
+        min-height: 0 !important;
+        height: 100% !important;
+        padding: 6px 8px !important;
+      }
+
+      body.fullscreen-mode .calendar-day-cell .event-bar {
+        display: flex !important;
+        margin-bottom: 3px !important;
+        padding: 4px 8px !important;
+        font-size: 0.82rem !important;
+        font-weight: 700 !important;
+      }
+
+      body.fullscreen-mode .btn-fullscreen-active {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+      }
+  </style>
+  
+  <!-- Firebase Compat SDKs (safe for file:// local testing) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- ====================================================
+       1. LOGIN / AUTHENTICATION VIEW
+       ==================================================== -->
+  <main id="login-view" class="login-view" style="display: none;">
+    <div class="login-card">
+      <div class="login-logo">
+        <i class="fas fa-calendar-alt"></i>
+        <span>לוח שנה בית ספרי</span>
+      </div>
+      <h1 class="login-title">ברוכים הבאים</h1>
+      <p class="login-subtitle">לוח שנה פדגוגי ומערכת גאנט לניהול אירועים</p>
+      
+      <div class="login-divider" style="margin-top: 0;">
+        <span>התחברות מהירה (עובד ישירות בלחיצה כפולה)</span>
+      </div>
+      
+      <!-- Developer Bypass Sign-In Panel -->
+      <section class="dev-login-panel">
+        <h2 class="dev-login-title">
+          <i class="fas fa-flask"></i>
+          חשבונות בדיקה מוכנים מראש
+        </h2>
+        <div class="dev-login-buttons">
+          <button id="login-admin-btn" class="dev-login-btn">
+            <span>מנהל מערכת</span>
+            <span class="email">admin@school.org</span>
+          </button>
+          <button id="login-teacher-btn" class="dev-login-btn">
+            <span>מורה מורשה</span>
+            <span class="email">teacher@school.org</span>
+          </button>
+          <button id="login-guest-btn" class="dev-login-btn">
+            <span>אורח צפייה</span>
+            <span class="email">guest@school.org</span>
+          </button>
+        </div>
+        
+        <form id="login-custom-form" style="margin-top: 16px;">
+          <label class="form-label" for="login-custom-email">התחבר עם אימייל אחר:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="email" id="login-custom-email" class="form-control" placeholder="your-email@example.com" required style="font-size: 0.85rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;">כניסה</button>
+          </div>
+        </form>
+        
+        <div class="file-protocol-warning">
+          <i class="fas fa-check-circle" style="margin-top: 2px;"></i>
+          <span>
+            <strong>מצב הדמיה מקומי פעיל בהצלחה:</strong> גרסה זו הותאמה לעבודה ישירה ללא שרת! תוכל לבדוק את כל היכולות בלחיצה כפולה.
+          </span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ====================================================
+       2. MAIN APPLICATION CONTAINER
+       ==================================================== -->
+  <div id="app-container" class="app-container">
+    
+    <!-- Right Sidebar (RTL) -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-school"></i>
+          <span>לוח שנה בית-ספרי</span>
+        </div>
+      </div>
+      
+      <!-- Current User Profile Card -->
+      <section class="user-profile-card">
+        <div id="sidebar-user-avatar" class="user-avatar">א</div>
+        <div class="user-info">
+          <span id="sidebar-user-name" class="user-name">טוען...</span>
+          <span id="sidebar-user-badge" class="user-role-badge guest">אורח</span>
+        </div>
+      </section>
+      
+      <!-- Sidebar Navigation Menu -->
+      <nav style="flex-grow: 1;">
+        <ul class="sidebar-menu">
+          <li class="menu-item active" id="li-dashboard">
+            <a id="nav-dashboard" class="menu-link">
+              <i class="fas fa-th-large"></i>
+              <span>לוח בקרה ולוחות</span>
+            </a>
+          </li>
+          <li id="admin-tab-wrapper" class="menu-item" style="display: none;">
+            <a id="nav-admin" class="menu-link">
+              <i class="fas fa-user-shield"></i>
+              <span>אזור מנהל מערכת</span>
+            </a>
+          </li>
+          <li class="menu-item mobile-only-logout" id="li-logout-mobile" style="display: none;">
+            <a id="nav-logout-mobile" class="menu-link" style="color: var(--danger-color);">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>התנתק</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button id="nav-logout" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>התנתק מהמערכת</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      
+      <!-- ====================================================
+           A. DASHBOARD TAB VIEW
+           ==================================================== -->
+      <section id="dashboard-view-panel" class="view-panel active">
+        <!-- Toolbar Header -->
+        <header class="view-header">
+          <div class="view-title-section">
+            <h2 class="view-title">לוח שנה פדגוגי וגאנט</h2>
+          </div>
+          
+          <div class="dashboard-toolbar">
+            <!-- Toolbar Filters -->
+            <div class="toolbar-group">
+              <label for="filter-event-type" class="toolbar-label">סוג אירוע:</label>
+              <select id="filter-event-type" class="form-select">
+                <option value="all">הכל</option>
+                <option value="צוותי">צוותי</option>
+                <option value="מנהלתי">מנהלתי</option>
+                <option value="חברתי">חברתי</option>
+                <option value="פדגוגי">פדגוגי</option>
+                <option value="טיול">טיול</option>
+                <option value="אחר">אחר</option>
+              </select>
+            </div>
+            
+            <div class="toolbar-group">
+              <label for="filter-target-grade" class="toolbar-label">שכבת יעד:</label>
+              <select id="filter-target-grade" class="form-select">
+                <option value="all">הכל</option>
+                <option value="ד">ד'</option>
+                <option value="ה">ה'</option>
+                <option value="ו">ו'</option>
+                <option value="ז">ז'</option>
+                <option value="ח">ח'</option>
+              </select>
+            </div>
+            
+            <!-- View Switcher Toggle -->
+            <div class="view-switcher" style="margin-right: 8px;">
+              <button id="switch-calendar" class="switch-btn active">
+                <i class="fas fa-calendar-alt"></i>
+                תצוגת לוח
+              </button>
+              <button id="switch-gantt" class="switch-btn">
+                <i class="fas fa-chart-gantt"></i>
+                תצוגת גאנט
+              </button>
+            </div>
+            
+            <!-- Add Event Action (Visible only if Authorized) -->
+            <button id="add-event-btn" class="btn btn-primary" style="display: none; margin-right: 8px;">
+              <i class="fas fa-plus"></i>
+              הוספת אירוע
+            </button>
+          </div>
+        </header>
+        
+        <!-- Dashboard Content Grid -->
+        <div class="dashboard-content">
+          <!-- Calendar Controller / Navigation bar -->
+          <div class="calendar-controls">
+            <div id="calendar-month-name" class="calendar-month-name">טוען...</div>
+            <div class="nav-arrows">
+              <button id="cal-prev-btn" class="nav-arrow-btn" title="חודש קודם">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              <button id="cal-today-btn" class="nav-arrow-btn" style="width: auto; padding: 0 12px; font-size: 0.85rem; font-weight: 700;">היום</button>
+              <button id="cal-next-btn" class="nav-arrow-btn" title="חודש הבא">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button id="cal-fullscreen-btn" class="nav-arrow-btn" style="width: auto; padding: 0 12px; font-size: 0.85rem; font-weight: 700; margin-right: 12px; gap: 6px; display: flex; align-items: center;" title="הצגה על מסך מלא (לתצוגת חדר מורים)">
+                <i class="fas fa-expand"></i>
+                <span id="cal-fullscreen-text">מסך מלא</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- View 1: Calendar Grid View -->
+          <div id="calendar-grid-container" class="calendar-grid-wrapper">
+            <!-- Weekday Headers (RTL: Sunday on right) -->
+            <div class="calendar-weekdays">
+              <div class="weekday">ראשון</div>
+              <div class="weekday">שני</div>
+              <div class="weekday">שלישי</div>
+              <div class="weekday">רביעי</div>
+              <div class="weekday">חמישי</div>
+              <div class="weekday">שישי</div>
+              <div class="weekday">שבת</div>
+            </div>
+            <!-- Dynamic Month Days Grid -->
+            <div id="calendar-days-grid" class="calendar-days-grid"></div>
+          </div>
+
+          <!-- Mobile Events List Container (Visible only on Mobile) -->
+          <div id="mobile-events-list-container" class="mobile-events-list-container">
+            <h3 id="mobile-events-list-title" class="mobile-events-title">אירועים לתאריך...</h3>
+            <div id="mobile-events-list-content" class="mobile-events-list-content"></div>
+          </div>
+          
+          <!-- View 2: Gantt Chart View -->
+          <div id="gantt-chart-container" style="display: none; flex-grow: 1;"></div>
+          
+          <!-- Color Legend -->
+          <footer class="color-legend">
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-staff"></div>
+              <span>צוותי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-admin"></div>
+              <span>מנהלתי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-social"></div>
+              <span>חברתי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-academic"></div>
+              <span>פדגוגי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-trip"></div>
+              <span>טיול</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-other"></div>
+              <span>אחר</span>
+            </div>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           B. ADMIN CONSOLE TAB VIEW
+           ==================================================== -->
+      <section id="admin-view-panel" class="view-panel">
+        <header class="view-header">
+          <h2 class="view-title">לוח בקרת מנהל מערכת</h2>
+        </header>
+        
+        <div class="dashboard-content">
+          <div class="admin-layout">
+            <div class="admin-grid">
+              
+              <!-- Manage Users Console Card -->
+              <section class="admin-card">
+                <div class="admin-card-header">
+                  <h3 class="admin-card-title"><i class="fas fa-users-cog"></i>ניהול משתמשים והרשאות</h3>
+                </div>
+                
+                <!-- Add User Form -->
+                <form id="admin-add-user-form" style="margin-bottom: 24px;">
+                  <div class="form-group">
+                    <label class="form-label" for="admin-user-email">כתובת אימייל:</label>
+                    <input type="email" id="admin-user-email" class="form-control" placeholder="user@school.org" required>
+                  </div>
+                  
+                  <div class="form-group" style="display: flex; gap: 20px; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <input type="checkbox" id="admin-user-authorized" style="width: 18px; height: 18px; cursor: pointer;">
+                      <label for="admin-user-authorized" class="form-label" style="margin-bottom: 0; cursor: pointer;">משתמש מורשה (כתיבה)</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-grow: 1;">
+                      <label for="admin-user-role" class="form-label" style="margin-bottom: 0;">תפקיד:</label>
+                      <select id="admin-user-role" class="form-select" style="flex-grow: 1; padding: 6px 30px 6px 8px;">
+                        <option value="Teacher">מורה</option>
+                        <option value="Admin">מנהל</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-user-plus"></i>הוסף משתמש חדש</button>
+                </form>
+                
+                <!-- Users Table -->
+                <div class="table-wrapper">
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>אימייל משתמש</th>
+                        <th>מורשה כתיבה</th>
+                        <th>תפקיד</th>
+                        <th>פעולות</th>
+                      </tr>
+                    </thead>
+                    <tbody id="admin-users-table-body">
+                      <!-- Rendered dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+              
+              <!-- System Uploads & Configurations Card -->
+              <section class="admin-card">
+                <div class="admin-card-header">
+                  <h3 class="admin-card-title"><i class="fas fa-file-upload"></i>עדכון והעלאת לוח בסיס</h3>
+                </div>
+                
+                <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 16px;">
+                  העלה קובץ CSV ללוח בסיס בית הספר (Calendar_Base).
+                  העלאת קובץ חדש תחליף את כל נתוני החגים וימי הלימוד הנוכחיים עבור שנת הלימודים.
+                </p>
+                
+                <!-- Drag and Drop upload container -->
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                <div id="csv-upload-zone" class="csv-upload-zone">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span style="font-weight: 700;">לחץ להעלאת קובץ או גרור לכאן</span>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">פורמט קובץ נדרש: CSV (Date, HebrewDate, Status, Description)</span>
+                </div>
+                
+                <!-- Download sample template -->
+                <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.88rem; color: var(--text-secondary);">תבנית CSV לדוגמה:</span>
+                  <button type="button" id="admin-download-template" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;">
+                    <i class="fas fa-download"></i> הורד תבנית CSV
+                  </button>
+                </div>
+                
+                <!-- Divider -->
+                <div style="height: 1px; background-color: var(--border-color); margin: 30px 0;"></div>
+                
+                <h3 class="admin-card-title" style="margin-bottom: 12px; color: #991b1b;"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>איפוס שנת לימודים (אזור מסוכן)</h3>
+                
+                <!-- Reset Danger Zone -->
+                <div class="danger-zone">
+                  <div class="danger-zone-info">
+                    <span class="danger-zone-title">אתחול מוחלט של מערכת הלוחות</span>
+                    <span class="danger-zone-desc">מחיקת כל אירועי המערכת ואיפוס לוח שנה. פעולה זו אינה ניתנת לביטול!</span>
+                  </div>
+                  <button id="admin-reset-db-btn" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i>
+                    אתחל שנה
+                  </button>
+                </div>
+              </section>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ====================================================
+       3. MODAL POPUPS AND OVERLAYS
+       ==================================================== -->
+
+  <!-- Modal A: Event Add/Edit Form -->
+  <dialog id="event-modal" class="modal-overlay">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h3 id="event-modal-title" class="modal-title">הוספת אירוע</h3>
+        <button id="modal-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <form id="event-form">
+        <div class="modal-body">
+          <input type="hidden" id="event-id-input">
+          
+          <!-- Event Title -->
+          <div class="form-group">
+            <label for="event-title" class="form-label">שם האירוע: <span style="color:var(--danger-color)">*</span></label>
+            <input type="text" id="event-title" class="form-control" placeholder="לדוגמה: יום הורים, מועד א' תנ\"ך" required>
+          </div>
+          
+          <!-- Dates -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label for="event-start-date" class="form-label">תאריך התחלה: <span style="color:var(--danger-color)">*</span></label>
+              <input type="date" id="event-start-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="event-end-date" class="form-label">תאריך סיום: <span style="color:var(--danger-color)">*</span></label>
+              <input type="date" id="event-end-date" class="form-control" required>
+            </div>
+          </div>
+          
+          <!-- Event Type -->
+          <div class="form-group">
+            <label for="event-type" class="form-label">סוג האירוע: <span style="color:var(--danger-color)">*</span></label>
+            <select id="event-type" class="form-select" style="width: 100%;" required>
+              <option value="" disabled selected>בחר סוג אירוע...</option>
+              <option value="צוותי">צוותי</option>
+              <option value="מנהלתי">מנהלתי</option>
+              <option value="חברתי">חברתי</option>
+              <option value="פדגוגי">פדגוגי</option>
+              <option value="טיול">טיול</option>
+              <option value="אחר">אחר</option>
+            </select>
+          </div>
+          
+          <!-- Target Grades (Hidden by default, shown for 'חברתי' or 'טיול') -->
+          <div id="event-grades-container" class="form-group hidden">
+            <label class="form-label">שכבות יעד: <span style="color:var(--danger-color)">*</span></label>
+            <div class="grades-checkbox-grid">
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ד">
+                <span>ד'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ה">
+                <span>ה'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ו">
+                <span>ו'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ז">
+                <span>ז'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ח">
+                <span>ח'</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Event Description -->
+          <div class="form-group">
+            <label for="event-description" class="form-label">תיאור ופרטים נוספים (אופציונלי):</label>
+            <textarea id="event-description" class="form-control" rows="3" placeholder="הסבר, הערות, ציוד נדרש או פרטים נוספים..."></textarea>
+          </div>
+        </div>
+        
+        <footer class="modal-footer">
+          <button type="button" id="event-cancel-btn" class="btn btn-secondary">ביטול</button>
+          <button type="submit" id="event-submit-btn" class="btn btn-primary">שמור אירוע</button>
+        </footer>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Modal B: Event Details Pop-up -->
+  <dialog id="event-details-modal" class="modal-overlay">
+    <div class="modal-content">
+      <header class="modal-header" style="background-color: var(--primary-light);">
+        <h3 class="modal-title" style="color: var(--primary-color);">פרטי האירוע</h3>
+        <button id="details-modal-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <div class="modal-body">
+        <div id="event-details-content">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      
+      <footer class="modal-footer" style="justify-content: space-between;">
+        <div id="details-actions-container" style="display: flex; gap: 8px;">
+          <!-- Edit / Delete buttons rendered dynamically based on user authorization -->
+        </div>
+        <button type="button" onclick="document.getElementById('event-details-modal').classList.remove('active')" class="btn btn-secondary">סגור</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Modal C: Secure PIN Verification Modal for Reset -->
+  <dialog id="pin-overlay" class="modal-overlay">
+    <div class="modal-content" style="width: 400px;">
+      <header class="modal-header" style="background-color: var(--danger-light); border-bottom-color: rgba(239, 68, 68, 0.15);">
+        <h3 class="modal-title" style="color: #991b1b;"><i class="fas fa-lock" style="margin-left: 8px;"></i>אימות מנהל מערכת</h3>
+        <button id="pin-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <form id="pin-form">
+        <div class="modal-body pin-input-container">
+          <p style="font-size: 0.95rem; text-align: center; line-height: 1.5; color: var(--text-secondary);">
+            פעולה זו תמחק את כל הנתונים בלוחות בית הספר לקראת שנת הלימודים הבאה.
+            אנא הקלד את קוד ה-PIN האבטחתי של מנהל המערכת לאישור:
+          </p>
+          
+          <input type="password" id="admin-pin-input" class="pin-input-box" maxlength="4" placeholder="••••" required autofocus autocomplete="off">
+          
+          <div class="pin-warning">
+            <i class="fas fa-exclamation-triangle" style="margin-left: 4px;"></i>
+            פעולה זו אינה ניתנת לביטול!
+          </div>
+        </div>
+        
+        <footer class="modal-footer" style="background-color: #fafafa;">
+          <button type="button" id="pin-cancel" class="btn btn-secondary">ביטול</button>
+          <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i>בצע מחיקה</button>
+        </footer>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Mobile Floating Action Button (FAB) -->
+  <button id="mobile-add-event-fab" class="mobile-fab" style="display: none;">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- ====================================================
+       INLINE COMBINED JAVASCRIPT LOGIC
+       ==================================================== -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMkvGm1zzd0-PfuPRTfcQmV-Obj0-tInc",
+      authDomain: "school-calendar-gantt.firebaseapp.com",
+      projectId: "school-calendar-gantt",
+      storageBucket: "school-calendar-gantt.firebasestorage.app",
+      messagingSenderId: "1010871244552",
+      appId: "1:1010871244552:web:6ea059155e1eb142d0febd"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    // ----------------------------------------------------
+    // 1. DATABASE SYSTEM
+    // ----------------------------------------------------
+    const DB_KEYS = {
+      USERS: 'school_users',
+      CALENDAR_BASE: 'school_calendar_base',
+      EVENTS: 'school_events'
+    };
+
+    const DEFAULT_USERS = [
+      { email: 'admin@school.org', isAuthorized: true, role: 'Admin' },
+      { email: 'teacher@school.org', isAuthorized: true, role: 'Teacher' },
+      { email: 'guest@school.org', isAuthorized: false, role: 'Teacher' }
+    ];
+
+    const DEFAULT_CALENDAR_BASE = [
+      { date: '2026-09-01', hebrewDate: "י\"ט באלול תשפ\"ו", status: 'Regular', description: 'פתיחת שנת הלימודים תשפ"ז' },
+      { date: '2026-09-11', hebrewDate: "כ\"ט באלול תשפ\"ו", status: 'Holiday', description: 'ערב ראש השנה' },
+      { date: '2026-09-12', hebrewDate: "א' בתשרי תשפ\"ז", status: 'Holiday', description: 'ראש השנה - יום א\'' },
+      { date: '2026-09-13', hebrewDate: "ב' בתשרי תשפ\"ז", status: 'Holiday', description: 'ראש השנה - יום ב\'' },
+      { date: '2026-09-20', hebrewDate: "ט' בתשרי תשפ\"ז", status: 'Holiday', description: 'ערב יום כיפור' },
+      { date: '2026-09-21', hebrewDate: "י' בתשרי תשפ\"ז", status: 'Holiday', description: 'יום כיפור' },
+      { date: '2026-09-25', hebrewDate: "י\"ד בתשרי תשפ\"ז", status: 'Holiday', description: 'ערב סוכות' },
+      { date: '2026-09-26', hebrewDate: "ט\"ו בתשרי תשפ\"ז", status: 'Holiday', description: 'חג סוכות' },
+      { date: '2026-09-27', hebrewDate: "ט\"ז בתשרי תשפ\"ז", status: 'Holiday', description: 'סוכות - חול המועד' },
+      { date: '2026-09-28', hebrewDate: "י\"ז בתשרי תשפ\"ז", status: 'Holiday', description: 'סוכות - חול המועד' },
+      { date: '2026-09-29', hebrewDate: "י\"ח בתשרי תשפ\"ז", status: 'Holiday', description: 'סוכות - חול המועד' },
+      { date: '2026-09-30', hebrewDate: "י\"ט בתשרי תשפ\"ז", status: 'Holiday', description: 'סוכות - חול המועד' },
+      { date: '2026-10-01', hebrewDate: "כ' בתשרי תשפ\"ז", status: 'Holiday', description: 'סוכות - חול המועד' },
+      { date: '2026-10-02', hebrewDate: "כ\"א בתשרי תשפ\"ז", status: 'Holiday', description: 'הושענא רבה' },
+      { date: '2026-10-03', hebrewDate: "כ\"ב בתשרי תשפ\"ז", status: 'Holiday', description: 'שמיני עצרת / שמחת תורה' },
+      { date: '2026-10-23', hebrewDate: "י\"ב בחשוון תשפ\"ז", status: 'Special Day', description: 'יום הזיכרון ליצחק רבין' },
+      { date: '2026-12-05', hebrewDate: "כ\"ה בכסלו תשפ\"ז", status: 'Special Day', description: 'חנוכה - נר ראשון' },
+      { date: '2026-12-06', hebrewDate: "כ\"ו בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
+      { date: '2026-12-07', hebrewDate: "כ\"ז בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
+      { date: '2026-12-08', hebrewDate: "כ\"ח בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
+      { date: '2026-12-09', hebrewDate: "כ\"ט בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
+      { date: '2026-12-10', hebrewDate: "א' בטבת תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
+      { date: '2026-12-11', hebrewDate: "ב' בטבת תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
+      { date: '2026-12-12', hebrewDate: "ג' בטבת תשפ\"ז", status: 'Special Day', description: 'חנוכה - נר שמיני' },
+      { date: '2027-01-19', hebrewDate: "י' בטבת תשפ\"ז", status: 'Special Day', description: 'צום עשרה בטבת' },
+      { date: '2027-02-22', hebrewDate: "ט\"ו בשבט תשפ\"ז", status: 'Special Day', description: 'ט"ו בשבט' },
+      { date: '2027-03-22', hebrewDate: "י\"ג באדר ב' תשפ\"ז", status: 'Special Day', description: 'תענית אסתר' },
+      { date: '2027-03-23', hebrewDate: "י\"ד באדר ב' תשפ\"ז", status: 'Holiday', description: 'פורים' },
+      { date: '2027-03-24', hebrewDate: "ט\"ו באדר ב' תשפ\"ז", status: 'Holiday', description: 'שושן פורים' },
+      { date: '2027-04-14', hebrewDate: "ז' בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-15', hebrewDate: "ח' בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-16', hebrewDate: "ט' בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-17', hebrewDate: "י' בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-18', hebrewDate: "י\"א בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-19', hebrewDate: "י\"ב בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-20', hebrewDate: "י\"ג בניסן תשפ\"ז", status: 'Holiday', description: 'חופשת פסח' },
+      { date: '2027-04-21', hebrewDate: "י\"ד בניסן תשפ\"ז", status: 'Holiday', description: 'ערב פסח' },
+      { date: '2027-04-22', hebrewDate: "ט\"ו בניסן תשפ\"ז", status: 'Holiday', description: 'פסח - חג ראשון' },
+      { date: '2027-04-23', hebrewDate: "ט\"ז בניסן תשפ\"ז", status: 'Holiday', description: 'פסח - חול המועד' },
+      { date: '2027-04-24', hebrewDate: "י\"ז בניסן תשפ\"ז", status: 'Holiday', description: 'פסח - חול המועד' },
+      { date: '2027-04-25', hebrewDate: "י\"ח בניסן תשפ\"ז", status: 'Holiday', description: 'פסח - חול המועד' },
+      { date: '2027-04-26', hebrewDate: "י\"ט בניסן תשפ\"ז", status: 'Holiday', description: 'פסח - חול המועד' },
+      { date: '2027-04-27', hebrewDate: "כ' בניסן תשפ\"ז", status: 'Holiday', description: 'שביעי של פסח' },
+      { date: '2027-04-28', hebrewDate: "כ\"א בניסן תשפ\"ז", status: 'Holiday', description: 'אסרו חג פסח' },
+      { date: '2027-05-04', hebrewDate: "כ\"ז בניסן תשפ\"ז", status: 'Special Day', description: 'יום הזיכרון לשואה ולגבורה' },
+      { date: '2027-05-11', hebrewDate: "ד' באייר תשפ\"ז", status: 'Special Day', description: 'יום הזיכרון לחללי מערכות ישראל' },
+      { date: '2027-05-12', hebrewDate: "ה' באייר תשפ\"ז", status: 'Holiday', description: 'יום העצמאות' },
+      { date: '2027-05-25', hebrewDate: "י\"ח באייר תשפ\"ז", status: 'Special Day', description: 'ל"ג בעומר' },
+      { date: '2027-06-03', hebrewDate: "כ\"ז באייר תשפ\"ז", status: 'Special Day', description: 'יום ירושלים' },
+      { date: '2027-06-10', hebrewDate: "ה' בסיוון תשפ\"ז", status: 'Holiday', description: 'ערב שבועות' },
+      { date: '2027-06-11', hebrewDate: "ו' בסיוון תשפ\"ז", status: 'Holiday', description: 'חג השבועות' },
+      { date: '2027-06-30', hebrewDate: "כ\"ה בסיוון תשפ\"ז", status: 'Regular', description: 'סיום שנת הלימודים תשפ"ז' }
+    ];
+
+    const DEFAULT_EVENTS = [
+      {
+        id: 'evt-1',
+        title: 'הערכות צוות מורים לפתיחת שנה',
+        startDate: '2026-09-01',
+        endDate: '2026-09-03',
+        eventType: 'צוותי',
+        targetGrades: [],
+        createdBy: 'admin@school.org',
+        description: 'סמינר היערכות פדגוגית ומנהלתית לכלל סגל ההוראה בבית הספר.'
+      },
+      {
+        id: 'evt-2',
+        title: 'חלוקת ספרי לימוד והסדרי כניסה',
+        startDate: '2026-09-06',
+        endDate: '2026-09-07',
+        eventType: 'מנהלתי',
+        targetGrades: [],
+        createdBy: 'admin@school.org',
+        description: 'קבלת ספרים מרוכזת במזכירות בית הספר.'
+      },
+      {
+        id: 'evt-3',
+        title: 'מבחן אבחון שכבתי במתמטיקה',
+        startDate: '2026-09-17',
+        endDate: '2026-09-17',
+        eventType: 'פדגוגי',
+        targetGrades: ['ד', 'ה', 'ו'],
+        createdBy: 'teacher@school.org',
+        description: 'מבחן כניסה לצורך מיפוי רמת התלמידים.'
+      },
+      {
+        id: 'evt-4',
+        title: 'טיול גיבוש שנתי לגליל התחתון',
+        startDate: '2026-10-27',
+        endDate: '2026-10-29',
+        eventType: 'טיול',
+        targetGrades: ['ז', 'ח'],
+        createdBy: 'teacher@school.org',
+        description: 'יומיים של טיול ולינת שטח. ציוד נדרש: כובע, 3 ליטר מים ונעלי הליכה נוחות.'
+      },
+      {
+        id: 'evt-5',
+        title: 'אירוע הדלקת נרות חנוכה שכבתי',
+        startDate: '2026-12-08',
+        endDate: '2026-12-08',
+        eventType: 'חברתי',
+        targetGrades: ['ד', 'ה'],
+        createdBy: 'teacher@school.org',
+        description: 'טקס הדלקת נרות בשיתוף ועד ההורים.'
+      },
+      {
+        id: 'evt-6',
+        title: 'ישיבת פדגוגית - ציוני אמצע שנה',
+        startDate: '2027-01-14',
+        endDate: '2027-01-14',
+        eventType: 'צוותי',
+        targetGrades: [],
+        createdBy: 'admin@school.org',
+        description: 'ישיבת ציונים ומיפויים מרוכזת לכל המחנכים.'
+      },
+      {
+        id: 'evt-7',
+        title: 'יום שדה שכבתי - חקר טבע עירוני',
+        startDate: '2027-02-15',
+        endDate: '2027-02-15',
+        eventType: 'טיול',
+        targetGrades: ['ו'],
+        createdBy: 'teacher@school.org',
+        description: 'פעילות חקר בבוסתן העירוני הסמוך לבית הספר.'
+      }
+    ];
+
+    // Gematria converter helpers
+    function convertNumToGematriaDay(num) {
+      const gematriaLetters = {
+        1: 'א', 2: 'ב', 3: 'ג', 4: 'ד', 5: 'ה', 6: 'ו', 7: 'ז', 8: 'ח', 9: 'ט',
+        10: 'י', 20: 'כ', 30: 'ל'
+      };
+      if (num <= 10) return gematriaLetters[num] + "'";
+      if (num === 15) return 'ט"ו';
+      if (num === 16) return 'ט"ז';
+      const tens = Math.floor(num / 10) * 10;
+      const ones = num % 10;
+      if (ones === 0) return gematriaLetters[tens] + "'";
+      return gematriaLetters[tens] + '"' + gematriaLetters[ones];
+    }
+
+    function convertYearToGematria(year) {
+      let num = year > 5000 ? year - 5000 : year;
+      const hundredsLetters = { 100: 'ק', 200: 'ר', 300: 'ש', 400: 'ת' };
+      const tensLetters = { 10: 'י', 20: 'כ', 30: 'ל', 40: 'מ', 50: 'נ', 60: 'ס', 70: 'ע', 80: 'פ', 90: 'צ' };
+      const onesLetters = { 1: 'א', 2: 'ב', 3: 'ג', 4: 'ד', 5: 'ה', 6: 'ו', 7: 'ז', 8: 'ח', 9: 'ט' };
+      let result = '';
+      while (num >= 400) {
+        result += 'ת';
+        num -= 400;
+      }
+      if (num >= 100) {
+        const hundreds = Math.floor(num / 100) * 100;
+        result += hundredsLetters[hundreds];
+        num %= 100;
+      }
+      if (num === 15) return result + 'ט"ו';
+      if (num === 16) return result + 'ט"ז';
+      if (num >= 10) {
+        const tens = Math.floor(num / 10) * 10;
+        result += tensLetters[tens];
+        num %= 10;
+      }
+      if (num >= 1) {
+        result += onesLetters[num];
+      }
+      if (result.length === 1) return result + "'";
+      return result.slice(0, -1) + '"' + result.slice(-1);
+    }
+
+    function convertHebrewDateStringToLetters(hebDateStr) {
+      let cleanStr = hebDateStr.trim();
+      const dayMatch = cleanStr.match(/^(\d+)\s+(.+)$/);
+      if (dayMatch) {
+        const dayNum = parseInt(dayMatch[1], 10);
+        const gematriaDay = convertNumToGematriaDay(dayNum);
+        cleanStr = `${gematriaDay} ${dayMatch[2]}`;
+      }
+      const yearMatch = cleanStr.match(/\b(5\d{3})\b/);
+      if (yearMatch) {
+        const yearNum = parseInt(yearMatch[1], 10);
+        const gematriaYear = convertYearToGematria(yearNum);
+        cleanStr = cleanStr.replace(yearMatch[1], gematriaYear);
+      }
+      return cleanStr;
+    }
+
+    function standardizeDate(dateStr) {
+      if (!dateStr) return null;
+      const clean = dateStr.trim();
+      
+      let match = clean.match(/^(\d{4})[-/.](0?[1-9]|1[0-2])[-/.](0?[1-9]|[12]\d|3[01])$/);
+      if (match) {
+        const y = match[1];
+        const m = match[2].padStart(2, '0');
+        const d = match[3].padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      
+      match = clean.match(/^(0?[1-9]|[12]\d|3[01])[-/.](0?[1-9]|1[0-2])[-/.](\d{4})$/);
+      if (match) {
+        const d = match[1].padStart(2, '0');
+        const m = match[2].padStart(2, '0');
+        const y = match[3];
+        return `${y}-${m}-${d}`;
+      }
+      
+      return null;
+    }
+
+    function parseStatus(statusVal, description = '') {
+      if (!statusVal) {
+        const desc = (description || '').toLowerCase();
+        if (!desc) return 'Regular';
+        
+        const holidayKeywords = ['חופש', 'חג', 'ערב', 'סוכות', 'פסח', 'פורים', 'ראש השנה', 'כיפור', 'חנוכה', 'שבועות', 'עצמאות'];
+        if (holidayKeywords.some(keyword => desc.includes(keyword))) {
+          return 'Holiday';
+        }
+        return 'Special Day';
+      }
+      
+      const clean = statusVal.trim().toLowerCase();
+      if (clean === 'regular' || clean === 'רגיל') return 'Regular';
+      if (clean === 'holiday' || clean === 'חופש' || clean === 'חופשה' || clean === 'חג' || clean === 'ח') return 'Holiday';
+      if (clean === 'special day' || clean === 'special' || clean === 'יום מיוחד' || clean === 'מיוחד' || clean === 'מ') return 'Special Day';
+      
+      return 'Regular';
+    }
+
+    let cachedEvents = [];
+    let cachedUsers = [];
+    let cachedCalendarBase = [];
+
+    const DB = {
+      init(onUpdate) {
+        db.collection('events').onSnapshot((snapshot) => {
+          cachedEvents = snapshot.docs.map(doc => doc.data());
+          if (cachedEvents.length === 0 && !localStorage.getItem('school_events_seeded')) {
+            localStorage.setItem('school_events_seeded', 'true');
+            this.seedEvents();
+          }
+          if (onUpdate) onUpdate();
+        }, (error) => {
+          console.warn("Firestore events listener warning (expected on file:// when not logged in):", error);
+        });
+
+        db.collection('users').onSnapshot((snapshot) => {
+          cachedUsers = snapshot.docs.map(doc => doc.data());
+          if (cachedUsers.length === 0) {
+            this.addUser('nros1978@gmail.com', true, 'Admin');
+          }
+          if (onUpdate) onUpdate();
+        }, (error) => {
+          console.warn("Firestore users listener warning (expected on file:// when not logged in):", error);
+        });
+
+        db.collection('calendar_base').onSnapshot((snapshot) => {
+          cachedCalendarBase = snapshot.docs.map(doc => doc.data());
+          if (cachedCalendarBase.length === 0) {
+            this.seedCalendarBase();
+          }
+          if (onUpdate) onUpdate();
+        }, (error) => {
+          console.warn("Firestore calendar_base listener warning (expected on file:// when not logged in):", error);
+        });
+      },
+
+      getUsers() {
+        return cachedUsers;
+      },
+
+      async getUser(email) {
+        const cleanEmail = email.trim().toLowerCase();
+        const docSnap = await db.collection('users').doc(cleanEmail).get();
+        if (docSnap.exists) {
+          return docSnap.data();
+        }
+        return null;
+      },
+
+      async addUser(email, isAuthorized = false, role = 'Teacher') {
+        const cleanEmail = email.trim().toLowerCase();
+        await db.collection('users').doc(cleanEmail).set({
+          email: cleanEmail,
+          isAuthorized,
+          role
+        });
+      },
+
+      async updateUser(email, updates) {
+        const cleanEmail = email.trim().toLowerCase();
+        await db.collection('users').doc(cleanEmail).set(updates, { merge: true });
+      },
+
+      async removeUser(email) {
+        const cleanEmail = email.trim().toLowerCase();
+        await db.collection('users').doc(cleanEmail).delete();
+      },
+
+      getCalendarBase() {
+        return cachedCalendarBase;
+      },
+
+      async saveCalendarBase(data) {
+        for (const entry of data) {
+          await db.collection('calendar_base').doc(entry.date).set(entry);
+        }
+      },
+
+      async clearCalendarBase() {
+        for (const entry of cachedCalendarBase) {
+          await db.collection('calendar_base').doc(entry.date).delete();
+        }
+      },
+
+      getEvents() {
+        return cachedEvents;
+      },
+
+      async addEvent(eventData) {
+        const id = 'evt-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        await db.collection('events').doc(id).set({
+          id,
+          ...eventData
+        });
+      },
+
+      async updateEvent(id, updatedData) {
+        await db.collection('events').doc(id).set(updatedData, { merge: true });
+      },
+
+      async deleteEvent(id) {
+        await db.collection('events').doc(id).delete();
+      },
+
+      async clearEvents() {
+        for (const event of cachedEvents) {
+          await db.collection('events').doc(event.id).delete();
+        }
+      },
+
+      async seedCalendarBase() {
+        await this.saveCalendarBase(DEFAULT_CALENDAR_BASE);
+      },
+
+      async seedEvents() {
+        for (const event of DEFAULT_EVENTS) {
+          await db.collection('events').doc(event.id).set(event);
+        }
+      },
+
+      getHebrewDateInfo(dateStr) {
+        const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr);
+        if (baseEntry) {
+          return {
+            hebrewDate: convertHebrewDateStringToLetters(baseEntry.hebrewDate),
+            status: baseEntry.status,
+            description: baseEntry.description
+          };
+        }
+        try {
+          const dateParts = dateStr.split('-');
+          const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+          const hebrewFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long' });
+          const hebrewYearFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { year: 'numeric' });
+          let formattedDate = hebrewFormatter.format(dateObj);
+          let formattedYear = hebrewYearFormatter.format(dateObj);
+          let cleanHebrewDate = `${formattedDate} ${formattedYear}`;
+          cleanHebrewDate = convertHebrewDateStringToLetters(cleanHebrewDate);
+          return {
+            hebrewDate: cleanHebrewDate,
+            status: 'Regular',
+            description: ''
+          };
+        } catch (e) {
+          return { hebrewDate: '', status: 'Regular', description: '' };
+        }
+      }
+    };
+
+    // ----------------------------------------------------
+    // 2. AUTHENTICATION SYSTEM
+    // ----------------------------------------------------
+    const SESSION_KEY = 'school_user_session';
+    let authChangeListener = null;
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    // Listen to Firebase Auth state changes
+    auth.onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        const email = firebaseUser.email;
+        const name = firebaseUser.displayName || '';
+        const picture = firebaseUser.photoURL || '';
+        
+        let dbUser = await DB.getUser(email);
+        
+        const SUPER_ADMINS = ['nros1978@gmail.com', 'admin@school.org'];
+        const isSuperAdmin = SUPER_ADMINS.map(e => e.toLowerCase()).includes(email.toLowerCase());
+        
+        try {
+          if (isSuperAdmin) {
+            if (!dbUser || !dbUser.isAuthorized || dbUser.role !== 'Admin') {
+              await DB.addUser(email, true, 'Admin');
+              dbUser = { email, isAuthorized: true, role: 'Admin' };
+            }
+          } else if (!dbUser) {
+            await DB.addUser(email, false, 'Teacher');
+            dbUser = { email, isAuthorized: false, role: 'Teacher' };
+          }
+        } catch (e) {
+          console.warn("Firestore sync failed, falling back to local memory:", e);
+          if (isSuperAdmin) {
+            dbUser = { email, isAuthorized: true, role: 'Admin' };
+          } else {
+            dbUser = dbUser || { email, isAuthorized: false, role: 'Teacher' };
+          }
+        }
+        
+        const sessionData = {
+          email: dbUser.email,
+          isAuthorized: dbUser.isAuthorized,
+          role: dbUser.role,
+          name: name || email.split('@')[0],
+          picture: picture || ''
+        };
+        
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+      } else {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+      
+      if (authChangeListener) {
+        authChangeListener(Auth.getCurrentUser());
+      }
+    });
+
+    const Auth = {
+      getCurrentUser() {
+        const session = sessionStorage.getItem(SESSION_KEY);
+        if (!session) return null;
+        try {
+          const parsedSession = JSON.parse(session);
+          const users = DB.getUsers();
+          const dbUser = users.find(u => u.email.toLowerCase() === parsedSession.email.toLowerCase());
+          if (dbUser) {
+            return {
+              ...parsedSession,
+              isAuthorized: dbUser.isAuthorized,
+              role: dbUser.role
+            };
+          }
+          return parsedSession;
+        } catch (e) {
+          return null;
+        }
+      },
+      onAuthChange(callback) {
+        authChangeListener = callback;
+        callback(this.getCurrentUser());
+      },
+      async login() {
+        if (window.location.protocol === 'file:') {
+          const email = prompt("התחברות מהירה (סביבת הדמיה מקומית):\n\nהזן כתובת אימייל לדוגמה:\n• nros1978@gmail.com (כניסה כאדמין-על)\n• teacher@school.org (כניסה כמורה מורשה)");
+          if (email) {
+            this.loginWithMock(email);
+          }
+          return;
+        }
+        try {
+          await auth.signInWithPopup(provider);
+        } catch (error) {
+          console.error('Firebase Google Sign-In error:', error);
+          alert('ההתחברות באמצעות גוגל נכשלה.\n\nקוד שגיאה: ' + error.code + '\nתיאור: ' + error.message);
+        }
+      },
+      loginWithMock(email) {
+        const cleanEmail = email.trim().toLowerCase();
+        const isSuperAdmin = cleanEmail === 'nros1978@gmail.com' || cleanEmail === 'admin@school.org';
+        
+        const users = DB.getUsers();
+        const dbUser = users.find(u => u.email.toLowerCase() === cleanEmail);
+        
+        const isAuthorized = dbUser ? dbUser.isAuthorized : (isSuperAdmin || cleanEmail.includes('teacher'));
+        const role = dbUser ? dbUser.role : (isSuperAdmin ? 'Admin' : 'Teacher');
+
+        const sessionData = {
+          email: cleanEmail,
+          isAuthorized,
+          role,
+          name: cleanEmail.split('@')[0],
+          picture: ''
+        };
+        
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+        if (authChangeListener) {
+          authChangeListener(this.getCurrentUser());
+        }
+      },
+      async logout() {
+        sessionStorage.removeItem(SESSION_KEY);
+        if (window.location.protocol === 'file:') {
+          if (authChangeListener) {
+            authChangeListener(null);
+          }
+          return;
+        }
+        try {
+          await auth.signOut();
+        } catch (error) {
+          console.error('Firebase Sign-Out error:', error);
+        }
+      }
+    };
+
+    // ----------------------------------------------------
+    // 3. CALENDAR RENDERER
+    // ----------------------------------------------------
+    const Calendar = {
+      HEBREW_GREGORIAN_MONTHS: [
+        'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+        'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+      ],
+      render({
+        year,
+        month,
+        containerId,
+        events,
+        filterType,
+        filterGrade,
+        onDayClick,
+        onEventClick,
+        selectedDate = '',
+        onDaySelect = null
+      }) {
+        const gridContainer = document.getElementById(containerId);
+        if (!gridContainer) return;
+        gridContainer.innerHTML = '';
+
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        const precedingPaddingDays = firstDayOfMonth.getDay();
+        const totalCellsNeeded = precedingPaddingDays + daysInMonth > 35 ? 42 : 35;
+
+        const formatDateKey = (y, m, d) => {
+          const mm = String(m + 1).padStart(2, '0');
+          const dd = String(d).padStart(2, '0');
+          return `${y}-${mm}-${dd}`;
+        };
+
+        const daysList = [];
+
+        // Prev padding
+        const prevMonthDate = new Date(year, month, 0);
+        const prevMonthDaysCount = prevMonthDate.getDate();
+        const prevMonthYear = prevMonthDate.getFullYear();
+        const prevMonthVal = prevMonthDate.getMonth();
+        for (let i = precedingPaddingDays - 1; i >= 0; i--) {
+          const d = prevMonthDaysCount - i;
+          daysList.push({ dayNumber: d, dateKey: formatDateKey(prevMonthYear, prevMonthVal, d), isCurrentMonth: false });
+        }
+
+        // Current Month
+        for (let d = 1; d <= daysInMonth; d++) {
+          daysList.push({ dayNumber: d, dateKey: formatDateKey(year, month, d), isCurrentMonth: true });
+        }
+
+        // Next padding
+        const nextMonthDate = new Date(year, month + 1, 1);
+        const nextMonthYear = nextMonthDate.getFullYear();
+        const nextMonthVal = nextMonthDate.getMonth();
+        const remainingCells = totalCellsNeeded - daysList.length;
+        for (let d = 1; d <= remainingCells; d++) {
+          daysList.push({ dayNumber: d, dateKey: formatDateKey(nextMonthYear, nextMonthVal, d), isCurrentMonth: false });
+        }
+
+        const today = new Date();
+        const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+        const filteredEvents = this.filterEvents(events, filterType, filterGrade);
+        const isMobile = window.innerWidth <= 768;
+
+        daysList.forEach((day, index) => {
+          const cell = document.createElement('div');
+          cell.className = 'calendar-day-cell';
+          if (!day.isCurrentMonth) cell.classList.add('other-month');
+          if (day.dateKey === todayKey) cell.classList.add('today');
+
+          if (isMobile && day.dateKey === selectedDate) {
+            cell.classList.add('active-day');
+          }
+
+          const dateInfo = DB.getHebrewDateInfo(day.dateKey);
+          if (dateInfo.status === 'Holiday') cell.classList.add('holiday');
+          else if (dateInfo.status === 'Special Day') cell.classList.add('special-day');
+
+          const dayHeader = document.createElement('div');
+          dayHeader.className = 'day-number-wrapper';
+
+          // Gematria Day (Top Right, Small)
+          const hebrewLabel = document.createElement('span');
+          hebrewLabel.className = 'hebrew-day-label-small';
+          const hebrewDayGematria = dateInfo.hebrewDate.split(' ')[0] || '';
+          hebrewLabel.textContent = hebrewDayGematria;
+
+          // Gregorian Day (Top Left, Small)
+          const gregNum = document.createElement('span');
+          gregNum.className = 'gregorian-number-small';
+          gregNum.textContent = day.dayNumber;
+
+          dayHeader.appendChild(hebrewLabel);
+          dayHeader.appendChild(gregNum);
+          cell.appendChild(dayHeader);
+
+          if (!isMobile) {
+            if (dateInfo.status === 'Holiday' && dateInfo.description) {
+              const holidayLabel = document.createElement('div');
+              holidayLabel.className = 'holiday-cell-label';
+              holidayLabel.textContent = dateInfo.description;
+              cell.appendChild(holidayLabel);
+            } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
+              const specialLabel = document.createElement('div');
+              specialLabel.className = 'special-cell-label';
+              specialLabel.textContent = dateInfo.description;
+              cell.appendChild(specialLabel);
+            }
+          }
+
+          const eventsContainer = document.createElement('div');
+          eventsContainer.className = 'cell-events-container';
+          cell.appendChild(eventsContainer);
+
+          const dayOfWeek = index % 7;
+          this.renderEventsInCell(day.dateKey, dayOfWeek, filteredEvents, eventsContainer, onEventClick);
+
+          cell.addEventListener('click', (e) => {
+            if (isMobile) {
+              if (onDaySelect) onDaySelect(day.dateKey);
+            } else {
+              if (e.target.closest('.event-bar')) return;
+              onDayClick(day.dateKey);
+            }
+          });
+
+          gridContainer.appendChild(cell);
+        });
+      },
+      filterEvents(events, filterType, filterGrade) {
+        return events.filter(event => {
+          if (filterType !== 'all' && event.eventType !== filterType) return false;
+          if (filterGrade !== 'all') {
+            if (event.targetGrades && event.targetGrades.length > 0) {
+              return event.targetGrades.includes(filterGrade);
+            }
+          }
+          return true;
+        });
+      },
+      renderEventsInCell(dateKey, dayOfWeek, events, container, onEventClick) {
+        const activeEvents = events.filter(event => {
+          return dateKey >= event.startDate && dateKey <= event.endDate;
+        });
+        activeEvents.sort((a, b) => {
+          if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
+          const aDur = new Date(a.endDate) - new Date(a.startDate);
+          const bDur = new Date(b.endDate) - new Date(b.startDate);
+          if (aDur !== bDur) return bDur - aDur;
+          return a.id.localeCompare(b.id);
+        });
+
+        activeEvents.forEach(event => {
+          const eventBar = document.createElement('div');
+          let segmentClass = 'single-day';
+          if (event.startDate === event.endDate) segmentClass = 'single-day';
+          else if (event.startDate === dateKey) segmentClass = 'start-day';
+          else if (event.endDate === dateKey) segmentClass = 'end-day';
+          else segmentClass = 'middle-day';
+
+          let typeClass = 'evt-staff';
+          switch (event.eventType) {
+            case 'צוותי': typeClass = 'evt-staff'; break;
+            case 'מנהלתי': typeClass = 'evt-admin'; break;
+            case 'חברתי': typeClass = 'evt-social'; break;
+            case 'פדגוגי': typeClass = 'evt-academic'; break;
+            case 'טיול': typeClass = 'evt-trip'; break;
+            case 'אחר': typeClass = 'evt-other'; break;
+          }
+
+          eventBar.className = `event-bar ${segmentClass} ${typeClass}`;
+          if (segmentClass === 'single-day' || segmentClass === 'start-day' || dayOfWeek === 0) {
+            eventBar.textContent = event.title;
+          }
+          eventBar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onEventClick(event);
+          });
+          container.appendChild(eventBar);
+        });
+      }
+    };
+
+    // ----------------------------------------------------
+    // 4. GANTT RENDERER
+    // ----------------------------------------------------
+    const Gantt = {
+      render({ year, month, containerId, events, filterType, filterGrade, onEventClick }) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = '';
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startDateStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        const endDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+
+        const filteredEvents = Calendar.filterEvents(events, filterType, filterGrade);
+        const activeEvents = filteredEvents.filter(event => {
+          return event.startDate <= endDateStr && event.endDate >= startDateStr;
+        });
+
+        activeEvents.sort((a, b) => {
+          if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
+          return (new Date(b.endDate) - new Date(b.startDate)) - (new Date(a.endDate) - new Date(a.startDate));
+        });
+
+        if (activeEvents.length === 0) {
+          container.innerHTML = `
+            <div class="gantt-container">
+              <div class="gantt-no-data">
+                <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 12px; display: block; color: var(--text-muted);"></i>
+                אין אירועים רלוונטיים להצגה במערכת הגאנט לחודש זה.
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const ganttContainer = document.createElement('div');
+        ganttContainer.className = 'gantt-container';
+
+        // Header Row
+        const headerRow = document.createElement('div');
+        headerRow.className = 'gantt-header-row';
+        const titleColHeader = document.createElement('div');
+        titleColHeader.className = 'gantt-title-col';
+        titleColHeader.textContent = 'שם האירוע';
+        headerRow.appendChild(titleColHeader);
+
+        const timelineWrapper = document.createElement('div');
+        timelineWrapper.className = 'gantt-timeline-wrapper';
+        const timelineDays = document.createElement('div');
+        timelineDays.className = 'gantt-timeline-days';
+        timelineDays.style.minWidth = `${daysInMonth * 36}px`;
+
+        const WEEKDAYS_HEBREW = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dayHeader = document.createElement('div');
+          dayHeader.className = 'gantt-timeline-day-header';
+          const dateObj = new Date(year, month, day);
+          const dayOfWeek = dateObj.getDay();
+          if (dayOfWeek === 5 || dayOfWeek === 6) dayHeader.classList.add('weekend');
+          dayHeader.innerHTML = `
+            <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">${WEEKDAYS_HEBREW[dayOfWeek]}</span>
+            <span style="font-weight: 700; margin-top: 2px;">${day}</span>
+          `;
+          timelineDays.appendChild(dayHeader);
+        }
+        timelineWrapper.appendChild(timelineDays);
+        headerRow.appendChild(timelineWrapper);
+        ganttContainer.appendChild(headerRow);
+
+        // Event Rows
+        const rowsContainer = document.createElement('div');
+        rowsContainer.className = 'gantt-rows-container';
+
+        activeEvents.forEach(event => {
+          const row = document.createElement('div');
+          row.className = 'gantt-row';
+
+          const titleCell = document.createElement('div');
+          titleCell.className = 'gantt-event-title-cell';
+          titleCell.textContent = event.title;
+          row.appendChild(titleCell);
+
+          const timelineCellWrapper = document.createElement('div');
+          timelineCellWrapper.className = 'gantt-timeline-wrapper';
+          const gridCellContainer = document.createElement('div');
+          gridCellContainer.className = 'gantt-grid-cell-container';
+          gridCellContainer.style.minWidth = `${daysInMonth * 36}px`;
+
+          const gridLines = document.createElement('div');
+          gridLines.className = 'gantt-grid-lines';
+          for (let day = 1; day <= daysInMonth; day++) {
+            const line = document.createElement('div');
+            line.className = 'gantt-grid-line';
+            const dateObj = new Date(year, month, day);
+            if (dateObj.getDay() === 5 || dateObj.getDay() === 6) line.classList.add('weekend');
+            gridLines.appendChild(line);
+          }
+          gridCellContainer.appendChild(gridLines);
+
+          const startParts = event.startDate.split('-');
+          const endParts = event.endDate.split('-');
+          const eventStartObj = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+          const eventEndObj = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+          const monthStartObj = new Date(year, month, 1);
+          const monthEndObj = new Date(year, month, daysInMonth);
+
+          const visibleStart = new Date(Math.max(eventStartObj.getTime(), monthStartObj.getTime()));
+          const visibleEnd = new Date(Math.min(eventEndObj.getTime(), monthEndObj.getTime()));
+
+          const startDayNum = visibleStart.getDate();
+          const endDayNum = visibleEnd.getDate();
+          const spanDays = endDayNum - startDayNum + 1;
+
+          const dayWidthPercent = 100 / daysInMonth;
+          const widthPercent = spanDays * dayWidthPercent;
+          const rightOffsetPercent = (startDayNum - 1) * dayWidthPercent;
+
+          const bar = document.createElement('div');
+          let typeClass = 'evt-staff';
+          switch (event.eventType) {
+            case 'צוותי': typeClass = 'evt-staff'; break;
+            case 'מנהלתי': typeClass = 'evt-admin'; break;
+            case 'חברתי': typeClass = 'evt-social'; break;
+            case 'פדגוגי': typeClass = 'evt-academic'; break;
+            case 'טיול': typeClass = 'evt-trip'; break;
+            case 'אחר': typeClass = 'evt-other'; break;
+          }
+          bar.className = `gantt-bar ${typeClass}`;
+          bar.style.right = `${rightOffsetPercent}%`;
+          bar.style.width = `${widthPercent}%`;
+          bar.textContent = event.title;
+          bar.addEventListener('click', () => onEventClick(event));
+
+          gridCellContainer.appendChild(bar);
+          timelineCellWrapper.appendChild(gridCellContainer);
+          row.appendChild(timelineCellWrapper);
+          rowsContainer.appendChild(row);
+        });
+
+        ganttContainer.appendChild(rowsContainer);
+        container.appendChild(ganttContainer);
+      }
+    };
+
+    // ----------------------------------------------------
+    // 5. ADMIN CONSOLE CODE
+    // ----------------------------------------------------
+    const ADMIN_PIN = '1948';
+    
+    const Admin = {
+      init(onDatabaseResetCallback) {
+        this.onDatabaseReset = onDatabaseResetCallback;
+        this.setupUserForm();
+        this.setupCsvUpload();
+        this.setupResetAction();
+        this.setupTemplateDownload();
+      },
+      renderUserTable() {
+        const tableBody = document.getElementById('admin-users-table-body');
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+        const users = DB.getUsers();
+
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          const emailCell = document.createElement('td');
+          emailCell.textContent = user.email;
+          row.appendChild(emailCell);
+
+          const authCell = document.createElement('td');
+          const switchLabel = document.createElement('label');
+          switchLabel.className = 'switch-control';
+          const switchInput = document.createElement('input');
+          switchInput.type = 'checkbox';
+          switchInput.checked = user.isAuthorized;
+
+          const currentUser = JSON.parse(sessionStorage.getItem('school_user_session') || '{}');
+          const isSelf = currentUser.email && currentUser.email.toLowerCase() === user.email.toLowerCase();
+          if (isSelf) switchInput.disabled = true;
+
+          switchInput.addEventListener('change', (e) => {
+            DB.updateUser(user.email, { isAuthorized: e.target.checked });
+          });
+
+          const switchSlider = document.createElement('span');
+          switchSlider.className = 'switch-slider';
+          switchLabel.appendChild(switchInput);
+          switchLabel.appendChild(switchSlider);
+          authCell.appendChild(switchLabel);
+          row.appendChild(authCell);
+
+          const roleCell = document.createElement('td');
+          const roleSelect = document.createElement('select');
+          roleSelect.className = 'form-select';
+          roleSelect.style.padding = '4px 28px 4px 8px';
+          const teacherOpt = document.createElement('option');
+          teacherOpt.value = 'Teacher'; teacherOpt.textContent = 'מורה'; teacherOpt.selected = user.role === 'Teacher';
+          const adminOpt = document.createElement('option');
+          adminOpt.value = 'Admin'; adminOpt.textContent = 'מנהל'; adminOpt.selected = user.role === 'Admin';
+          roleSelect.appendChild(teacherOpt);
+          roleSelect.appendChild(adminOpt);
+          if (isSelf) roleSelect.disabled = true;
+
+          roleSelect.addEventListener('change', (e) => {
+            DB.updateUser(user.email, { role: e.target.value });
+          });
+          roleCell.appendChild(roleSelect);
+          row.appendChild(roleCell);
+
+          const actionsCell = document.createElement('td');
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'btn btn-danger';
+          deleteBtn.style.padding = '4px 8px';
+          deleteBtn.style.fontSize = '0.8rem';
+          deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          if (isSelf) {
+            deleteBtn.disabled = true;
+            deleteBtn.style.opacity = '0.5';
+          } else {
+            deleteBtn.addEventListener('click', () => {
+              if (confirm(`האם למחוק את המשתמש ${user.email}?`)) {
+                DB.removeUser(user.email);
+                this.renderUserTable();
+              }
+            });
+          }
+          actionsCell.appendChild(deleteBtn);
+          row.appendChild(actionsCell);
+          tableBody.appendChild(row);
+        });
+      },
+      setupUserForm() {
+        const form = document.getElementById('admin-add-user-form');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const emailInput = document.getElementById('admin-user-email');
+          const authInput = document.getElementById('admin-user-authorized');
+          const roleInput = document.getElementById('admin-user-role');
+          try {
+            await DB.addUser(emailInput.value.trim(), authInput.checked, roleInput.value);
+            emailInput.value = '';
+            authInput.checked = false;
+            roleInput.value = 'Teacher';
+            this.renderUserTable();
+          } catch (err) {
+            alert("שגיאה בהוספת המשתמש: " + err.message);
+          }
+        });
+      },
+      setupCsvUpload() {
+        const fileInput = document.getElementById('csv-file-input');
+        const uploadZone = document.getElementById('csv-upload-zone');
+        if (!fileInput || !uploadZone) return;
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          uploadZone.classList.remove('dragover');
+          if (e.dataTransfer.files.length) this.handleCsvFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files.length) this.handleCsvFile(fileInput.files[0]);
+        });
+      },
+      handleCsvFile(file) {
+        if (!file.name.endsWith('.csv')) {
+          alert('נא להעלות קובץ CSV בלבד.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          
+          // Auto-detect Hebrew Windows-1255 encoding if replacement characters are present
+          if (text.includes('\ufffd') || text.includes('')) {
+            const reReader = new FileReader();
+            reReader.onload = (e2) => {
+              this.processCsvText(e2.target.result);
+            };
+            reReader.readAsText(file, 'windows-1255');
+          } else {
+            this.processCsvText(text);
+          }
+        };
+        reader.readAsText(file, 'UTF-8');
+      },
+      processCsvText(text) {
+        const parsed = this.parseCSV(text);
+        if (parsed.success && parsed.data.length > 0) {
+          DB.saveCalendarBase(parsed.data);
+          alert(`הקובץ נטען בהצלחה! ${parsed.data.length} ימים עודכנו.`);
+          if (this.onDatabaseReset) this.onDatabaseReset();
+        } else {
+          alert('שגיאה בטעינת הקובץ: ' + parsed.error);
+        }
+      },
+      parseCSV(text) {
+        const lines = text.split(/\r?\n/);
+        if (lines.length < 2) return { success: false, error: 'קובץ ריק.' };
+        
+        let separator = ',';
+        if (lines[0].includes(';')) {
+          separator = ';';
+        }
+
+        const headers = lines[0].split(separator).map(h => h.trim().toLowerCase());
+        
+        const dateIdx = headers.indexOf('date');
+        const hebrewIdx = headers.indexOf('hebrewdate');
+        const statusIdx = headers.indexOf('status');
+        const deIdx = headers.indexOf('description');
+
+        if (dateIdx === -1 || hebrewIdx === -1) {
+          return { success: false, error: 'עמודות כותרת לא תקינות. הקובץ חייב להכיל לפחות: Date, HebrewDate' };
+        }
+
+        const result = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          const cols = this.csvLineSplit(line, separator);
+          if (cols.length < 2) continue;
+          
+          const standardizedDate = standardizeDate(cols[dateIdx]);
+          if (!standardizedDate) {
+            return { success: false, error: `שורה ${i+1}: תאריך לא תקין (${cols[dateIdx]}). יש להשתמש ב-DD/MM/YYYY או YYYY-MM-DD.` };
+          }
+          
+          const hebrewVal = cols[hebrewIdx] || '';
+          const statusVal = statusIdx !== -1 ? cols[statusIdx] : '';
+          const descVal = deIdx !== -1 ? cols[deIdx] : '';
+          
+          const parsedStatus = parseStatus(statusVal, descVal);
+          
+          result.push({
+            date: standardizedDate,
+            hebrewDate: hebrewVal,
+            status: parsedStatus,
+            description: descVal || ''
+          });
+        }
+        return { success: true, data: result };
+      },
+      csvLineSplit(line, separator = ',') {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === separator && !inQuotes) {
+            result.push(current);
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current);
+        return result.map(val => val.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+      },
+      setupResetAction() {
+        const resetBtn = document.getElementById('admin-reset-db-btn');
+        const pinOverlay = document.getElementById('pin-overlay');
+        const pinForm = document.getElementById('pin-form');
+        const pinInput = document.getElementById('admin-pin-input');
+        
+        if (!resetBtn || !pinOverlay || !pinForm || !pinInput) return;
+
+        resetBtn.addEventListener('click', () => {
+          pinInput.value = '';
+          pinOverlay.classList.add('active');
+          pinInput.focus();
+        });
+
+        document.getElementById('pin-close').addEventListener('click', () => pinOverlay.classList.remove('active'));
+        document.getElementById('pin-cancel').addEventListener('click', () => pinOverlay.classList.remove('active'));
+
+        pinForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (pinInput.value === ADMIN_PIN) {
+            DB.clearEvents();
+            DB.clearCalendarBase();
+            alert('איפוס שנת הלימודים בוצע בהצלחה.');
+            pinOverlay.classList.remove('active');
+            if (this.onDatabaseReset) this.onDatabaseReset();
+          } else {
+            alert('PIN שגוי! פעולה בוטלה.');
+            pinOverlay.classList.remove('active');
+          }
+        });
+      },
+      setupTemplateDownload() {
+        const dlBtn = document.getElementById('admin-download-template');
+        if (!dlBtn) return;
+        dlBtn.addEventListener('click', () => {
+          const csvContent = "Date,HebrewDate,Status,Description\n" +
+            "2026-09-01,י\"ט באלול תשפ\"ו,Regular,פתיחת שנת הלימודים תשפ\"ז\n" +
+            "2026-09-11,כ\"ט באלול תשפ\"ו,Holiday,ערב ראש השנה\n" +
+            "2026-09-12,א' בתשרי תשפ\"ז,Holiday,ראש השנה - יום א'\n" +
+            "2026-09-13,ב' בתשרי תשפ\"ז,Holiday,ראש השנה - יום ב'\n" +
+            "2026-09-14,ג' בתשרי תשפ\"ז,Special Day,צום גדליה\n" +
+            "2026-09-20,ט' בתשרי תשפ\"ז,Holiday,ערב יום כיפור\n" +
+            "2026-09-21,י' בתשרי תשפ\"ז,Holiday,יום כיפור\n" +
+            "2026-09-25,י\"ד בתשרי תשפ\"ז,Holiday,ערב סוכות\n" +
+            "2026-09-26,ט\"ו בתשרי תשפ\"ז,Holiday,חג סוכות\n" +
+            "2026-09-27,ט\"ז בתשרי תשפ\"ז,Holiday,חול המועד סוכות\n" +
+            "2026-09-28,י\"ז בתשרי תשפ\"ז,Holiday,חול המועד סוכות\n" +
+            "2026-09-29,י\"ח בתשרי תשפ\"ז,Holiday,חול המועד סוכות\n" +
+            "2026-09-30,י\"ט בתשרי תשפ\"ז,Holiday,חול המועד סוכות\n" +
+            "2026-10-01,כ' בתשרי תשפ\"ז,Holiday,חול המועד סוכות\n" +
+            "2026-10-02,כ\"א בתשרי תשפ\"ז,Holiday,הושענא רבה / ערב שמחת תורה\n" +
+            "2026-10-03,כ\"ב בתשרי תשפ\"ז,Holiday,שמיני עצרת / שמחת תורה\n" +
+            "2026-10-04,כ\"ג בתשרי תשפ\"ז,Holiday,אסרו חג סוכות\n" +
+            "2026-10-23,י\"ב בחשוון תשפ\"ז,Special Day,יום הזיכרון ליצחק רבין\n" +
+            "2026-12-04,כ\"ה בכסלו תשפ\"ז,Holiday,חנוכה - נר ראשון\n" +
+            "2026-12-05,כ\"ו בכסלו תשפ\"ז,Holiday,חנוכה - יום א'\n" +
+            "2026-12-06,כ\"ז בכסלו תשפ\"ז,Holiday,חנוכה - יום ב'\n" +
+            "2026-12-07,כ\"ח בכסלו תשפ\"ז,Holiday,חנוכה - יום ג'\n" +
+            "2026-12-08,כ\"ט בכסלו תשפ\"ז,Holiday,חנוכה - יום ד'\n" +
+            "2026-12-09,א' בטבת תשפ\"ז,Holiday,חנוכה - יום ה'\n" +
+            "2026-12-10,ב' בטבת תשפ\"ז,Holiday,חנוכה - יום ו'\n" +
+            "2026-12-11,ג' בטבת תשפ\"ז,Holiday,חנוכה - יום ז'\n" +
+            "2026-12-12,ד' בטבת תשפ\"ז,Holiday,אסרו חג חנוכה\n" +
+            "2026-12-20,י\"א בטבת תשפ\"ז,Special Day,צום עשרה בטבת\n" +
+            "2027-01-25,י\"ז בשבט תשפ\"ז,Regular,יום השפה העברית\n" +
+            "2027-02-02,כ\"ה בשבט תשפ\"ז,Special Day,ט\"ו בשבט - חג האילנות\n" +
+            "2027-03-21,י\"ב באדר ב' תשפ\"ז,Holiday,תענית אסתר / פורים שני\n" +
+            "2027-03-22,י\"ג באדר ב' תשפ\"ז,Holiday,חג פורים\n" +
+            "2027-03-23,י\"ד באדר ב' תשפ\"ז,Holiday,שושן פורים\n" +
+            "2027-04-14,ז' בניסן תשפ\"ז,Holiday,חופשת פסח - יום א'\n" +
+            "2027-04-15,ח' בניסן תשפ\"ז,Holiday,חופשת פסח - יום ב'\n" +
+            "2027-04-16,ט' בניסן תשפ\"ז,Holiday,חופשת פסח - יום ג'\n" +
+            "2027-04-17,י' בניסן תשפ\"ז,Holiday,חופשת פסח - יום ד'\n" +
+            "2027-04-18,י\"א בניסן תשפ\"ז,Holiday,חופשת פסח - יום ה'\n" +
+            "2027-04-19,י\"ב בניסן תשפ\"ז,Holiday,חופשת פסח - יום ו'\n" +
+            "2027-04-20,י\"ג בניסן תשפ\"ז,Holiday,ערב פסח\n" +
+            "2027-04-21,י\"ד בניסן תשפ\"ז,Holiday,פסח - יום א' (חג ראשון)\n" +
+            "2027-04-22,ט\"ו בניסן תשפ\"ז,Holiday,חול המועד פסח\n" +
+            "2027-04-23,ט\"ו בניסן תשפ\"ז,Holiday,חול המועד פסח\n" +
+            "2027-04-24,י\"ז בניסן תשפ\"ז,Holiday,חול המועד פסח\n" +
+            "2027-04-25,י\"ח בניסן תשפ\"ז,Holiday,חול המועד פסח\n" +
+            "2027-04-26,י\"ט בניסן תשפ\"ז,Holiday,חול המועד פסח\n" +
+            "2027-04-27,כ' בניסן תשפ\"ז,Holiday,שביעי של פסח\n" +
+            "2027-04-28,כ\"א בניסן תשפ\"ז,Holiday,אסרו חג פסח\n" +
+            "2027-05-04,כ\"ו בניסן תשפ\"ז,Special Day,יום הזיכרון לשואה ולגבורה\n" +
+            "2027-05-11,ד' באייר תשפ\"ז,Special Day,יום הזיכרון לחללי מערכות ישראל\n" +
+            "2027-05-12,ה' באייר תשפ\"ז,Holiday,יום העצמאות\n" +
+            "2027-05-25,י\"ח באייר תשפ\"ז,Special Day,ל\"ג בעומר\n" +
+            "2027-06-02,כ\"ו באייר תשפ\"ז,Special Day,יום ירושלים\n" +
+            "2027-06-10,ה' בסיוון תשפ\"ז,Holiday,ערב שבועות\n" +
+            "2027-06-11,ו' בסיוון תשפ\"ז,Holiday,חג השבועות\n" +
+            "2027-06-12,ז' בסיוון תשפ\"ז,Holiday,אסרו חג שבועות\n" +
+            "2027-06-20,ט\"ו בסיוון תשפ\"ז,Regular,יום שיא למדעים וטכנולוגיה\n" +
+            "2027-06-30,כ\"ה בסיוון תשפ\"ז,Regular,מסיבת סיום ושנה טובה!";
+          
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.setAttribute("href", url);
+          link.setAttribute("download", "school_calendar_demo_2026_2027.csv");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+    };
+
+    // ----------------------------------------------------
+    // 6. MAIN COORDINATOR (APP)
+    // ----------------------------------------------------
+    const state = {
+      currentYear: 2026,
+      currentMonth: 8,
+      activeTab: 'dashboard',
+      activeView: 'calendar',
+      filterType: 'all',
+      filterGrade: 'all',
+      currentUser: null,
+      selectedDate: ''
+    };
+
+    const todayDate = new Date();
+    if (todayDate.getFullYear() >= 2026 && todayDate.getFullYear() <= 2027) {
+      state.currentYear = todayDate.getFullYear();
+      state.currentMonth = todayDate.getMonth();
+    }
+
+    function getHebrewMonthHeaderString(year, month) {
+      try {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const formatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { month: 'long', year: 'numeric' });
+        const firstHeb = convertHebrewDateStringToLetters(formatter.format(firstDay).trim());
+        const lastHeb = convertHebrewDateStringToLetters(formatter.format(lastDay).trim());
+        if (firstHeb === lastHeb) return firstHeb;
+        
+        const firstParts = firstHeb.split(' ');
+        const lastParts = lastHeb.split(' ');
+        const firstYear = firstParts[firstParts.length - 1];
+        const lastYear = lastParts[lastParts.length - 1];
+        const firstMonth = firstParts.slice(0, firstParts.length - 1).join(' ');
+        const lastMonth = lastParts.slice(0, lastParts.length - 1).join(' ');
+        
+        if (firstYear === lastYear) return `${firstMonth} - ${lastMonth} ${firstYear}`;
+        return `${firstMonth} ${firstYear} - ${lastMonth} ${lastYear}`;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function renderApp() {
+      const events = DB.getEvents();
+
+      const formatDateKey = (y, m, d) => {
+        const mm = String(m + 1).padStart(2, '0');
+        const dd = String(d).padStart(2, '0');
+        return `${y}-${mm}-${dd}`;
+      };
+
+      const today = new Date();
+      const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+      
+      if (!state.selectedDate) {
+        if (state.currentYear === today.getFullYear() && state.currentMonth === today.getMonth()) {
+          state.selectedDate = todayKey;
+        } else {
+          state.selectedDate = formatDateKey(state.currentYear, state.currentMonth, 1);
+        }
+      }
+      
+      const monthNameElement = document.getElementById('calendar-month-name');
+      if (monthNameElement) {
+        const gregMonthName = Calendar.HEBREW_GREGORIAN_MONTHS[state.currentMonth];
+        const hebMonthStr = getHebrewMonthHeaderString(state.currentYear, state.currentMonth);
+        monthNameElement.innerHTML = `
+          ${gregMonthName} ${state.currentYear}
+          <span class="heb-month-header" style="margin-right: 12px; font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;">(${hebMonthStr})</span>
+        `;
+      }
+
+      // Toggle Mobile FAB visibility
+      const fab = document.getElementById('mobile-add-event-fab');
+      if (fab) {
+        if (state.currentUser && state.currentUser.isAuthorized) {
+          fab.style.display = 'flex';
+        } else {
+          fab.style.display = 'none';
+        }
+      }
+
+      if (state.activeTab === 'dashboard') {
+        document.getElementById('dashboard-view-panel').classList.add('active');
+        document.getElementById('admin-view-panel').classList.remove('active');
+
+        if (state.activeView === 'calendar') {
+          document.getElementById('calendar-grid-container').style.display = 'grid';
+          document.getElementById('gantt-chart-container').style.display = 'none';
+          
+          Calendar.render({
+            year: state.currentYear,
+            month: state.currentMonth,
+            containerId: 'calendar-days-grid',
+            events: events,
+            filterType: state.filterType,
+            filterGrade: state.filterGrade,
+            onDayClick: handleDayClick,
+            onEventClick: handleEventClick,
+            selectedDate: state.selectedDate,
+            onDaySelect: (dateStr) => {
+              state.selectedDate = dateStr;
+              renderApp();
+            }
+          });
+
+          renderMobileEventsList();
+        } else {
+          document.getElementById('calendar-grid-container').style.display = 'none';
+          document.getElementById('gantt-chart-container').style.display = 'flex';
+          
+          Gantt.render({
+            year: state.currentYear,
+            month: state.currentMonth,
+            containerId: 'gantt-chart-container',
+            events: events,
+            filterType: state.filterType,
+            filterGrade: state.filterGrade,
+            onEventClick: handleEventClick
+          });
+        }
+      } else {
+        document.getElementById('dashboard-view-panel').classList.remove('active');
+        document.getElementById('admin-view-panel').classList.add('active');
+        Admin.renderUserTable();
+      }
+    }
+
+    function renderMobileEventsList() {
+      const container = document.getElementById('mobile-events-content');
+      // Wait, let's verify if the container ID matches. 
+      // The HTML we added was: id="mobile-events-list-content" and id="mobile-events-list-title"
+      // Let's use id="mobile-events-list-content" and id="mobile-events-list-title"!
+      const containerObj = document.getElementById('mobile-events-list-content');
+      const titleObj = document.getElementById('mobile-events-list-title');
+      if (!containerObj || !titleObj) return;
+
+      const selDate = state.selectedDate;
+      if (!selDate) return;
+
+      const dateInfo = DB.getHebrewDateInfo(selDate);
+      const parts = selDate.split('-');
+      const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+      
+      const weekdayName = dateObj.toLocaleDateString('he-IL', { weekday: 'long' });
+      const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      
+      titleObj.textContent = `אירועים ל${weekdayName}, ${formattedDate} (${dateInfo.hebrewDate})`;
+      
+      const allEvents = DB.getEvents();
+      const filteredEvents = Calendar.filterEvents(allEvents, state.filterType, state.filterGrade);
+      const activeEvents = filteredEvents.filter(evt => selDate >= evt.startDate && selDate <= evt.endDate);
+      
+      containerObj.innerHTML = '';
+      
+      if (dateInfo.status === 'Holiday' || dateInfo.status === 'Special Day') {
+        const typeClass = dateInfo.status === 'Holiday' ? 'evt-trip' : 'evt-social';
+        const statusHeb = dateInfo.status === 'Holiday' ? 'חופשה' : 'יום מיוחד';
+        const card = document.createElement('div');
+        card.className = `mobile-event-card ${typeClass}`;
+        card.style.cursor = 'default';
+        card.innerHTML = `
+          <div class="mobile-event-info">
+            <div class="mobile-event-title-text">${dateInfo.description || statusHeb}</div>
+            <div class="mobile-event-meta">
+              <span><i class="fas fa-calendar-alt"></i> ${statusHeb} (לוח בסיס)</span>
+            </div>
+          </div>
+        `;
+        containerObj.appendChild(card);
+      }
+      
+      if (activeEvents.length === 0) {
+        if (dateInfo.status === 'Regular') {
+          containerObj.innerHTML += `<div class="mobile-no-events">אין אירועים פדגוגיים או חברתיים ביום זה.</div>`;
+        }
+        return;
+      }
+      
+      activeEvents.forEach(event => {
+        let typeClass = 'evt-staff';
+        switch (event.eventType) {
+          case 'צוותי': typeClass = 'evt-staff'; break;
+          case 'מנהלתי': typeClass = 'evt-admin'; break;
+          case 'חברתי': typeClass = 'evt-social'; break;
+          case 'פדגוגי': typeClass = 'evt-academic'; break;
+          case 'טיול': typeClass = 'evt-trip'; break;
+          case 'אחר': typeClass = 'evt-other'; break;
+        }
+        
+        const card = document.createElement('div');
+        card.className = `mobile-event-card ${typeClass}`;
+        
+        const gradesText = event.targetGrades && event.targetGrades.length > 0
+          ? `שכבות: ${event.targetGrades.join(', ')}`
+          : 'כלל בית הספר';
+          
+        card.innerHTML = `
+          <div class="mobile-event-info">
+            <div class="mobile-event-title-text">${event.title}</div>
+            <div class="mobile-event-desc-text">${event.description || 'אין תיאור נוסף.'}</div>
+            <div class="mobile-event-meta">
+              <span><i class="fas fa-tag"></i> ${event.eventType}</span>
+              <span><i class="fas fa-graduation-cap"></i> ${gradesText}</span>
+            </div>
+          </div>
+          <i class="fas fa-chevron-left" style="color: var(--text-muted); font-size: 0.9rem;"></i>
+        `;
+        
+        card.addEventListener('click', () => {
+          openEventDetailsModal(event);
+        });
+        containerObj.appendChild(card);
+      });
+    }
+
+    function handleDayClick(dateStr) {
+      if (!state.currentUser || !state.currentUser.isAuthorized) {
+        alert('אינך מורשה ליצור אירועים. פנה למנהל המערכת.');
+        return;
+      }
+      openAddEventModal(dateStr);
+    }
+
+    function handleEventClick(event) {
+      openEventDetailsModal(event);
+    }
+
+    function openAddEventModal(prefilledDate = '') {
+      const modal = document.getElementById('event-modal');
+      document.getElementById('event-modal-title').textContent = 'הוספת אירוע חדש ללוח';
+      document.getElementById('event-form').reset();
+      document.getElementById('event-id-input').value = '';
+      document.getElementById('event-start-date').value = prefilledDate || new Date().toISOString().split('T')[0];
+      document.getElementById('event-end-date').value = prefilledDate || new Date().toISOString().split('T')[0];
+      document.getElementById('event-grades-container').classList.add('hidden');
+      document.getElementById('event-submit-btn').textContent = 'שמור אירוע';
+      modal.classList.add('active');
+    }
+
+    function openEventDetailsModal(event) {
+      const modal = document.getElementById('event-details-modal');
+      const container = document.getElementById('event-details-content');
+      
+      const startHebrew = DB.getHebrewDateInfo(event.startDate).hebrewDate;
+      const endHebrew = DB.getHebrewDateInfo(event.endDate).hebrewDate;
+      
+      const formattedGrades = event.targetGrades && event.targetGrades.length > 0 
+        ? event.targetGrades.join(', ') 
+        : 'כלל בית הספר';
+
+      const startStr = event.startDate.replace(/-/g, '');
+      const endDateObj = new Date(event.endDate);
+      endDateObj.setDate(endDateObj.getDate() + 1);
+      const endStr = endDateObj.toISOString().slice(0, 10).replace(/-/g, '');
+      
+      const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(event.description || '')}`;
+
+      container.innerHTML = `
+        <div class="event-details-layout">
+          <div class="details-row">
+            <span class="details-icon"><i class="fas fa-heading"></i></span>
+            <span class="details-label">שם האירוע:</span>
+            <span class="details-value" style="font-weight: 700;">${event.title}</span>
+          </div>
+          <div class="details-row">
+            <span class="details-icon"><i class="fas fa-calendar-alt"></i></span>
+            <span class="details-label">תאריך התחלה:</span>
+            <span class="details-value">${event.startDate} <span style="color: var(--text-muted);">(${startHebrew})</span></span>
+          </div>
+          <div class="details-row">
+            <span class="details-icon"><i class="fas fa-calendar-check"></i></span>
+            <span class="details-label">תאריך סיום:</span>
+            <span class="details-value">${event.endDate} <span style="color: var(--text-muted);">(${endHebrew})</span></span>
+          </div>
+          <div class="details-row">
+            <span class="details-icon"><i class="fas fa-tags"></i></span>
+            <span class="details-label">סוג אירוע:</span>
+            <span class="details-value">${event.eventType}</span>
+          </div>
+          <div class="details-row">
+            <span class="details-icon"><i class="fas fa-graduation-cap"></i></span>
+            <span class="details-label">שכבות יעד:</span>
+            <span class="details-value">${formattedGrades}</span>
+          </div>
+          <div class="details-row">
+            <span class="details-icon"><i class="fas fa-user-edit"></i></span>
+            <span class="details-label">נוצר על ידי:</span>
+            <span class="details-value">${event.createdBy}</span>
+          </div>
+          <div class="details-row" style="flex-direction: column; gap: 6px;">
+            <span class="details-label" style="width: 100%;"><i class="fas fa-info-circle" style="color: var(--primary-color); margin-left: 6px;"></i>תיאור:</span>
+            <div class="details-description-box">${event.description || 'אין פירוט נוסף.'}</div>
+          </div>
+          
+          <a href="${googleCalUrl}" target="_blank" class="google-cal-link">
+            <i class="fab fa-google"></i>
+            הוסף ליומן גוגל שלי (Google Calendar)
+          </a>
+        </div>
+      `;
+
+      const actions = document.getElementById('details-actions-container');
+      const isCreator = event.createdBy === state.currentUser?.email;
+      const isAdmin = state.currentUser?.role === 'Admin';
+      
+      if (state.currentUser && state.currentUser.isAuthorized && (isAdmin || isCreator)) {
+        actions.innerHTML = `
+          <button id="details-edit-btn" class="btn btn-secondary"><i class="fas fa-edit"></i> ערוך</button>
+          <button id="details-delete-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> מחק</button>
+        `;
+        document.getElementById('details-delete-btn').addEventListener('click', () => {
+          const currentIsCreator = event.createdBy === state.currentUser?.email;
+          const currentIsAdmin = state.currentUser?.role === 'Admin';
+          if (!currentIsAdmin && !currentIsCreator) {
+            alert('אין לך הרשאה למחוק אירוע זה (אירוע זה לא נוצר על ידך).');
+            return;
+          }
+          if (confirm(`האם למחוק את האירוע "${event.title}"?`)) {
+            DB.deleteEvent(event.id);
+            modal.classList.remove('active');
+            renderApp();
+          }
+        });
+        document.getElementById('details-edit-btn').addEventListener('click', () => {
+          modal.classList.remove('active');
+          openEditEventModal(event);
+        });
+      } else {
+        actions.innerHTML = '';
+      }
+      modal.classList.add('active');
+    }
+
+    function openEditEventModal(event) {
+      const modal = document.getElementById('event-modal');
+      document.getElementById('event-modal-title').textContent = 'עריכת אירוע קיים';
+      
+      document.getElementById('event-id-input').value = event.id;
+      document.getElementById('event-title').value = event.title;
+      document.getElementById('event-start-date').value = event.startDate;
+      document.getElementById('event-end-date').value = event.endDate;
+      document.getElementById('event-type').value = event.eventType;
+      document.getElementById('event-description').value = event.description || '';
+
+      const container = document.getElementById('event-grades-container');
+      if (event.eventType === 'חברתי' || event.eventType === 'טיול') {
+        container.classList.remove('hidden');
+        document.querySelectorAll('.grade-checkbox').forEach(cb => {
+          cb.checked = event.targetGrades.includes(cb.value);
+        });
+      } else {
+        container.classList.add('hidden');
+      }
+      document.getElementById('event-submit-btn').textContent = 'עדכן אירוע';
+      modal.classList.add('active');
+    }
+
+    function setupEventListeners() {
+      document.getElementById('nav-dashboard').addEventListener('click', () => {
+        state.activeTab = 'dashboard';
+        document.getElementById('li-dashboard').classList.add('active');
+        document.getElementById('admin-tab-wrapper').classList.remove('active');
+        renderApp();
+      });
+
+      document.getElementById('nav-admin').addEventListener('click', () => {
+        state.activeTab = 'admin-console';
+        document.getElementById('admin-tab-wrapper').classList.add('active');
+        document.getElementById('li-dashboard').classList.remove('active');
+        renderApp();
+      });
+
+      document.getElementById('nav-logout').addEventListener('click', () => {
+        if (state.currentUser) {
+          Auth.logout();
+        } else {
+          Auth.login();
+        }
+      });
+      
+      const mobileLogout = document.getElementById('nav-logout-mobile');
+      if (mobileLogout) {
+        mobileLogout.addEventListener('click', () => {
+          if (state.currentUser) {
+            Auth.logout();
+          } else {
+            Auth.login();
+          }
+        });
+      }
+
+      document.getElementById('switch-calendar').addEventListener('click', () => {
+        state.activeView = 'calendar';
+        document.getElementById('switch-calendar').classList.add('active');
+        document.getElementById('switch-gantt').classList.remove('active');
+        renderApp();
+      });
+
+      document.getElementById('switch-gantt').addEventListener('click', () => {
+        state.activeView = 'gantt';
+        document.getElementById('switch-gantt').classList.add('active');
+        document.getElementById('switch-calendar').classList.remove('active');
+        renderApp();
+      });
+
+      document.getElementById('filter-event-type').addEventListener('change', (e) => {
+        state.filterType = e.target.value;
+        renderApp();
+      });
+
+      document.getElementById('filter-target-grade').addEventListener('change', (e) => {
+        state.filterGrade = e.target.value;
+        renderApp();
+      });
+
+      document.getElementById('cal-prev-btn').addEventListener('click', () => {
+        state.currentMonth--;
+        if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+        renderApp();
+      });
+
+      document.getElementById('cal-next-btn').addEventListener('click', () => {
+        state.currentMonth++;
+        if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+        renderApp();
+      });
+
+      document.getElementById('cal-today-btn').addEventListener('click', () => {
+        const today = new Date();
+        state.currentYear = today.getFullYear();
+        state.currentMonth = today.getMonth();
+        renderApp();
+      });
+
+      // Fullscreen projection toggle for staff room TV display
+      const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
+      if (fullscreenBtn) {
+        const toggleFullscreen = () => {
+          const isFullscreen = document.body.classList.toggle('fullscreen-mode');
+          const icon = fullscreenBtn.querySelector('i');
+          const text = document.getElementById('cal-fullscreen-text');
+
+          if (isFullscreen) {
+            if (document.documentElement.requestFullscreen) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            }
+            if (icon) icon.className = 'fas fa-compress';
+            if (text) text.textContent = 'יציאה ממסך מלא';
+            fullscreenBtn.classList.add('btn-fullscreen-active');
+          } else {
+            if (document.exitFullscreen && document.fullscreenElement) {
+              document.exitFullscreen().catch(() => {});
+            }
+            if (icon) icon.className = 'fas fa-expand';
+            if (text) text.textContent = 'מסך מלא';
+            fullscreenBtn.classList.remove('btn-fullscreen-active');
+          }
+        };
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // Listen for browser native exit (e.g. Esc key)
+        document.addEventListener('fullscreenchange', () => {
+          if (!document.fullscreenElement && document.body.classList.contains('fullscreen-mode')) {
+            document.body.classList.remove('fullscreen-mode');
+            const icon = fullscreenBtn.querySelector('i');
+            const text = document.getElementById('cal-fullscreen-text');
+            if (icon) icon.className = 'fas fa-expand';
+            if (text) text.textContent = 'מסך מלא';
+            fullscreenBtn.classList.remove('btn-fullscreen-active');
+          }
+        });
+      }
+
+      document.getElementById('add-event-btn').addEventListener('click', () => openAddEventModal());
+
+      const mobileFab = document.getElementById('mobile-add-event-fab');
+      if (mobileFab) {
+        mobileFab.addEventListener('click', () => {
+          if (!state.currentUser || !state.currentUser.isAuthorized) {
+            alert('אינך מורשה ליצור אירועים. פנה למנהל המערכת.');
+            return;
+          }
+          openAddEventModal(state.selectedDate);
+        });
+      }
+      document.getElementById('modal-close').addEventListener('click', () => document.getElementById('event-modal').classList.remove('active'));
+      document.getElementById('event-cancel-btn').addEventListener('click', () => document.getElementById('event-modal').classList.remove('active'));
+      document.getElementById('details-modal-close').addEventListener('click', () => document.getElementById('event-details-modal').classList.remove('active'));
+
+      const typeSelect = document.getElementById('event-type');
+      typeSelect.addEventListener('change', () => {
+        if (typeSelect.value === 'חברתי' || typeSelect.value === 'טיול') {
+          document.getElementById('event-grades-container').classList.remove('hidden');
+        } else {
+          document.getElementById('event-grades-container').classList.add('hidden');
+        }
+      });
+
+      document.getElementById('event-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('event-id-input').value;
+        const title = document.getElementById('event-title').value.trim();
+        const startDate = document.getElementById('event-start-date').value;
+        const endDate = document.getElementById('event-end-date').value;
+        const eventType = typeSelect.value;
+        const description = document.getElementById('event-description').value.trim();
+
+        if (endDate < startDate) {
+          alert('תאריך הסיום לא יכול להיות מוקדם מתאריך ההתחלה.');
+          return;
+        }
+
+        const targetGrades = [];
+        if (eventType === 'חברתי' || eventType === 'טיול') {
+          document.querySelectorAll('.grade-checkbox:checked').forEach(cb => targetGrades.push(cb.value));
+        }
+
+        const eventData = { title, startDate, endDate, eventType, targetGrades, description, createdBy: state.currentUser.email };
+        if (id) {
+          const existing = DB.getEvents().find(e => e.id === id);
+          if (existing) {
+            const isCreator = existing.createdBy === state.currentUser?.email;
+            const isAdmin = state.currentUser?.role === 'Admin';
+            if (!isAdmin && !isCreator) {
+              alert('אין לך הרשאה לערוך אירוע זה (אירוע זה לא נוצר על ידך).');
+              return;
+            }
+            eventData.createdBy = existing.createdBy; // Keep original creator
+            DB.updateEvent(id, eventData);
+          }
+        } else {
+          DB.addEvent(eventData);
+        }
+
+        document.getElementById('event-modal').classList.remove('active');
+        renderApp();
+      });
+    }
+
+    // Startup
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.onAuthChange((user) => {
+        state.currentUser = user;
+        const loginView = document.getElementById('login-view');
+        const appContainer = document.getElementById('app-container');
+        const adminTab = document.getElementById('admin-tab-wrapper');
+        const addBtn = document.getElementById('add-event-btn');
+
+        // Always hide the old login view and show the app container (direct entry)
+        if (loginView) loginView.style.display = 'none';
+        if (appContainer) appContainer.style.display = 'flex';
+
+        const avatar = document.getElementById('sidebar-user-avatar');
+        const userNameEl = document.getElementById('sidebar-user-name');
+        const badge = document.getElementById('sidebar-user-badge');
+        const logoutBtn = document.getElementById('nav-logout');
+        const logoutBtnMobile = document.getElementById('nav-logout-mobile');
+
+        if (!user) {
+          // Guest Spectator Mode
+          if (userNameEl) userNameEl.textContent = 'אורח במערכת';
+          if (badge) {
+            badge.className = 'user-role-badge guest';
+            badge.textContent = 'צפייה בלבד';
+          }
+          if (avatar) avatar.textContent = 'א';
+          
+          if (adminTab) adminTab.style.display = 'none';
+          if (addBtn) addBtn.style.display = 'none';
+
+          if (logoutBtn) {
+            logoutBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>התחברות צוות</span>';
+            logoutBtn.style.color = 'var(--primary-color)';
+          }
+          if (logoutBtnMobile) {
+            logoutBtnMobile.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>התחברות</span>';
+            logoutBtnMobile.style.color = 'var(--primary-color)';
+          }
+        } else {
+          // Authenticated Mode
+          if (userNameEl) userNameEl.textContent = user.name || user.email;
+          if (avatar) {
+            avatar.innerHTML = user.picture 
+              ? `<img src="${user.picture}" alt="${user.name}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`
+              : (user.name || user.email)[0].toUpperCase();
+          }
+
+          if (badge) {
+            badge.className = 'user-role-badge';
+            if (user.role === 'Admin') {
+              badge.classList.add('admin'); badge.textContent = 'מנהל מערכת';
+            } else if (user.isAuthorized) {
+              badge.classList.add('teacher'); badge.textContent = 'מורה מורשה';
+            } else {
+              badge.classList.add('guest'); badge.textContent = 'אורח צפייה';
+            }
+          }
+
+          if (user.role === 'Admin') {
+            if (adminTab) adminTab.style.display = 'block';
+          } else {
+            if (adminTab) adminTab.style.display = 'none';
+            if (state.activeTab === 'admin-console') state.activeTab = 'dashboard';
+          }
+
+          if (addBtn) addBtn.style.display = user.isAuthorized ? 'flex' : 'none';
+        }
+        
+        renderApp();
+      });
+
+      DB.init(() => renderApp());
+      Admin.init(() => renderApp());
+      setupEventListeners();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>לוח שנה פדגוגי ומערכת גאנט בית ספרית</title>
+  
+  <!-- FontAwesome Icons & Assistant Font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Google Identity Services client library for Google Auth -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <!-- ====================================================
+       1. LOGIN / AUTHENTICATION VIEW
+       ==================================================== -->
+  <main id="login-view" class="login-view" style="display: none;">
+    <div class="login-card">
+      <div class="login-logo">
+        <i class="fas fa-calendar-alt"></i>
+        <span>לוח שנה בית ספרי</span>
+      </div>
+      <h1 class="login-title">ברוכים הבאים</h1>
+      <p class="login-subtitle">לוח שנה פדגוגי ומערכת גאנט לניהול אירועים</p>
+      
+      <!-- Google Sign In Button Container -->
+      <div class="google-signin-wrapper">
+        <div id="google-signin-btn"></div>
+      </div>
+      
+      <div class="login-divider">
+        <span>או התחברות מהירה (סביבת הדמיה)</span>
+      </div>
+      
+      <!-- Developer Bypass Sign-In Panel -->
+      <section class="dev-login-panel">
+        <h2 class="dev-login-title">
+          <i class="fas fa-flask"></i>
+          חשבונות בדיקה מוכנים מראש
+        </h2>
+        <div class="dev-login-buttons">
+          <button id="login-admin-btn" class="dev-login-btn">
+            <span>מנהל מערכת</span>
+            <span class="email">admin@school.org</span>
+          </button>
+          <button id="login-teacher-btn" class="dev-login-btn">
+            <span>מורה מורשה</span>
+            <span class="email">teacher@school.org</span>
+          </button>
+          <button id="login-guest-btn" class="dev-login-btn">
+            <span>אורח צפייה</span>
+            <span class="email">guest@school.org</span>
+          </button>
+        </div>
+        
+        <form id="login-custom-form" style="margin-top: 16px;">
+          <label class="form-label" for="login-custom-email">התחבר עם אימייל אחר:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="email" id="login-custom-email" class="form-control" placeholder="your-email@example.com" required style="font-size: 0.85rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;">כניסה</button>
+          </div>
+        </form>
+        
+        <div class="file-protocol-warning">
+          <i class="fas fa-exclamation-triangle" style="margin-top: 2px;"></i>
+          <span>
+            שים לב: התחברות באמצעות <strong>גוגל</strong> מחייבת הרצת השרת בכתובת localhost. הרצה ישירה באמצעות קובץ (file://) תומכת במשתמשי ההדמיה בלבד.
+          </span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ====================================================
+       2. MAIN APPLICATION CONTAINER
+       ==================================================== -->
+  <div id="app-container" class="app-container">
+    
+    <!-- Right Sidebar (RTL) -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <i class="fas fa-school"></i>
+          <span>לוח שנה בית-ספרי</span>
+        </div>
+      </div>
+      
+      <!-- Current User Profile Card -->
+      <section class="user-profile-card">
+        <div id="sidebar-user-avatar" class="user-avatar">א</div>
+        <div class="user-info">
+          <span id="sidebar-user-name" class="user-name">טוען...</span>
+          <span id="sidebar-user-badge" class="user-role-badge guest">אורח</span>
+        </div>
+      </section>
+      
+      <!-- Sidebar Navigation Menu -->
+      <nav style="flex-grow: 1;">
+        <ul class="sidebar-menu">
+          <li class="menu-item active">
+            <a id="nav-dashboard" class="menu-link">
+              <i class="fas fa-th-large"></i>
+              <span>לוח בקרה ולוחות</span>
+            </a>
+          </li>
+          <li id="admin-tab-wrapper" class="menu-item" style="display: none;">
+            <a id="nav-admin" class="menu-link">
+              <i class="fas fa-user-shield"></i>
+              <span>אזור מנהל מערכת</span>
+            </a>
+          </li>
+          <li class="menu-item mobile-only-logout" id="li-logout-mobile" style="display: none;">
+            <a id="nav-logout-mobile" class="menu-link" style="color: var(--danger-color);">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>התנתק</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button id="nav-logout" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>התנתק מהמערכת</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      
+      <!-- ====================================================
+           A. DASHBOARD TAB VIEW
+           ==================================================== -->
+      <section id="dashboard-view-panel" class="view-panel active">
+        <!-- Toolbar Header -->
+        <header class="view-header">
+          <div class="view-title-section">
+            <h2 class="view-title">לוח שנה פדגוגי וגאנט</h2>
+          </div>
+          
+          <div class="dashboard-toolbar">
+            <!-- Toolbar Filters -->
+            <div class="toolbar-group">
+              <label for="filter-event-type" class="toolbar-label">סוג אירוע:</label>
+              <select id="filter-event-type" class="form-select">
+                <option value="all">הכל</option>
+                <option value="צוותי">צוותי</option>
+                <option value="מנהלתי">מנהלתי</option>
+                <option value="חברתי">חברתי</option>
+                <option value="פדגוגי">פדגוגי</option>
+                <option value="טיול">טיול</option>
+                <option value="אחר">אחר</option>
+              </select>
+            </div>
+            
+            <div class="toolbar-group">
+              <label for="filter-target-grade" class="toolbar-label">שכבת יעד:</label>
+              <select id="filter-target-grade" class="form-select">
+                <option value="all">הכל</option>
+                <option value="ד">ד'</option>
+                <option value="ה">ה'</option>
+                <option value="ו">ו'</option>
+                <option value="ז">ז'</option>
+                <option value="ח">ח'</option>
+              </select>
+            </div>
+            
+            <!-- View Switcher Toggle -->
+            <div class="view-switcher" style="margin-right: 8px;">
+              <button id="switch-calendar" class="switch-btn active">
+                <i class="fas fa-calendar-alt"></i>
+                תצוגת לוח
+              </button>
+              <button id="switch-gantt" class="switch-btn">
+                <i class="fas fa-chart-gantt"></i>
+                תצוגת גאנט
+              </button>
+            </div>
+            
+            <!-- Add Event Action (Visible only if Authorized) -->
+            <button id="add-event-btn" class="btn btn-primary" style="display: none; margin-right: 8px;">
+              <i class="fas fa-plus"></i>
+              הוספת אירוע
+            </button>
+          </div>
+        </header>
+        
+        <!-- Dashboard Content Grid -->
+        <div class="dashboard-content">
+          <!-- Calendar Controller / Navigation bar -->
+          <div class="calendar-controls">
+            <div id="calendar-month-name" class="calendar-month-name">טוען...</div>
+            <div class="nav-arrows">
+              <button id="cal-prev-btn" class="nav-arrow-btn" title="חודש קודם">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              <button id="cal-today-btn" class="nav-arrow-btn" style="width: auto; padding: 0 12px; font-size: 0.85rem; font-weight: 700;">היום</button>
+              <button id="cal-next-btn" class="nav-arrow-btn" title="חודש הבא">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button id="cal-fullscreen-btn" class="nav-arrow-btn" style="width: auto; padding: 0 12px; font-size: 0.85rem; font-weight: 700; margin-right: 12px; gap: 6px; display: flex; align-items: center;" title="הצגה על מסך מלא (לתצוגת חדר מורים)">
+                <i class="fas fa-expand"></i>
+                <span id="cal-fullscreen-text">מסך מלא</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- View 1: Calendar Grid View -->
+          <div id="calendar-grid-container" class="calendar-grid-wrapper">
+            <!-- Weekday Headers (RTL: Sunday on right) -->
+            <div class="calendar-weekdays">
+              <div class="weekday">ראשון</div>
+              <div class="weekday">שני</div>
+              <div class="weekday">שלישי</div>
+              <div class="weekday">רביעי</div>
+              <div class="weekday">חמישי</div>
+              <div class="weekday">שישי</div>
+              <div class="weekday">שבת</div>
+            </div>
+            <!-- Dynamic Month Days Grid -->
+            <div id="calendar-days-grid" class="calendar-days-grid"></div>
+          </div>
+
+          <!-- Mobile Events List Container (Visible only on Mobile) -->
+          <div id="mobile-events-list-container" class="mobile-events-list-container">
+            <h3 id="mobile-events-list-title" class="mobile-events-title">אירועים לתאריך...</h3>
+            <div id="mobile-events-list-content" class="mobile-events-list-content"></div>
+          </div>
+          
+          <!-- View 2: Gantt Chart View -->
+          <div id="gantt-chart-container" style="display: none; flex-grow: 1;"></div>
+          
+          <!-- Color Legend -->
+          <footer class="color-legend">
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-staff"></div>
+              <span>צוותי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-admin"></div>
+              <span>מנהלתי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-social"></div>
+              <span>חברתי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-academic"></div>
+              <span>פדגוגי</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-trip"></div>
+              <span>טיול</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color-dot legend-evt-other"></div>
+              <span>אחר</span>
+            </div>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           B. ADMIN CONSOLE TAB VIEW
+           ==================================================== -->
+      <section id="admin-view-panel" class="view-panel">
+        <header class="view-header">
+          <h2 class="view-title">לוח בקרת מנהל מערכת</h2>
+        </header>
+        
+        <div class="dashboard-content">
+          <div class="admin-layout">
+            <div class="admin-grid">
+              
+              <!-- Manage Users Console Card -->
+              <section class="admin-card">
+                <div class="admin-card-header">
+                  <h3 class="admin-card-title"><i class="fas fa-users-cog"></i>ניהול משתמשים והרשאות</h3>
+                </div>
+                
+                <!-- Add User Form -->
+                <form id="admin-add-user-form" style="margin-bottom: 24px;">
+                  <div class="form-group">
+                    <label class="form-label" for="admin-user-email">כתובת אימייל:</label>
+                    <input type="email" id="admin-user-email" class="form-control" placeholder="user@school.org" required>
+                  </div>
+                  
+                  <div class="form-group" style="display: flex; gap: 20px; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <input type="checkbox" id="admin-user-authorized" style="width: 18px; height: 18px; cursor: pointer;">
+                      <label for="admin-user-authorized" class="form-label" style="margin-bottom: 0; cursor: pointer;">משתמש מורשה (כתיבה)</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-grow: 1;">
+                      <label for="admin-user-role" class="form-label" style="margin-bottom: 0;">תפקיד:</label>
+                      <select id="admin-user-role" class="form-select" style="flex-grow: 1; padding: 6px 30px 6px 8px;">
+                        <option value="Teacher">מורה</option>
+                        <option value="Admin">מנהל</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-user-plus"></i>הוסף משתמש חדש</button>
+                </form>
+                
+                <!-- Users Table -->
+                <div class="table-wrapper">
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>אימייל משתמש</th>
+                        <th>מורשה כתיבה</th>
+                        <th>תפקיד</th>
+                        <th>פעולות</th>
+                      </tr>
+                    </thead>
+                    <tbody id="admin-users-table-body">
+                      <!-- Rendered dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+              
+              <!-- System Uploads & Configurations Card -->
+              <section class="admin-card">
+                <div class="admin-card-header">
+                  <h3 class="admin-card-title"><i class="fas fa-file-upload"></i>עדכון והעלאת לוח בסיס</h3>
+                </div>
+                
+                <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 16px;">
+                  העלה קובץ CSV ללוח בסיס בית הספר (Calendar_Base).
+                  העלאת קובץ חדש תחליף את כל נתוני החגים וימי הלימוד הנוכחיים עבור שנת הלימודים.
+                </p>
+                
+                <!-- Drag and Drop upload container -->
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                <div id="csv-upload-zone" class="csv-upload-zone">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span style="font-weight: 700;">לחץ להעלאת קובץ או גרור לכאן</span>
+                  <span style="font-size: 0.8rem; color: var(--text-muted);">פורמט קובץ נדרש: CSV (Date, HebrewDate, Status, Description)</span>
+                </div>
+                
+                <!-- Download sample template -->
+                <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.88rem; color: var(--text-secondary);">תבנית CSV לדוגמה:</span>
+                  <a href="data/default_calendar.csv" download="school_calendar_template.csv" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;">
+                    <i class="fas fa-download"></i> הורד תבנית mẫu
+                  </a>
+                </div>
+                
+                <!-- Divider -->
+                <div style="height: 1px; background-color: var(--border-color); margin: 30px 0;"></div>
+                
+                <h3 class="admin-card-title" style="margin-bottom: 12px; color: #991b1b;"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>איפוס שנת לימודים (אזור מסוכן)</h3>
+                
+                <!-- Reset Danger Zone -->
+                <div class="danger-zone">
+                  <div class="danger-zone-info">
+                    <span class="danger-zone-title">אתחול מוחלט של מערכת הלוחות</span>
+                    <span class="danger-zone-desc">מחיקת כל אירועי המערכת ואיפוס לוח שנה. פעולה זו אינה ניתנת לביטול!</span>
+                  </div>
+                  <button id="admin-reset-db-btn" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i>
+                    אתחל שנה
+                  </button>
+                </div>
+              </section>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ====================================================
+       3. MODAL POPUPS AND OVERLAYS
+       ==================================================== -->
+
+  <!-- Modal A: Event Add/Edit Form -->
+  <dialog id="event-modal" class="modal-overlay">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h3 id="event-modal-title" class="modal-title">הוספת אירוע</h3>
+        <button id="modal-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <form id="event-form">
+        <div class="modal-body">
+          <input type="hidden" id="event-id-input">
+          
+          <!-- Event Title -->
+          <div class="form-group">
+            <label for="event-title" class="form-label">שם האירוע: <span style="color:var(--danger-color)">*</span></label>
+            <input type="text" id="event-title" class="form-control" placeholder="לדוגמה: יום הורים, מועד א' תנ\"ך" required>
+          </div>
+          
+          <!-- Dates -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label for="event-start-date" class="form-label">תאריך התחלה: <span style="color:var(--danger-color)">*</span></label>
+              <input type="date" id="event-start-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="event-end-date" class="form-label">תאריך סיום: <span style="color:var(--danger-color)">*</span></label>
+              <input type="date" id="event-end-date" class="form-control" required>
+            </div>
+          </div>
+          
+          <!-- Event Type -->
+          <div class="form-group">
+            <label for="event-type" class="form-label">סוג האירוע: <span style="color:var(--danger-color)">*</span></label>
+            <select id="event-type" class="form-select" style="width: 100%;" required>
+              <option value="" disabled selected>בחר סוג אירוע...</option>
+              <option value="צוותי">צוותי</option>
+              <option value="מנהלתי">מנהלתי</option>
+              <option value="חברתי">חברתי</option>
+              <option value="פדגוגי">פדגוגי</option>
+              <option value="טיול">טיול</option>
+              <option value="אחר">אחר</option>
+            </select>
+          </div>
+          
+          <!-- Target Grades (Hidden by default, shown for 'חברתי' or 'טיול') -->
+          <div id="event-grades-container" class="form-group hidden">
+            <label class="form-label">שכבות יעד: <span style="color:var(--danger-color)">*</span></label>
+            <div class="grades-checkbox-grid">
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ד">
+                <span>ד'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ה">
+                <span>ה'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ו">
+                <span>ו'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ז">
+                <span>ז'</span>
+              </label>
+              <label class="grade-checkbox-label">
+                <input type="checkbox" class="grade-checkbox" value="ח">
+                <span>ח'</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Event Description -->
+          <div class="form-group">
+            <label for="event-description" class="form-label">תיאור ופרטים נוספים (אופציונלי):</label>
+            <textarea id="event-description" class="form-control" rows="3" placeholder="הסבר, הערות, ציוד נדרש או פרטים נוספים..."></textarea>
+          </div>
+        </div>
+        
+        <footer class="modal-footer">
+          <button type="button" id="event-cancel-btn" class="btn btn-secondary">ביטול</button>
+          <button type="submit" id="event-submit-btn" class="btn btn-primary">שמור אירוע</button>
+        </footer>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Modal B: Event Details Pop-up -->
+  <dialog id="event-details-modal" class="modal-overlay">
+    <div class="modal-content">
+      <header class="modal-header" style="background-color: var(--primary-light);">
+        <h3 class="modal-title" style="color: var(--primary-color);">פרטי האירוע</h3>
+        <button id="details-modal-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <div class="modal-body">
+        <div id="event-details-content">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      
+      <footer class="modal-footer" style="justify-content: space-between;">
+        <div id="details-actions-container" style="display: flex; gap: 8px;">
+          <!-- Edit / Delete buttons rendered dynamically based on user authorization -->
+        </div>
+        <button type="button" onclick="document.getElementById('event-details-modal').classList.remove('active')" class="btn btn-secondary">סגור</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Modal C: Secure PIN Verification Modal for Reset -->
+  <dialog id="pin-overlay" class="modal-overlay">
+    <div class="modal-content" style="width: 400px;">
+      <header class="modal-header" style="background-color: var(--danger-light); border-bottom-color: rgba(239, 68, 68, 0.15);">
+        <h3 class="modal-title" style="color: #991b1b;"><i class="fas fa-lock" style="margin-left: 8px;"></i>אימות מנהל מערכת</h3>
+        <button id="pin-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <form id="pin-form">
+        <div class="modal-body pin-input-container">
+          <p style="font-size: 0.95rem; text-align: center; line-height: 1.5; color: var(--text-secondary);">
+            פעולה זו תמחק את כל הנתונים בלוחות בית הספר לקראת שנת הלימודים הבאה.
+            אנא הקלד את קוד ה-PIN האבטחתי של מנהל המערכת לאישור:
+          </p>
+          
+          <input type="password" id="admin-pin-input" class="pin-input-box" maxlength="4" placeholder="••••" required autofocus autocomplete="off">
+          
+          <div class="pin-warning">
+            <i class="fas fa-exclamation-triangle" style="margin-left: 4px;"></i>
+            פעולה זו אינה ניתנת לביטול!
+          </div>
+        </div>
+        
+        <footer class="modal-footer" style="background-color: #fafafa;">
+          <button type="button" id="pin-cancel" class="btn btn-secondary">ביטול</button>
+          <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i>בצע מחיקה</button>
+        </footer>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Mobile Floating Action Button (FAB) -->
+  <button id="mobile-add-event-fab" class="mobile-fab" style="display: none;">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- JS App Orchestration Link -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
