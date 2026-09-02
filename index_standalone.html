@@ -634,7 +634,7 @@
 
     .calendar-weekdays {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       direction: rtl;
       background-color: var(--primary-light);
       border-bottom: 1px solid var(--border-color);
@@ -655,7 +655,7 @@
 
     .calendar-days-grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       grid-auto-rows: minmax(120px, 1fr);
       direction: rtl;
       flex-grow: 1;
@@ -666,7 +666,7 @@
     .calendar-day-cell {
       border-left: 1px solid var(--border-color);
       border-bottom: 1px solid var(--border-color);
-      padding: 8px;
+      padding: 6px 8px;
       min-height: 120px;
       position: relative;
       display: flex;
@@ -674,6 +674,9 @@
       transition: background-color 0.2s ease;
       cursor: pointer;
       background-color: white;
+      min-width: 0;
+      overflow: hidden;
+      box-sizing: border-box;
     }
 
     .calendar-day-cell:nth-child(7n) {
@@ -740,9 +743,8 @@
       border-radius: var(--radius-sm);
       margin-top: auto;
       text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      word-break: break-word;
     }
 
     .calendar-day-cell.special-day {
@@ -758,33 +760,37 @@
       border-radius: var(--radius-sm);
       margin-top: auto;
       text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      word-break: break-word;
     }
 
     .cell-events-container {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      margin-top: 6px;
+      margin-top: 4px;
       flex-grow: 1;
       overflow-y: auto;
-      max-height: 70px;
+      max-height: 85px;
+      min-width: 0;
     }
 
     .event-bar {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      padding: 3px 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      height: 22px;
-      line-height: 16px;
+      padding: 3px 6px;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.25;
+      min-height: 22px;
+      height: auto;
       position: relative;
       cursor: pointer;
       transition: filter 0.15s ease;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
     }
 
     .event-bar:hover {
