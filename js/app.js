@@ -541,12 +541,23 @@ function setupEventListeners() {
       const text = document.getElementById('cal-fullscreen-text');
 
       if (isFullscreen) {
+        state.activeView = 'calendar';
+        const switchCal = document.getElementById('switch-calendar');
+        const switchGantt = document.getElementById('switch-gantt');
+        if (switchCal) switchCal.classList.add('active');
+        if (switchGantt) switchGantt.classList.remove('active');
+        const calContainer = document.getElementById('calendar-grid-container');
+        const ganttContainer = document.getElementById('gantt-chart-container');
+        if (calContainer) calContainer.style.display = 'flex';
+        if (ganttContainer) ganttContainer.style.display = 'none';
+
         if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen().catch(() => {});
         }
         if (icon) icon.className = 'fas fa-compress';
         if (text) text.textContent = 'יציאה ממסך מלא';
         fullscreenBtn.classList.add('btn-fullscreen-active');
+        renderApp();
       } else {
         if (document.exitFullscreen && document.fullscreenElement) {
           document.exitFullscreen().catch(() => {});
@@ -554,6 +565,7 @@ function setupEventListeners() {
         if (icon) icon.className = 'fas fa-expand';
         if (text) text.textContent = 'מסך מלא';
         fullscreenBtn.classList.remove('btn-fullscreen-active');
+        renderApp();
       }
     };
 

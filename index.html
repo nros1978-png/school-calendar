@@ -1945,84 +1945,235 @@
         padding: 24px 20px !important;
       }
 
-      /* Fullscreen Projection Mode (Staff Room TV Display) */
-      body.fullscreen-mode {
-        overflow: hidden !important;
-        background-color: var(--bg-main) !important;
-      }
+    }
 
-      body.fullscreen-mode .sidebar,
-      body.fullscreen-mode .view-header,
-      body.fullscreen-mode .mobile-header,
-      body.fullscreen-mode .mobile-nav,
-      body.fullscreen-mode .mobile-fab,
-      body.fullscreen-mode #gantt-grid-container,
-      body.fullscreen-mode .mobile-events-list-container {
-        display: none !important;
-      }
+    /* ====================================================
+       SCHOOL BRANDING & LOGO STYLES
+       ==================================================== */
+    .calendar-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-      body.fullscreen-mode .content-area {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 999999 !important;
-        margin-right: 0 !important;
-        margin-left: 0 !important;
-        padding: 12px 16px !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        max-width: 100vw !important;
-        background-color: var(--bg-main) !important;
-        overflow: hidden !important;
-      }
+    .school-cal-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      background-color: white;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
 
-      body.fullscreen-mode .dashboard-content {
-        padding: 0 !important;
-        height: calc(100vh - 24px) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: hidden !important;
-      }
+    .school-cal-titles {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
 
-      body.fullscreen-mode .calendar-controls {
-        margin-bottom: 10px !important;
-        padding: 10px 20px !important;
-        box-shadow: var(--shadow-md) !important;
-      }
+    .school-cal-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
 
-      body.fullscreen-mode .calendar-grid-wrapper {
-        flex: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: hidden !important;
-        box-shadow: var(--shadow-md) !important;
-      }
+    .school-cal-dedication {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
 
-      body.fullscreen-mode .calendar-days-grid {
-        flex: 1 !important;
-        display: grid !important;
-        grid-template-rows: repeat(5, 1fr) !important;
-        overflow: hidden !important;
-      }
+    .sidebar-school-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      background: white;
+      flex-shrink: 0;
+    }
 
-      body.fullscreen-mode .calendar-day-cell {
-        min-height: 0 !important;
-        height: 100% !important;
-        padding: 6px 8px !important;
-      }
+    .sidebar-brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
 
-      body.fullscreen-mode .calendar-day-cell .event-bar {
-        display: flex !important;
-        margin-bottom: 3px !important;
-        padding: 4px 8px !important;
-        font-size: 0.82rem !important;
-        font-weight: 700 !important;
-      }
+    .sidebar-brand-text .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: white;
+    }
 
-      body.fullscreen-mode .btn-fullscreen-active {
-        background-color: var(--primary-color) !important;
-        color: white !important;
-      }
+    .sidebar-brand-text .brand-subtitle {
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* ====================================================
+       FULLSCREEN PROJECTION MODE (STAFF ROOM TV DISPLAY)
+       ==================================================== */
+    body.fullscreen-mode {
+      overflow: hidden !important;
+      background-color: #f1f5f9 !important;
+    }
+
+    /* Hide everything except the pure calendar display */
+    body.fullscreen-mode .sidebar,
+    body.fullscreen-mode .view-header,
+    body.fullscreen-mode .mobile-header,
+    body.fullscreen-mode .mobile-nav,
+    body.fullscreen-mode .mobile-fab,
+    body.fullscreen-mode #gantt-chart-container,
+    body.fullscreen-mode #gantt-grid-container,
+    body.fullscreen-mode .mobile-events-list-container,
+    body.fullscreen-mode .color-legend {
+      display: none !important;
+    }
+
+    body.fullscreen-mode .app-container {
+      height: 100vh !important;
+      width: 100vw !important;
+      overflow: hidden !important;
+    }
+
+    body.fullscreen-mode .content-area {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999999 !important;
+      margin: 0 !important;
+      padding: 12px 18px !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      background-color: #f8fafc !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    body.fullscreen-mode .dashboard-content {
+      padding: 0 !important;
+      height: 100% !important;
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+
+    body.fullscreen-mode .calendar-controls {
+      margin-bottom: 10px !important;
+      padding: 8px 20px !important;
+      background: white !important;
+      border-radius: var(--radius-md) !important;
+      box-shadow: var(--shadow-md) !important;
+      border: 1px solid var(--border-color) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      flex-shrink: 0 !important;
+    }
+
+    body.fullscreen-mode .school-cal-logo {
+      width: 52px !important;
+      height: 52px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body.fullscreen-mode .school-cal-name {
+      font-size: 1.25rem !important;
+      font-weight: 900 !important;
+      color: #1e3a8a !important;
+    }
+
+    body.fullscreen-mode .school-cal-dedication {
+      font-size: 0.85rem !important;
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+
+    body.fullscreen-mode .calendar-month-name {
+      font-size: 1.45rem !important;
+      font-weight: 900 !important;
+      color: #0f172a !important;
+    }
+
+    body.fullscreen-mode .calendar-grid-wrapper {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      box-shadow: var(--shadow-md) !important;
+      border-radius: var(--radius-md) !important;
+      min-height: 0 !important;
+      height: calc(100vh - 90px) !important;
+    }
+
+    body.fullscreen-mode .calendar-weekdays {
+      flex-shrink: 0 !important;
+    }
+
+    body.fullscreen-mode .calendar-weekdays .weekday {
+      padding: 10px 0 !important;
+      font-size: 1.05rem !important;
+      font-weight: 800 !important;
+    }
+
+    body.fullscreen-mode .calendar-days-grid {
+      flex: 1 !important;
+      display: grid !important;
+      grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+      grid-auto-rows: minmax(0, 1fr) !important;
+      overflow: hidden !important;
+      min-height: 0 !important;
+      height: 100% !important;
+    }
+
+    body.fullscreen-mode .calendar-day-cell {
+      min-height: 0 !important;
+      height: 100% !important;
+      padding: 6px 8px !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    body.fullscreen-mode .calendar-day-cell .day-number-wrapper {
+      height: 22px !important;
+      margin-bottom: 3px !important;
+    }
+
+    body.fullscreen-mode .calendar-day-cell .hebrew-day-label-small {
+      font-size: 0.95rem !important;
+      font-weight: 800 !important;
+    }
+
+    body.fullscreen-mode .calendar-day-cell .gregorian-number-small {
+      font-size: 0.88rem !important;
+      font-weight: 700 !important;
+    }
+
+    body.fullscreen-mode .cell-events-container {
+      flex: 1 !important;
+      max-height: none !important;
+      overflow-y: auto !important;
+    }
+
+    body.fullscreen-mode .calendar-day-cell .event-bar {
+      display: flex !important;
+      margin-bottom: 3px !important;
+      padding: 4px 8px !important;
+      font-size: 0.85rem !important;
+      font-weight: 700 !important;
+      min-height: 24px !important;
+    }
+
+    body.fullscreen-mode .btn-fullscreen-active {
+      background-color: var(--primary-color) !important;
+      color: white !important;
+    }
   </style>
   
   <!-- Firebase Compat SDKs (safe for file:// local testing) -->
@@ -2037,9 +2188,9 @@
        ==================================================== -->
   <main id="login-view" class="login-view" style="display: none;">
     <div class="login-card">
-      <div class="login-logo">
-        <i class="fas fa-calendar-alt"></i>
-        <span>לוח שנה בית ספרי</span>
+      <div class="login-logo" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px;">
+        <img src="assets/logo.jpg" alt="לוגו כרמי יהודה" style="width: 64px; height: 64px; object-fit: contain; border-radius: 50%; border: 2px solid var(--border-color); background: white; box-shadow: var(--shadow-sm);">
+        <span style="font-size: 1.3rem; font-weight: 800; color: var(--primary-color);">ממ"ד כרמי יהודה</span>
       </div>
       <h1 class="login-title">ברוכים הבאים</h1>
       <p class="login-subtitle">לוח שנה פדגוגי ומערכת גאנט לניהול אירועים</p>
@@ -2064,23 +2215,23 @@
             <span class="email">teacher@school.org</span>
           </button>
           <button id="login-guest-btn" class="dev-login-btn">
-            <span>אורח צפייה</span>
+            <span>אורח (צפייה בלבד)</span>
             <span class="email">guest@school.org</span>
           </button>
         </div>
-        
-        <form id="login-custom-form" style="margin-top: 16px;">
-          <label class="form-label" for="login-custom-email">התחבר עם אימייל אחר:</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="email" id="login-custom-email" class="form-control" placeholder="your-email@example.com" required style="font-size: 0.85rem;">
-            <button type="submit" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.85rem;">כניסה</button>
-          </div>
-        </form>
-        
-        <div class="file-protocol-warning">
-          <i class="fas fa-check-circle" style="margin-top: 2px;"></i>
+      </section>
+
+      <!-- Google Sign In Button -->
+      <button id="google-login-btn" class="google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        <span>התחבר עם Google</span>
+      </button>
+
+      <section class="login-footer">
+        <div class="super-admin-hint">
+          <i class="fas fa-crown"></i>
           <span>
-            <strong>מצב הדמיה מקומי פעיל בהצלחה:</strong> גרסה זו הותאמה לעבודה ישירה ללא שרת! תוכל לבדוק את כל היכולות בלחיצה כפולה.
+            מנהל ראשי מוגדר: <strong>nros1978@gmail.com</strong>
           </span>
         </div>
       </section>
@@ -2095,9 +2246,12 @@
     <!-- Right Sidebar (RTL) -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <i class="fas fa-school"></i>
-          <span>לוח שנה בית-ספרי</span>
+        <div class="sidebar-brand" style="display: flex; align-items: center; gap: 10px;">
+          <img src="assets/logo.jpg" alt="לוגו בית הספר" class="sidebar-school-logo">
+          <div class="sidebar-brand-text">
+            <span class="brand-title">כרמי יהודה</span>
+            <span class="brand-subtitle">לוח שנה פדגוגי</span>
+          </div>
         </div>
       </div>
       
@@ -2206,6 +2360,13 @@
         <div class="dashboard-content">
           <!-- Calendar Controller / Navigation bar -->
           <div class="calendar-controls">
+            <div class="calendar-header-brand">
+              <img src="assets/logo.jpg" alt="לוגו בית הספר כרמי יהודה" class="school-cal-logo">
+              <div class="school-cal-titles">
+                <span class="school-cal-name">ממ"ד כרמי יהודה</span>
+                <span class="school-cal-dedication">ע"ש הרב יהודה עמיטל • גוש עציון</span>
+              </div>
+            </div>
             <div id="calendar-month-name" class="calendar-month-name">טוען...</div>
             <div class="nav-arrows">
               <button id="cal-prev-btn" class="nav-arrow-btn" title="חודש קודם">
@@ -4358,12 +4519,24 @@
           const text = document.getElementById('cal-fullscreen-text');
 
           if (isFullscreen) {
+            // Ensure pure calendar view is active in fullscreen
+            state.activeView = 'calendar';
+            const switchCal = document.getElementById('switch-calendar');
+            const switchGantt = document.getElementById('switch-gantt');
+            if (switchCal) switchCal.classList.add('active');
+            if (switchGantt) switchGantt.classList.remove('active');
+            const calContainer = document.getElementById('calendar-grid-container');
+            const ganttContainer = document.getElementById('gantt-chart-container');
+            if (calContainer) calContainer.style.display = 'flex';
+            if (ganttContainer) ganttContainer.style.display = 'none';
+
             if (document.documentElement.requestFullscreen) {
               document.documentElement.requestFullscreen().catch(() => {});
             }
             if (icon) icon.className = 'fas fa-compress';
             if (text) text.textContent = 'יציאה ממסך מלא';
             fullscreenBtn.classList.add('btn-fullscreen-active');
+            renderApp();
           } else {
             if (document.exitFullscreen && document.fullscreenElement) {
               document.exitFullscreen().catch(() => {});
@@ -4371,6 +4544,7 @@
             if (icon) icon.className = 'fas fa-expand';
             if (text) text.textContent = 'מסך מלא';
             fullscreenBtn.classList.remove('btn-fullscreen-active');
+            renderApp();
           }
         };
 
