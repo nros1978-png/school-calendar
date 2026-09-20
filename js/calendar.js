@@ -96,91 +96,208 @@ export const Calendar = {
 
     // Filter events based on criteria
     const filteredEvents = this.filterEvents(events, filterType, filterGrade);
+    const isMobile = window.innerWidth <= 768;
 
-    // Render cells to DOM
-    daysList.forEach((day, index) => {
-      const cell = document.createElement('div');
-      cell.className = 'calendar-day-cell';
-      
-      if (!day.isCurrentMonth) {
-        cell.classList.add('other-month');
-      }
-      if (day.dateKey === todayKey) {
-        cell.classList.add('today');
-      }
-      
-      const isMobile = window.innerWidth <= 768;
-      
-      // Highlight active selected day on mobile
-      if (isMobile && day.dateKey === selectedDate) {
-        cell.classList.add('active-day');
-      }
+    // Group days into weeks of 7 days
+    const weeks = [];
+    for (let i = 0; i < daysList.length; i += 7) {
+      weeks.push(daysList.slice(i, i + 7));
+    }
 
-      // Fetch Hebrew Date and base calendar status info
-      const dateInfo = DB.getHebrewDateInfo(day.dateKey);
-      
-      if (dateInfo.status === 'Holiday') {
-        cell.classList.add('holiday');
-      } else if (dateInfo.status === 'Special Day') {
-        cell.classList.add('special-day');
-      }
+    weeks.forEach((weekDays) => {
+      const weekRow = document.createElement('div');
+      weekRow.className = 'calendar-week-row';
 
-      // Setup Date structure inside cell
-      const dayHeader = document.createElement('div');
-      dayHeader.className = 'day-number-wrapper';
-      
-      // Gematria Day (Top Right, Small)
-      const hebrewLabel = document.createElement('span');
-      hebrewLabel.className = 'hebrew-day-label-small';
-      const hebrewDayGematria = dateInfo.hebrewDate.split(' ')[0] || '';
-      hebrewLabel.textContent = hebrewDayGematria;
-      
-      // Gregorian Day (Top Left, Small)
-      const gregNum = document.createElement('span');
-      gregNum.className = 'gregorian-number-small';
-      gregNum.textContent = day.dayNumber;
-      
-      dayHeader.appendChild(hebrewLabel);
-      dayHeader.appendChild(gregNum);
-      cell.appendChild(dayHeader);
+      // 1. Render 7 day background cells (grid-row: 1 / -1)
+      weekDays.forEach((day, colIdx) => {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell';
+        if (colIdx === 6) cell.classList.add('is-last-col');
+        cell.style.gridColumn = `${colIdx + 1}`;
+        cell.style.gridRow = '1 / -1';
 
-      // Add Base Calendar labels if present (Holiday / Special Day description) - DESKTOP ONLY
-      if (!isMobile) {
-        if (dateInfo.status === 'Holiday' && dateInfo.description) {
-          const holidayLabel = document.createElement('div');
-          holidayLabel.className = 'holiday-cell-label';
-          holidayLabel.textContent = dateInfo.description;
-          holidayLabel.title = dateInfo.description;
-          cell.appendChild(holidayLabel);
-        } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
-          const specialLabel = document.createElement('div');
-          specialLabel.className = 'special-cell-label';
-          specialLabel.textContent = dateInfo.description;
-          specialLabel.title = dateInfo.description;
-          cell.appendChild(specialLabel);
-        }
-      }
+        if (!day.isCurrentMonth) cell.classList.add('other-month');
+        if (day.dateKey === todayKey) cell.classList.add('today');
+        if (isMobile && day.dateKey === selectedDate) cell.classList.add('active-day');
 
-      // Add events container
-      const eventsContainer = document.createElement('div');
-      eventsContainer.className = 'cell-events-container';
-      cell.appendChild(eventsContainer);
+        const dateInfo = DB.getHebrewDateInfo(day.dateKey);
+        if (dateInfo.status === 'Holiday') cell.classList.add('holiday');
+        else if (dateInfo.status === 'Special Day') cell.classList.add('special-day');
 
-      // Render events active on this day
-      const dayOfWeek = index % 7; // 0 = Sunday (far right), 6 = Saturday (far left) in RTL
-      this.renderEventsInCell(day.dateKey, dayOfWeek, filteredEvents, eventsContainer, onEventClick);
+        cell.addEventListener('click', () => {
+          if (isMobile) {
+            if (onDaySelect) onDaySelect(day.dateKey);
+          } else {
+            onDayClick(day.dateKey);
+          }
+        });
 
-      // Bind cell click handler
-      cell.addEventListener('click', (e) => {
-        if (isMobile) {
-          if (onDaySelect) onDaySelect(day.dateKey);
-        } else {
-          if (e.target.closest('.event-bar')) return;
-          onDayClick(day.dateKey);
-        }
+        weekRow.appendChild(cell);
       });
 
-      gridContainer.appendChild(cell);
+      // 2. Render 7 day headers (grid-row: 1)
+      weekDays.forEach((day, colIdx) => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day-header';
+        header.style.gridColumn = `${colIdx + 1}`;
+        header.style.gridRow = '1';
+
+        if (!day.isCurrentMonth) header.classList.add('other-month');
+        if (day.dateKey === todayKey) header.classList.add('today');
+
+        const dateInfo = DB.getHebrewDateInfo(day.dateKey);
+        if (dateInfo.status === 'Holiday') header.classList.add('holiday');
+        else if (dateInfo.status === 'Special Day') header.classList.add('special-day');
+
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'day-number-wrapper';
+
+        const hebrewLabel = document.createElement('span');
+        hebrewLabel.className = 'hebrew-day-label-small';
+        hebrewLabel.textContent = dateInfo.hebrewDate.split(' ')[0] || '';
+
+        const gregNum = document.createElement('span');
+        gregNum.className = 'gregorian-number-small';
+        gregNum.textContent = day.dayNumber;
+
+        dayHeader.appendChild(hebrewLabel);
+        dayHeader.appendChild(gregNum);
+        header.appendChild(dayHeader);
+
+        if (!isMobile) {
+          if (dateInfo.status === 'Holiday' && dateInfo.description) {
+            const holidayLabel = document.createElement('div');
+            holidayLabel.className = 'holiday-cell-label';
+            holidayLabel.textContent = dateInfo.description;
+            header.appendChild(holidayLabel);
+          } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
+            const specialLabel = document.createElement('div');
+            specialLabel.className = 'special-cell-label';
+            specialLabel.textContent = dateInfo.description;
+            header.appendChild(specialLabel);
+          }
+        } else {
+          const activeDayEvents = filteredEvents.filter(e => day.dateKey >= e.startDate && day.dateKey <= e.endDate);
+          if (activeDayEvents.length > 0) {
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'mobile-dots-container';
+            activeDayEvents.slice(0, 4).forEach(evt => {
+              const dot = document.createElement('span');
+              let typeClass = 'evt-staff';
+              switch (evt.eventType) {
+                case 'צוותי': typeClass = 'evt-staff'; break;
+                case 'מנהלתי': typeClass = 'evt-admin'; break;
+                case 'חברתי': typeClass = 'evt-social'; break;
+                case 'פדגוגי': typeClass = 'evt-academic'; break;
+                case 'טיול': typeClass = 'evt-trip'; break;
+                case 'אחר': typeClass = 'evt-other'; break;
+              }
+              dot.className = `event-dot ${typeClass}`;
+              dotsContainer.appendChild(dot);
+            });
+            header.appendChild(dotsContainer);
+          }
+        }
+
+        weekRow.appendChild(header);
+      });
+
+      // 3. Render Events in the week (Desktop only)
+      if (!isMobile) {
+        const weekStart = weekDays[0].dateKey;
+        const weekEnd = weekDays[6].dateKey;
+
+        const weekEvents = filteredEvents.filter(evt => {
+          return !(evt.endDate < weekStart || evt.startDate > weekEnd);
+        });
+
+        const preparedEvents = weekEvents.map(evt => {
+          const effectiveStart = evt.startDate < weekStart ? weekStart : evt.startDate;
+          const effectiveEnd = evt.endDate > weekEnd ? weekEnd : evt.endDate;
+          const startCol = weekDays.findIndex(d => d.dateKey === effectiveStart);
+          const endCol = weekDays.findIndex(d => d.dateKey === effectiveEnd);
+          const sCol = startCol !== -1 ? startCol : 0;
+          const eCol = endCol !== -1 ? endCol : 6;
+          const span = eCol - sCol + 1;
+          return {
+            event: evt,
+            startCol: sCol,
+            endCol: eCol,
+            span: span,
+            startsThisWeek: evt.startDate >= weekStart,
+            endsThisWeek: evt.endDate <= weekEnd
+          };
+        });
+
+        // Sort: multi-day spanning events first (longest span first), then earlier startCol, then earlier startDate
+        preparedEvents.sort((a, b) => {
+          if (b.span !== a.span) return b.span - a.span;
+          if (a.startCol !== b.startCol) return a.startCol - b.startCol;
+          if (a.event.startDate !== b.event.startDate) return a.event.startDate.localeCompare(b.event.startDate);
+          return a.event.id.localeCompare(b.event.id);
+        });
+
+        // Packing into vertical slots
+        const colSlots = [[], [], [], [], [], [], []];
+        preparedEvents.forEach(item => {
+          let slot = 0;
+          while (true) {
+            let conflict = false;
+            for (let c = item.startCol; c <= item.endCol; c++) {
+              if (colSlots[c][slot]) {
+                conflict = true;
+                break;
+              }
+            }
+            if (!conflict) break;
+            slot++;
+          }
+          for (let c = item.startCol; c <= item.endCol; c++) {
+            colSlots[c][slot] = true;
+          }
+          item.slot = slot;
+        });
+
+        // Render event bars
+        preparedEvents.forEach(item => {
+          const eventBar = document.createElement('div');
+          let typeClass = 'evt-staff';
+          switch (item.event.eventType) {
+            case 'צוותי': typeClass = 'evt-staff'; break;
+            case 'מנהלתי': typeClass = 'evt-admin'; break;
+            case 'חברתי': typeClass = 'evt-social'; break;
+            case 'פדגוגי': typeClass = 'evt-academic'; break;
+            case 'טיול': typeClass = 'evt-trip'; break;
+            case 'אחר': typeClass = 'evt-other'; break;
+          }
+
+          let segmentClass = 'single-day';
+          if (item.span > 1 || !item.startsThisWeek || !item.endsThisWeek) {
+            segmentClass = 'multi-day-span';
+            if (item.startsThisWeek && !item.endsThisWeek) segmentClass += ' continues-next';
+            else if (!item.startsThisWeek && item.endsThisWeek) segmentClass += ' continues-prev';
+            else if (!item.startsThisWeek && !item.endsThisWeek) segmentClass += ' continues-both';
+          }
+
+          eventBar.className = `event-bar ${segmentClass} ${typeClass}`;
+          eventBar.setAttribute('data-event-id', item.event.id);
+          eventBar.style.gridColumn = `${item.startCol + 1} / span ${item.span}`;
+          eventBar.style.gridRow = `${item.slot + 2}`;
+
+          const titleSuffix = (!item.startsThisWeek && item.span > 1) ? ' (המשך)' : '';
+          eventBar.textContent = item.event.title + titleSuffix;
+          eventBar.title = `${item.event.title} (${item.event.eventType})`;
+
+          eventBar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onEventClick(item.event);
+          });
+
+          weekRow.appendChild(eventBar);
+        });
+      }
+
+      gridContainer.appendChild(weekRow);
     });
   },
 
@@ -196,102 +313,12 @@ export const Calendar = {
       
       // 2. Filter by Target Grade
       if (filterGrade !== 'all') {
-        // If event specifies target grades, it must contain the selected grade.
-        // If it specifies NO target grades (e.g. staff/admin events), it stays visible (doesn't get filtered out).
         if (event.targetGrades && event.targetGrades.length > 0) {
           return event.targetGrades.includes(filterGrade);
         }
       }
       
       return true;
-    });
-  },
-
-  /**
-   * Renders the event pills/bars in a single day cell
-   */
-  renderEventsInCell(dateKey, dayOfWeek, events, container, onEventClick) {
-    const activeEvents = events.filter(event => {
-      return dateKey >= event.startDate && dateKey <= event.endDate;
-    });
-
-    // Sort by start date, then duration, then ID to keep rendering order consistent across cells
-    activeEvents.sort((a, b) => {
-      if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
-      const aDuration = new Date(a.endDate) - new Date(a.startDate);
-      const bDuration = new Date(b.endDate) - new Date(b.startDate);
-      if (aDuration !== bDuration) return bDuration - aDuration;
-      return a.id.localeCompare(b.id);
-    });
-
-    if (window.innerWidth <= 768) {
-      if (activeEvents.length === 0) return;
-      const dotsContainer = document.createElement('div');
-      dotsContainer.className = 'mobile-dots-container';
-      
-      activeEvents.slice(0, 4).forEach(event => {
-        const dot = document.createElement('span');
-        let typeClass = 'evt-staff';
-        switch (event.eventType) {
-          case 'צוותי': typeClass = 'evt-staff'; break;
-          case 'מנהלתי': typeClass = 'evt-admin'; break;
-          case 'חברתי': typeClass = 'evt-social'; break;
-          case 'פדגוגי': typeClass = 'evt-academic'; break;
-          case 'טיול': typeClass = 'evt-trip'; break;
-          case 'אחר': typeClass = 'evt-other'; break;
-        }
-        dot.className = `event-dot ${typeClass}`;
-        dotsContainer.appendChild(dot);
-      });
-      container.appendChild(dotsContainer);
-      return;
-    }
-
-    activeEvents.forEach(event => {
-      const eventBar = document.createElement('div');
-      
-      // Determine segment types
-      let segmentClass = 'single-day';
-      if (event.startDate === event.endDate) {
-        segmentClass = 'single-day';
-      } else if (event.startDate === dateKey) {
-        segmentClass = 'start-day';
-      } else if (event.endDate === dateKey) {
-        segmentClass = 'end-day';
-      } else {
-        segmentClass = 'middle-day';
-      }
-
-      // Type color class mapping
-      let typeClass = 'evt-staff';
-      switch (event.eventType) {
-        case 'צוותי': typeClass = 'evt-staff'; break;
-        case 'מנהלתי': typeClass = 'evt-admin'; break;
-        case 'חברתי': typeClass = 'evt-social'; break;
-        case 'פדגוגי': typeClass = 'evt-academic'; break;
-        case 'טיול': typeClass = 'evt-trip'; break;
-        case 'אחר': typeClass = 'evt-other'; break;
-      }
-
-      eventBar.className = `event-bar ${segmentClass} ${typeClass}`;
-      eventBar.setAttribute('data-event-id', event.id);
-
-      // Title Display Rule:
-      // Show title on start day, or on Sunday (dayOfWeek === 0) so wrapped event bars repeat titles on new week rows
-      if (segmentClass === 'single-day' || segmentClass === 'start-day' || dayOfWeek === 0) {
-        eventBar.textContent = event.title;
-        eventBar.title = `${event.title} (${event.eventType})`;
-      } else {
-        eventBar.textContent = '';
-      }
-
-      // Bind event click
-      eventBar.addEventListener('click', (e) => {
-        e.stopPropagation(); // Stop click from triggering parent day cell click
-        onEventClick(event);
-      });
-
-      container.appendChild(eventBar);
     });
   }
 };
