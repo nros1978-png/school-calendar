@@ -320,13 +320,88 @@ export const Calendar = {
       const weekRow = document.createElement('div');
       weekRow.className = 'calendar-week-row';
 
-      // 1. Render 7 day background cells (grid-row: 1 / -1)
+      const weekStart = weekDays[0].dateKey;
+      const weekEnd = weekDays[6].dateKey;
+
+      let preparedEvents = [];
+      let numSlots = 0;
+
+      if (!isMobile) {
+        const weekEvents = filteredEvents.filter(evt => {
+          return !(evt.endDate < weekStart || evt.startDate > weekEnd);
+        });
+
+        preparedEvents = weekEvents.map(evt => {
+          const effectiveStart = evt.startDate < weekStart ? weekStart : evt.startDate;
+          const effectiveEnd = evt.endDate > weekEnd ? weekEnd : evt.endDate;
+          const startCol = weekDays.findIndex(d => d.dateKey === effectiveStart);
+          const endCol = weekDays.findIndex(d => d.dateKey === effectiveEnd);
+          const sCol = startCol !== -1 ? startCol : 0;
+          const eCol = endCol !== -1 ? endCol : 6;
+          const span = eCol - sCol + 1;
+          return {
+            event: evt,
+            startCol: sCol,
+            endCol: eCol,
+            span: span,
+            startsThisWeek: evt.startDate >= weekStart,
+            endsThisWeek: evt.endDate <= weekEnd
+          };
+        });
+
+        // Sort: multi-day spanning events first (longest span first), then earlier startCol, then earlier startDate
+        preparedEvents.sort((a, b) => {
+          if (b.span !== a.span) return b.span - a.span;
+          if (a.startCol !== b.startCol) return a.startCol - b.startCol;
+          if (a.event.startDate !== b.event.startDate) return a.event.startDate.localeCompare(b.event.startDate);
+          return a.event.id.localeCompare(b.event.id);
+        });
+
+        // Packing into vertical slots
+        const colSlots = [[], [], [], [], [], [], []];
+        let maxSlot = -1;
+        preparedEvents.forEach(item => {
+          let slot = 0;
+          while (true) {
+            let conflict = false;
+            for (let c = item.startCol; c <= item.endCol; c++) {
+              if (colSlots[c][slot]) {
+                conflict = true;
+                break;
+              }
+            }
+            if (!conflict) break;
+            slot++;
+          }
+          for (let c = item.startCol; c <= item.endCol; c++) {
+            colSlots[c][slot] = true;
+          }
+          item.slot = slot;
+          if (slot > maxSlot) maxSlot = slot;
+        });
+        numSlots = maxSlot + 1;
+      }
+
+      // Explicit grid rows:
+      // Row 1: auto (for date numbers & holiday labels)
+      // Row 2 to (numSlots + 1): 26px for each event slot
+      // Last Row: minmax(8px, 1fr) for bottom spacing
+      const rowTemplates = ['auto'];
+      for (let s = 0; s < numSlots; s++) {
+        rowTemplates.push('26px');
+      }
+      rowTemplates.push('minmax(8px, 1fr)');
+      weekRow.style.gridTemplateRows = rowTemplates.join(' ');
+
+      const totalRowTracks = numSlots + 2;
+
+      // 1. Render 7 day background cells (spanning row 1 to the end)
       weekDays.forEach((day, colIdx) => {
         const cell = document.createElement('div');
         cell.className = 'calendar-day-cell';
         if (colIdx === 6) cell.classList.add('is-last-col');
         cell.style.gridColumn = `${colIdx + 1}`;
-        cell.style.gridRow = '1 / -1';
+        cell.style.gridRow = `1 / ${totalRowTracks + 1}`;
 
         if (!day.isCurrentMonth) cell.classList.add('other-month');
         if (day.dateKey === todayKey) cell.classList.add('today');
@@ -424,61 +499,6 @@ export const Calendar = {
 
       // 3. Render Events in the week (Desktop only)
       if (!isMobile) {
-        const weekStart = weekDays[0].dateKey;
-        const weekEnd = weekDays[6].dateKey;
-
-        const weekEvents = filteredEvents.filter(evt => {
-          return !(evt.endDate < weekStart || evt.startDate > weekEnd);
-        });
-
-        const preparedEvents = weekEvents.map(evt => {
-          const effectiveStart = evt.startDate < weekStart ? weekStart : evt.startDate;
-          const effectiveEnd = evt.endDate > weekEnd ? weekEnd : evt.endDate;
-          const startCol = weekDays.findIndex(d => d.dateKey === effectiveStart);
-          const endCol = weekDays.findIndex(d => d.dateKey === effectiveEnd);
-          const sCol = startCol !== -1 ? startCol : 0;
-          const eCol = endCol !== -1 ? endCol : 6;
-          const span = eCol - sCol + 1;
-          return {
-            event: evt,
-            startCol: sCol,
-            endCol: eCol,
-            span: span,
-            startsThisWeek: evt.startDate >= weekStart,
-            endsThisWeek: evt.endDate <= weekEnd
-          };
-        });
-
-        // Sort: multi-day spanning events first (longest span first), then earlier startCol, then earlier startDate
-        preparedEvents.sort((a, b) => {
-          if (b.span !== a.span) return b.span - a.span;
-          if (a.startCol !== b.startCol) return a.startCol - b.startCol;
-          if (a.event.startDate !== b.event.startDate) return a.event.startDate.localeCompare(b.event.startDate);
-          return a.event.id.localeCompare(b.event.id);
-        });
-
-        // Packing into vertical slots
-        const colSlots = [[], [], [], [], [], [], []];
-        preparedEvents.forEach(item => {
-          let slot = 0;
-          while (true) {
-            let conflict = false;
-            for (let c = item.startCol; c <= item.endCol; c++) {
-              if (colSlots[c][slot]) {
-                conflict = true;
-                break;
-              }
-            }
-            if (!conflict) break;
-            slot++;
-          }
-          for (let c = item.startCol; c <= item.endCol; c++) {
-            colSlots[c][slot] = true;
-          }
-          item.slot = slot;
-        });
-
-        // Render event bars
         preparedEvents.forEach(item => {
           const eventBar = document.createElement('div');
           let typeClass = 'evt-staff';

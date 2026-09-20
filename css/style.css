@@ -688,7 +688,8 @@ button, input, select, textarea {
   border-left: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   padding: 0;
-  min-height: 120px;
+  min-height: 0;
+  height: 100%;
   position: relative;
   transition: background-color 0.2s ease;
   cursor: pointer;
@@ -2036,7 +2037,8 @@ input:checked + .switch-slider:before {
   }
 
   .calendar-day-cell {
-    min-height: 55px !important;
+    min-height: 0 !important;
+    height: 100% !important;
     padding: 0 !important;
   }
 
