@@ -743,6 +743,38 @@ button, input, select, textarea {
   color: var(--text-primary);
 }
 
+/* Primary / Secondary Day Numbers for Hebrew-first view */
+.day-number-primary {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.day-number-secondary {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.cal-mode-toggle {
+  display: flex;
+  background: #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  margin-left: 8px;
+}
+
+.cal-mode-btn {
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
 .calendar-day-cell.other-month {
   background-color: #fafafa;
 }
@@ -750,8 +782,13 @@ button, input, select, textarea {
 .calendar-day-cell.other-month .hebrew-day-label-small,
 .calendar-day-cell.other-month .gregorian-number-small,
 .calendar-day-header.other-month .hebrew-day-label-small,
-.calendar-day-header.other-month .gregorian-number-small {
+.calendar-day-header.other-month .gregorian-number-small,
+.calendar-day-cell.other-month .day-number-primary,
+.calendar-day-cell.other-month .day-number-secondary,
+.calendar-day-header.other-month .day-number-primary,
+.calendar-day-header.other-month .day-number-secondary {
   color: var(--text-muted);
+  opacity: 0.6;
 }
 
 /* Today Highlighter */
@@ -768,7 +805,9 @@ button, input, select, textarea {
 }
 
 .calendar-day-cell.holiday .hebrew-day-label-small,
-.calendar-day-header.holiday .hebrew-day-label-small {
+.calendar-day-header.holiday .hebrew-day-label-small,
+.calendar-day-cell.holiday .day-number-primary,
+.calendar-day-header.holiday .day-number-primary {
   color: #991b1b;
 }
 

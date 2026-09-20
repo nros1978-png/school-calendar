@@ -730,6 +730,21 @@
       color: var(--text-primary);
     }
 
+    /* Primary / Secondary Day Numbers for Hebrew-first view */
+    .day-number-primary {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .day-number-secondary {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
     .calendar-day-cell.other-month {
       background-color: #fafafa;
     }
@@ -737,8 +752,13 @@
     .calendar-day-cell.other-month .hebrew-day-label-small,
     .calendar-day-cell.other-month .gregorian-number-small,
     .calendar-day-header.other-month .hebrew-day-label-small,
-    .calendar-day-header.other-month .gregorian-number-small {
+    .calendar-day-header.other-month .gregorian-number-small,
+    .calendar-day-cell.other-month .day-number-primary,
+    .calendar-day-cell.other-month .day-number-secondary,
+    .calendar-day-header.other-month .day-number-primary,
+    .calendar-day-header.other-month .day-number-secondary {
       color: var(--text-muted);
+      opacity: 0.6;
     }
 
     .calendar-day-cell.today {
@@ -753,7 +773,9 @@
     }
 
     .calendar-day-cell.holiday .hebrew-day-label-small,
-    .calendar-day-header.holiday .hebrew-day-label-small {
+    .calendar-day-header.holiday .hebrew-day-label-small,
+    .calendar-day-cell.holiday .day-number-primary,
+    .calendar-day-header.holiday .day-number-primary {
       color: #991b1b;
     }
 
@@ -2399,6 +2421,10 @@
             </div>
             <div id="calendar-month-name" class="calendar-month-name">טוען...</div>
             <div class="nav-arrows">
+              <div class="cal-mode-toggle" style="display: flex; background: #e2e8f0; border-radius: var(--radius-sm); padding: 2px; margin-left: 8px;">
+                <button id="cal-mode-heb-btn" class="cal-mode-btn" style="padding: 3px 10px; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 4px; background: white; color: var(--primary-color); cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08);">חודש עברי</button>
+                <button id="cal-mode-greg-btn" class="cal-mode-btn" style="padding: 3px 10px; font-size: 0.8rem; font-weight: 600; border: none; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer;">לועזי</button>
+              </div>
               <button id="cal-prev-btn" class="nav-arrow-btn" title="חודש קודם">
                 <i class="fas fa-chevron-right"></i>
               </button>
@@ -3279,6 +3305,207 @@
     };
 
     // ----------------------------------------------------
+    // 2.5 HEBREW CALENDAR HELPER
+    // ----------------------------------------------------
+    const HebrewCalendar = {
+      _cache: new Map(),
+
+      getMonthsForYear(hebrewYear) {
+        if (this._cache.has(hebrewYear)) {
+          return this._cache.get(hebrewYear);
+        }
+        const approxGregYear = hebrewYear - 3761; // e.g. 5787 begins in autumn 2026
+        let d = new Date(approxGregYear, 7, 15);
+        const endRange = new Date(approxGregYear + 1, 9, 30);
+
+        const formatter = new Intl.DateTimeFormat('en-u-ca-hebrew', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric'
+        });
+        const hebFormatter = new Intl.DateTimeFormat('he-u-ca-hebrew', {
+          month: 'long'
+        });
+
+        const months = [];
+        let currentMonthName = '';
+        let currentMonthHebName = '';
+        let currentMonthStart = null;
+        let prevDate = null;
+
+        while (d <= endRange) {
+          const parts = formatter.formatToParts(d);
+          let hYear = 0, hMonth = '', hDay = 0;
+          for (const p of parts) {
+            if (p.type === 'year') hYear = parseInt(p.value, 10);
+            if (p.type === 'month') hMonth = p.value;
+            if (p.type === 'day') hDay = parseInt(p.value, 10);
+          }
+
+          if (hYear === hebrewYear) {
+            if (hMonth !== currentMonthName) {
+              if (currentMonthStart && prevDate) {
+                const daysCount = Math.round((prevDate - currentMonthStart) / (1000 * 60 * 60 * 24)) + 1;
+                months.push({
+                  name: currentMonthHebName,
+                  index: months.length,
+                  firstDate: new Date(currentMonthStart),
+                  lastDate: new Date(prevDate),
+                  daysCount: daysCount
+                });
+              }
+              currentMonthName = hMonth;
+              currentMonthHebName = hebFormatter.format(d).trim();
+              currentMonthStart = new Date(d);
+            }
+            prevDate = new Date(d);
+          } else if (hYear > hebrewYear && currentMonthStart && prevDate) {
+            const daysCount = Math.round((prevDate - currentMonthStart) / (1000 * 60 * 60 * 24)) + 1;
+            months.push({
+              name: currentMonthHebName,
+              index: months.length,
+              firstDate: new Date(currentMonthStart),
+              lastDate: new Date(prevDate),
+              daysCount: daysCount
+            });
+            break;
+          }
+
+          d.setDate(d.getDate() + 1);
+        }
+
+        this._cache.set(hebrewYear, months);
+        return months;
+      },
+
+      getMonthGrid(hebrewYear, monthIndex) {
+        const months = this.getMonthsForYear(hebrewYear);
+        if (!months || months.length === 0) return { daysList: [], monthInfo: null, gregorianRangeStr: '' };
+        const safeIndex = Math.max(0, Math.min(monthIndex, months.length - 1));
+        const monthInfo = months[safeIndex];
+
+        const firstDate = new Date(monthInfo.firstDate);
+        const lastDate = new Date(monthInfo.lastDate);
+
+        const startDayOfWeek = firstDate.getDay();
+        const totalDays = monthInfo.daysCount;
+        const totalCellsNeeded = (startDayOfWeek + totalDays > 35) ? 42 : 35;
+
+        const formatDateKey = (dt) => {
+          const y = dt.getFullYear();
+          const m = String(dt.getMonth() + 1).padStart(2, '0');
+          const d = String(dt.getDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        };
+
+        const daysList = [];
+
+        // Preceding days (from previous month)
+        for (let i = startDayOfWeek; i > 0; i--) {
+          const padDate = new Date(firstDate);
+          padDate.setDate(padDate.getDate() - i);
+          const dateKey = formatDateKey(padDate);
+          const hebInfo = DB.getHebrewDateInfo(dateKey);
+          const hebGematria = hebInfo.hebrewDate ? hebInfo.hebrewDate.split(' ')[0] : '';
+          daysList.push({
+            dayNumber: padDate.getDate(),
+            hebrewDayGematria: hebGematria,
+            dateKey: dateKey,
+            isCurrentMonth: false
+          });
+        }
+
+        // Current Hebrew month days
+        for (let i = 0; i < totalDays; i++) {
+          const curDate = new Date(firstDate);
+          curDate.setDate(curDate.getDate() + i);
+          const dateKey = formatDateKey(curDate);
+          const hebGematria = convertNumToGematriaDay(i + 1);
+          daysList.push({
+            dayNumber: curDate.getDate(),
+            hebrewDayGematria: hebGematria,
+            dateKey: dateKey,
+            isCurrentMonth: true
+          });
+        }
+
+        // Trailing padding days
+        const remainingCells = totalCellsNeeded - daysList.length;
+        for (let i = 1; i <= remainingCells; i++) {
+          const nextDate = new Date(lastDate);
+          nextDate.setDate(nextDate.getDate() + i);
+          const dateKey = formatDateKey(nextDate);
+          const hebInfo = DB.getHebrewDateInfo(dateKey);
+          const hebGematria = hebInfo.hebrewDate ? hebInfo.hebrewDate.split(' ')[0] : '';
+          daysList.push({
+            dayNumber: nextDate.getDate(),
+            hebrewDayGematria: hebGematria,
+            dateKey: dateKey,
+            isCurrentMonth: false
+          });
+        }
+
+        const fmtDate = (dt) => `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`;
+        return {
+          daysList,
+          monthInfo,
+          gregorianRangeStr: `${fmtDate(firstDate)} - ${fmtDate(lastDate)}`
+        };
+      },
+
+      getTodayHebrewInfo() {
+        const today = new Date();
+        const formatter = new Intl.DateTimeFormat('en-u-ca-hebrew', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric'
+        });
+        const parts = formatter.formatToParts(today);
+        let hYear = 5787;
+        for (const p of parts) {
+          if (p.type === 'year') hYear = parseInt(p.value, 10);
+        }
+
+        const months = this.getMonthsForYear(hYear);
+        const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+        let matchedIndex = 0;
+        for (let i = 0; i < months.length; i++) {
+          const s = new Date(months[i].firstDate.getFullYear(), months[i].firstDate.getMonth(), months[i].firstDate.getDate()).getTime();
+          const e = new Date(months[i].lastDate.getFullYear(), months[i].lastDate.getMonth(), months[i].lastDate.getDate()).getTime();
+          if (todayMid >= s && todayMid <= e) {
+            matchedIndex = i;
+            break;
+          }
+        }
+        return {
+          year: hYear,
+          monthIndex: matchedIndex
+        };
+      },
+
+      getHebrewMonthForDate(date) {
+        const formatter = new Intl.DateTimeFormat('en-u-ca-hebrew', {
+          year: 'numeric'
+        });
+        const parts = formatter.formatToParts(date);
+        let hYear = 5787;
+        for (const p of parts) {
+          if (p.type === 'year') hYear = parseInt(p.value, 10);
+        }
+        const months = this.getMonthsForYear(hYear);
+        const t = date.getTime();
+        let matchedIndex = 0;
+        for (let i = 0; i < months.length; i++) {
+          if (t >= months[i].firstDate.getTime() && t <= months[i].lastDate.getTime()) {
+            matchedIndex = i;
+            break;
+          }
+        }
+        return { year: hYear, monthIndex: matchedIndex };
+      }
+    };
+
+    // ----------------------------------------------------
     // 3. CALENDAR RENDERER
     // ----------------------------------------------------
     const Calendar = {
@@ -3289,6 +3516,9 @@
       render({
         year,
         month,
+        calendarMode = 'hebrew',
+        hebrewYear = 5787,
+        hebrewMonthIndex = 0,
         containerId,
         events,
         filterType,
@@ -3302,42 +3532,68 @@
         if (!gridContainer) return;
         gridContainer.innerHTML = '';
 
-        const firstDayOfMonth = new Date(year, month, 1);
-        const lastDayOfMonth = new Date(year, month + 1, 0);
-        const daysInMonth = lastDayOfMonth.getDate();
-        const precedingPaddingDays = firstDayOfMonth.getDay();
-        const totalCellsNeeded = precedingPaddingDays + daysInMonth > 35 ? 42 : 35;
-
         const formatDateKey = (y, m, d) => {
           const mm = String(m + 1).padStart(2, '0');
           const dd = String(d).padStart(2, '0');
           return `${y}-${mm}-${dd}`;
         };
 
-        const daysList = [];
+        let daysList = [];
 
-        // Prev padding
-        const prevMonthDate = new Date(year, month, 0);
-        const prevMonthDaysCount = prevMonthDate.getDate();
-        const prevMonthYear = prevMonthDate.getFullYear();
-        const prevMonthVal = prevMonthDate.getMonth();
-        for (let i = precedingPaddingDays - 1; i >= 0; i--) {
-          const d = prevMonthDaysCount - i;
-          daysList.push({ dayNumber: d, dateKey: formatDateKey(prevMonthYear, prevMonthVal, d), isCurrentMonth: false });
-        }
+        if (calendarMode === 'hebrew') {
+          const gridData = HebrewCalendar.getMonthGrid(hebrewYear, hebrewMonthIndex);
+          daysList = gridData.daysList;
+        } else {
+          const firstDayOfMonth = new Date(year, month, 1);
+          const lastDayOfMonth = new Date(year, month + 1, 0);
+          const daysInMonth = lastDayOfMonth.getDate();
+          const precedingPaddingDays = firstDayOfMonth.getDay();
+          const totalCellsNeeded = precedingPaddingDays + daysInMonth > 35 ? 42 : 35;
 
-        // Current Month
-        for (let d = 1; d <= daysInMonth; d++) {
-          daysList.push({ dayNumber: d, dateKey: formatDateKey(year, month, d), isCurrentMonth: true });
-        }
+          // Prev padding
+          const prevMonthDate = new Date(year, month, 0);
+          const prevMonthDaysCount = prevMonthDate.getDate();
+          const prevMonthYear = prevMonthDate.getFullYear();
+          const prevMonthVal = prevMonthDate.getMonth();
+          for (let i = precedingPaddingDays - 1; i >= 0; i--) {
+            const d = prevMonthDaysCount - i;
+            const dateKey = formatDateKey(prevMonthYear, prevMonthVal, d);
+            const dateInfo = DB.getHebrewDateInfo(dateKey);
+            daysList.push({
+              dayNumber: d,
+              hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
+              dateKey: dateKey,
+              isCurrentMonth: false
+            });
+          }
 
-        // Next padding
-        const nextMonthDate = new Date(year, month + 1, 1);
-        const nextMonthYear = nextMonthDate.getFullYear();
-        const nextMonthVal = nextMonthDate.getMonth();
-        const remainingCells = totalCellsNeeded - daysList.length;
-        for (let d = 1; d <= remainingCells; d++) {
-          daysList.push({ dayNumber: d, dateKey: formatDateKey(nextMonthYear, nextMonthVal, d), isCurrentMonth: false });
+          // Current Month
+          for (let d = 1; d <= daysInMonth; d++) {
+            const dateKey = formatDateKey(year, month, d);
+            const dateInfo = DB.getHebrewDateInfo(dateKey);
+            daysList.push({
+              dayNumber: d,
+              hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
+              dateKey: dateKey,
+              isCurrentMonth: true
+            });
+          }
+
+          // Next padding
+          const nextMonthDate = new Date(year, month + 1, 1);
+          const nextMonthYear = nextMonthDate.getFullYear();
+          const nextMonthVal = nextMonthDate.getMonth();
+          const remainingCells = totalCellsNeeded - daysList.length;
+          for (let d = 1; d <= remainingCells; d++) {
+            const dateKey = formatDateKey(nextMonthYear, nextMonthVal, d);
+            const dateInfo = DB.getHebrewDateInfo(dateKey);
+            daysList.push({
+              dayNumber: d,
+              hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
+              dateKey: dateKey,
+              isCurrentMonth: false
+            });
+          }
         }
 
         const today = new Date();
@@ -3399,16 +3655,24 @@
             const dayHeader = document.createElement('div');
             dayHeader.className = 'day-number-wrapper';
 
-            const hebrewLabel = document.createElement('span');
-            hebrewLabel.className = 'hebrew-day-label-small';
-            hebrewLabel.textContent = dateInfo.hebrewDate.split(' ')[0] || '';
+            const primaryLabel = document.createElement('span');
+            primaryLabel.className = 'day-number-primary';
 
-            const gregNum = document.createElement('span');
-            gregNum.className = 'gregorian-number-small';
-            gregNum.textContent = day.dayNumber;
+            const secondaryLabel = document.createElement('span');
+            secondaryLabel.className = 'day-number-secondary';
 
-            dayHeader.appendChild(hebrewLabel);
-            dayHeader.appendChild(gregNum);
+            if (calendarMode === 'hebrew') {
+              primaryLabel.textContent = day.hebrewDayGematria || (dateInfo.hebrewDate.split(' ')[0] || '');
+              secondaryLabel.textContent = day.dayNumber;
+              dayHeader.appendChild(primaryLabel);
+              dayHeader.appendChild(secondaryLabel);
+            } else {
+              primaryLabel.textContent = day.dayNumber;
+              secondaryLabel.textContent = day.hebrewDayGematria || (dateInfo.hebrewDate.split(' ')[0] || '');
+              dayHeader.appendChild(secondaryLabel);
+              dayHeader.appendChild(primaryLabel);
+            }
+
             header.appendChild(dayHeader);
 
             if (!isMobile) {
@@ -4203,6 +4467,9 @@
     // 6. MAIN COORDINATOR (APP)
     // ----------------------------------------------------
     const state = {
+      calendarMode: 'hebrew',
+      currentHebrewYear: 5787,
+      currentHebrewMonthIndex: 0,
       currentYear: 2026,
       currentMonth: 8,
       activeTab: 'dashboard',
@@ -4217,6 +4484,14 @@
     if (todayDate.getFullYear() >= 2026 && todayDate.getFullYear() <= 2027) {
       state.currentYear = todayDate.getFullYear();
       state.currentMonth = todayDate.getMonth();
+    }
+    const todayHebrew = HebrewCalendar.getTodayHebrewInfo();
+    if (todayHebrew.year >= 5787 && todayHebrew.year <= 5788) {
+      state.currentHebrewYear = todayHebrew.year;
+      state.currentHebrewMonthIndex = todayHebrew.monthIndex;
+    } else {
+      state.currentHebrewYear = 5787;
+      state.currentHebrewMonthIndex = 0; // תשרי תשפ"ז
     }
 
     function getHebrewMonthHeaderString(year, month) {
@@ -4255,21 +4530,69 @@
       const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
       
       if (!state.selectedDate) {
-        if (state.currentYear === today.getFullYear() && state.currentMonth === today.getMonth()) {
-          state.selectedDate = todayKey;
+        if (state.calendarMode === 'hebrew') {
+          const gridData = HebrewCalendar.getMonthGrid(state.currentHebrewYear, state.currentHebrewMonthIndex);
+          const hasToday = gridData.daysList.some(d => d.dateKey === todayKey);
+          if (hasToday) {
+            state.selectedDate = todayKey;
+          } else if (gridData.monthInfo) {
+            const dt = gridData.monthInfo.firstDate;
+            state.selectedDate = formatDateKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+          }
         } else {
-          state.selectedDate = formatDateKey(state.currentYear, state.currentMonth, 1);
+          if (state.currentYear === today.getFullYear() && state.currentMonth === today.getMonth()) {
+            state.selectedDate = todayKey;
+          } else {
+            state.selectedDate = formatDateKey(state.currentYear, state.currentMonth, 1);
+          }
         }
       }
       
       const monthNameElement = document.getElementById('calendar-month-name');
       if (monthNameElement) {
-        const gregMonthName = Calendar.HEBREW_GREGORIAN_MONTHS[state.currentMonth];
-        const hebMonthStr = getHebrewMonthHeaderString(state.currentYear, state.currentMonth);
-        monthNameElement.innerHTML = `
-          ${gregMonthName} ${state.currentYear}
-          <span class="heb-month-header" style="margin-right: 12px; font-size: 1.1rem; color: var(--text-secondary); font-weight: 600;">(${hebMonthStr})</span>
-        `;
+        if (state.calendarMode === 'hebrew') {
+          const gridData = HebrewCalendar.getMonthGrid(state.currentHebrewYear, state.currentHebrewMonthIndex);
+          const hebMonthName = gridData.monthInfo ? gridData.monthInfo.name : '';
+          const hebYearGematria = convertYearToGematria(state.currentHebrewYear);
+          monthNameElement.innerHTML = `
+            ${hebMonthName} ${hebYearGematria}
+            <span class="cal-header-sub" style="margin-right: 12px; font-size: 1.05rem; color: var(--text-secondary); font-weight: 600;">(${gridData.gregorianRangeStr})</span>
+          `;
+        } else {
+          const gregMonthName = Calendar.HEBREW_GREGORIAN_MONTHS[state.currentMonth];
+          const hebMonthStr = getHebrewMonthHeaderString(state.currentYear, state.currentMonth);
+          monthNameElement.innerHTML = `
+            ${gregMonthName} ${state.currentYear}
+            <span class="cal-header-sub" style="margin-right: 12px; font-size: 1.05rem; color: var(--text-secondary); font-weight: 600;">(${hebMonthStr})</span>
+          `;
+        }
+      }
+
+      // Update switcher buttons style
+      const hebModeBtn = document.getElementById('cal-mode-heb-btn');
+      const gregModeBtn = document.getElementById('cal-mode-greg-btn');
+      if (hebModeBtn && gregModeBtn) {
+        if (state.calendarMode === 'hebrew') {
+          hebModeBtn.style.background = 'white';
+          hebModeBtn.style.color = 'var(--primary-color)';
+          hebModeBtn.style.fontWeight = '700';
+          hebModeBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.08)';
+
+          gregModeBtn.style.background = 'transparent';
+          gregModeBtn.style.color = 'var(--text-secondary)';
+          gregModeBtn.style.fontWeight = '600';
+          gregModeBtn.style.boxShadow = 'none';
+        } else {
+          gregModeBtn.style.background = 'white';
+          gregModeBtn.style.color = 'var(--primary-color)';
+          gregModeBtn.style.fontWeight = '700';
+          gregModeBtn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.08)';
+
+          hebModeBtn.style.background = 'transparent';
+          hebModeBtn.style.color = 'var(--text-secondary)';
+          hebModeBtn.style.fontWeight = '600';
+          hebModeBtn.style.boxShadow = 'none';
+        }
       }
 
       // Toggle Mobile FAB visibility
@@ -4293,6 +4616,9 @@
           Calendar.render({
             year: state.currentYear,
             month: state.currentMonth,
+            calendarMode: state.calendarMode,
+            hebrewYear: state.currentHebrewYear,
+            hebrewMonthIndex: state.currentHebrewMonthIndex,
             containerId: 'calendar-days-grid',
             events: events,
             filterType: state.filterType,
@@ -4617,14 +4943,36 @@
       });
 
       document.getElementById('cal-prev-btn').addEventListener('click', () => {
-        state.currentMonth--;
-        if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+        if (state.calendarMode === 'hebrew') {
+          if (state.currentHebrewMonthIndex > 0) {
+            state.currentHebrewMonthIndex--;
+          } else {
+            state.currentHebrewYear--;
+            const prevYearMonths = HebrewCalendar.getMonthsForYear(state.currentHebrewYear);
+            state.currentHebrewMonthIndex = Math.max(0, prevYearMonths.length - 1);
+          }
+        } else {
+          state.currentMonth--;
+          if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+        }
+        state.selectedDate = '';
         renderApp();
       });
 
       document.getElementById('cal-next-btn').addEventListener('click', () => {
-        state.currentMonth++;
-        if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+        if (state.calendarMode === 'hebrew') {
+          const curYearMonths = HebrewCalendar.getMonthsForYear(state.currentHebrewYear);
+          if (state.currentHebrewMonthIndex < curYearMonths.length - 1) {
+            state.currentHebrewMonthIndex++;
+          } else {
+            state.currentHebrewYear++;
+            state.currentHebrewMonthIndex = 0;
+          }
+        } else {
+          state.currentMonth++;
+          if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+        }
+        state.selectedDate = '';
         renderApp();
       });
 
@@ -4632,8 +4980,45 @@
         const today = new Date();
         state.currentYear = today.getFullYear();
         state.currentMonth = today.getMonth();
+        const todayHeb = HebrewCalendar.getTodayHebrewInfo();
+        state.currentHebrewYear = todayHeb.year;
+        state.currentHebrewMonthIndex = todayHeb.monthIndex;
+        state.selectedDate = '';
         renderApp();
       });
+
+      const hebModeBtn = document.getElementById('cal-mode-heb-btn');
+      const gregModeBtn = document.getElementById('cal-mode-greg-btn');
+      if (hebModeBtn) {
+        hebModeBtn.addEventListener('click', () => {
+          if (state.calendarMode !== 'hebrew') {
+            state.calendarMode = 'hebrew';
+            const midMonthDate = new Date(state.currentYear, state.currentMonth, 15);
+            const heb = HebrewCalendar.getHebrewMonthForDate(midMonthDate);
+            state.currentHebrewYear = heb.year;
+            state.currentHebrewMonthIndex = heb.monthIndex;
+            state.selectedDate = '';
+            renderApp();
+          }
+        });
+      }
+      if (gregModeBtn) {
+        gregModeBtn.addEventListener('click', () => {
+          if (state.calendarMode !== 'gregorian') {
+            state.calendarMode = 'gregorian';
+            const months = HebrewCalendar.getMonthsForYear(state.currentHebrewYear);
+            const mInfo = months[state.currentHebrewMonthIndex];
+            if (mInfo) {
+              const midTime = (mInfo.firstDate.getTime() + mInfo.lastDate.getTime()) / 2;
+              const midDate = new Date(midTime);
+              state.currentYear = midDate.getFullYear();
+              state.currentMonth = midDate.getMonth();
+            }
+            state.selectedDate = '';
+            renderApp();
+          }
+        });
+      }
 
       // Fullscreen projection toggle for staff room TV display
       const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
