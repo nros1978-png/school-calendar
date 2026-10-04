@@ -248,8 +248,32 @@ export const Calendar = {
     };
 
     let daysList = [];
+    const isFullscreen = document.body.classList.contains('fullscreen-mode');
 
-    if (calendarMode === 'hebrew') {
+    if (isFullscreen) {
+      // Rolling 5-week kiosk display (current week at top + 4 weeks below = exactly 35 days, 5 rows)
+      const today = new Date();
+      const todayDayOfWeek = today.getDay(); // 0 is Sunday
+      const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - todayDayOfWeek);
+      currentSunday.setHours(0, 0, 0, 0);
+
+      for (let i = 0; i < 35; i++) {
+        const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + i);
+        const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+        const dateInfo = DB.getHebrewDateInfo(dateKey);
+        const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
+        const dayGematria = hebParts[0] || '';
+        const hebMonthName = hebParts[1] || '';
+        const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
+
+        daysList.push({
+          dayNumber: d.getDate(),
+          hebrewDayGematria: hebrewDayLabel,
+          dateKey: dateKey,
+          isCurrentMonth: true // All 5 weeks are part of the active rolling window
+        });
+      }
+    } else if (calendarMode === 'hebrew') {
       const gridData = HebrewCalendar.getMonthGrid(hebrewYear, hebrewMonthIndex);
       daysList = gridData.daysList;
     } else {
@@ -448,7 +472,7 @@ export const Calendar = {
         const secondaryLabel = document.createElement('span');
         secondaryLabel.className = 'day-number-secondary';
 
-        if (calendarMode === 'hebrew') {
+        if (calendarMode === 'hebrew' || isFullscreen) {
           primaryLabel.textContent = day.hebrewDayGematria || (dateInfo.hebrewDate.split(' ')[0] || '');
           secondaryLabel.textContent = day.dayNumber;
           dayHeader.appendChild(primaryLabel);

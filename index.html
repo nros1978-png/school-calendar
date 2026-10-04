@@ -2137,6 +2137,20 @@
       box-sizing: border-box !important;
     }
 
+    /* In fullscreen rolling mode, hide month-specific switchers and navigation buttons */
+    body.fullscreen-mode .cal-mode-toggle,
+    body.fullscreen-mode #cal-prev-btn,
+    body.fullscreen-mode #cal-next-btn,
+    body.fullscreen-mode #cal-today-btn {
+      display: none !important;
+    }
+
+    body.fullscreen-mode .calendar-header-brand {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+
     body.fullscreen-mode .school-cal-logo {
       width: 42px !important;
       height: 42px !important;
@@ -2158,10 +2172,23 @@
     }
 
     body.fullscreen-mode .calendar-month-name {
-      font-size: 1.3rem !important;
+      font-size: 1.25rem !important;
       font-weight: 900 !important;
       color: #0f172a !important;
       line-height: 1.2 !important;
+    }
+
+    body.fullscreen-mode .cal-tv-kiosk-badge {
+      font-size: 0.78rem !important;
+      background: #e0f2fe !important;
+      color: #0369a1 !important;
+      padding: 2px 10px !important;
+      border-radius: 9999px !important;
+      font-weight: 700 !important;
+      border: 1px solid #bae6fd !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
     }
 
     body.fullscreen-mode .calendar-month-sub {
@@ -2207,6 +2234,7 @@
     body.fullscreen-mode .calendar-week-row {
       flex: 1 1 0 !important;
       min-height: 0 !important;
+      max-height: calc(100% / 5) !important;
       overflow: hidden !important;
       box-sizing: border-box !important;
     }
@@ -3590,8 +3618,32 @@
         };
 
         let daysList = [];
+        const isFullscreen = document.body.classList.contains('fullscreen-mode');
 
-        if (calendarMode === 'hebrew') {
+        if (isFullscreen) {
+          // Rolling 5-week kiosk display (current week at top + 4 weeks below = exactly 35 days, 5 rows)
+          const today = new Date();
+          const todayDayOfWeek = today.getDay(); // 0 is Sunday
+          const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - todayDayOfWeek);
+          currentSunday.setHours(0, 0, 0, 0);
+
+          for (let i = 0; i < 35; i++) {
+            const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + i);
+            const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+            const dateInfo = DB.getHebrewDateInfo(dateKey);
+            const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
+            const dayGematria = hebParts[0] || '';
+            const hebMonthName = hebParts[1] || '';
+            const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
+
+            daysList.push({
+              dayNumber: d.getDate(),
+              hebrewDayGematria: hebrewDayLabel,
+              dateKey: dateKey,
+              isCurrentMonth: true // All 5 weeks are part of the active rolling window
+            });
+          }
+        } else if (calendarMode === 'hebrew') {
           const gridData = HebrewCalendar.getMonthGrid(hebrewYear, hebrewMonthIndex);
           daysList = gridData.daysList;
         } else {
@@ -3790,7 +3842,7 @@
             const secondaryLabel = document.createElement('span');
             secondaryLabel.className = 'day-number-secondary';
 
-            if (calendarMode === 'hebrew') {
+            if (calendarMode === 'hebrew' || isFullscreen) {
               primaryLabel.textContent = day.hebrewDayGematria || (dateInfo.hebrewDate.split(' ')[0] || '');
               secondaryLabel.textContent = day.dayNumber;
               dayHeader.appendChild(primaryLabel);
@@ -4624,7 +4676,42 @@
       
       const monthNameElement = document.getElementById('calendar-month-name');
       if (monthNameElement) {
-        if (state.calendarMode === 'hebrew') {
+        if (document.body.classList.contains('fullscreen-mode')) {
+          const today = new Date();
+          const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
+          const endSaturday = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + 34);
+
+          const startKey = formatDateKey(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate());
+          const endKey = formatDateKey(endSaturday.getFullYear(), endSaturday.getMonth(), endSaturday.getDate());
+
+          const startInfo = DB.getHebrewDateInfo(startKey);
+          const endInfo = DB.getHebrewDateInfo(endKey);
+
+          const startParts = (startInfo.hebrewDate || '').split(' ');
+          const endParts = (endInfo.hebrewDate || '').split(' ');
+
+          const startHebMonth = startParts.length >= 2 ? startParts[1] : '';
+          const endHebMonth = endParts.length >= 2 ? endParts[1] : '';
+          const hebYear = endParts.length >= 3 ? endParts[2] : (startParts.length >= 3 ? startParts[2] : convertYearToGematria(state.currentHebrewYear));
+
+          let hebRange = startHebMonth;
+          if (endHebMonth && endHebMonth !== startHebMonth) {
+            hebRange = `${startHebMonth} – ${endHebMonth}`;
+          }
+          if (hebYear) hebRange += ` ${hebYear}`;
+
+          const gregRange = `${currentSunday.getDate()}/${currentSunday.getMonth() + 1} – ${endSaturday.getDate()}/${endSaturday.getMonth() + 1}/${endSaturday.getFullYear()}`;
+
+          monthNameElement.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span>${hebRange}</span>
+              <span class="cal-header-sub" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">(${gregRange})</span>
+              <span class="cal-tv-kiosk-badge">
+                <i class="fas fa-tv"></i> השבוע הנוכחי + 4 שבועות קדימה
+              </span>
+            </div>
+          `;
+        } else if (state.calendarMode === 'hebrew') {
           const gridData = HebrewCalendar.getMonthGrid(state.currentHebrewYear, state.currentHebrewMonthIndex);
           const hebMonthName = gridData.monthInfo ? gridData.monthInfo.name : '';
           const hebYearGematria = convertYearToGematria(state.currentHebrewYear);
@@ -5096,48 +5183,60 @@
 
       // Fullscreen projection toggle for staff room TV display
       const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
-      if (fullscreenBtn) {
-        const toggleFullscreen = () => {
-          const isFullscreen = document.body.classList.toggle('fullscreen-mode');
-          const icon = fullscreenBtn.querySelector('i');
-          const text = document.getElementById('cal-fullscreen-text');
+      
+      const setFullscreenMode = (enable) => {
+        if (enable) {
+          document.body.classList.add('fullscreen-mode');
+          state.activeView = 'calendar';
+          localStorage.setItem('tv_mode', 'true');
+          const switchCal = document.getElementById('switch-calendar');
+          const switchGantt = document.getElementById('switch-gantt');
+          if (switchCal) switchCal.classList.add('active');
+          if (switchGantt) switchGantt.classList.remove('active');
+          const calContainer = document.getElementById('calendar-grid-container');
+          const ganttContainer = document.getElementById('gantt-chart-container');
+          if (calContainer) calContainer.style.display = 'flex';
+          if (ganttContainer) ganttContainer.style.display = 'none';
 
-          if (isFullscreen) {
-            // Ensure pure calendar view is active in fullscreen
-            state.activeView = 'calendar';
-            const switchCal = document.getElementById('switch-calendar');
-            const switchGantt = document.getElementById('switch-gantt');
-            if (switchCal) switchCal.classList.add('active');
-            if (switchGantt) switchGantt.classList.remove('active');
-            const calContainer = document.getElementById('calendar-grid-container');
-            const ganttContainer = document.getElementById('gantt-chart-container');
-            if (calContainer) calContainer.style.display = 'flex';
-            if (ganttContainer) ganttContainer.style.display = 'none';
-
-            if (document.documentElement.requestFullscreen) {
-              document.documentElement.requestFullscreen().catch(() => {});
-            }
+          if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          }
+          if (fullscreenBtn) {
+            const icon = fullscreenBtn.querySelector('i');
+            const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-compress';
             if (text) text.textContent = 'יציאה ממסך מלא';
             fullscreenBtn.classList.add('btn-fullscreen-active');
-            renderApp();
-          } else {
-            if (document.exitFullscreen && document.fullscreenElement) {
-              document.exitFullscreen().catch(() => {});
-            }
+          }
+          renderApp();
+        } else {
+          document.body.classList.remove('fullscreen-mode');
+          localStorage.setItem('tv_mode', 'false');
+          if (document.exitFullscreen && document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          }
+          if (fullscreenBtn) {
+            const icon = fullscreenBtn.querySelector('i');
+            const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-expand';
             if (text) text.textContent = 'מסך מלא';
             fullscreenBtn.classList.remove('btn-fullscreen-active');
-            renderApp();
           }
-        };
+          renderApp();
+        }
+      };
 
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
+      if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+          const isCurrentlyFs = document.body.classList.contains('fullscreen-mode');
+          setFullscreenMode(!isCurrentlyFs);
+        });
 
         // Listen for browser native exit (e.g. Esc key)
         document.addEventListener('fullscreenchange', () => {
           if (!document.fullscreenElement && document.body.classList.contains('fullscreen-mode')) {
             document.body.classList.remove('fullscreen-mode');
+            localStorage.setItem('tv_mode', 'false');
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-expand';
@@ -5147,6 +5246,41 @@
           }
         });
       }
+
+      // Check and automatically trigger TV fullscreen kiosk mode
+      const checkAndTriggerTvMode = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isTvParam = urlParams.has('tv') || urlParams.has('kiosk') || urlParams.has('fullscreen') || window.location.hash === '#tv';
+        const isTvUserAgent = /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|Android.*TV|GoogleTV|AppleTV|POV_TV|Viera|Roku|LargeScreen/i.test(navigator.userAgent);
+        const isTvStored = localStorage.getItem('tv_mode') === 'true';
+
+        if (isTvParam || isTvUserAgent || isTvStored) {
+          setFullscreenMode(true);
+
+          // If browser blocked initial programmatic requestFullscreen, trigger on first user interaction
+          const onFirstInteraction = () => {
+            if (document.body.classList.contains('fullscreen-mode') && !document.fullscreenElement) {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+              }
+            }
+            window.removeEventListener('click', onFirstInteraction);
+            window.removeEventListener('keydown', onFirstInteraction);
+            window.removeEventListener('touchstart', onFirstInteraction);
+          };
+          window.addEventListener('click', onFirstInteraction, { passive: true });
+          window.addEventListener('keydown', onFirstInteraction, { passive: true });
+          window.addEventListener('touchstart', onFirstInteraction, { passive: true });
+        }
+      };
+      checkAndTriggerTvMode();
+
+      // Periodic auto-refresh for TV kiosk display (keeps rolling 5 weeks and events live)
+      setInterval(() => {
+        if (document.body.classList.contains('fullscreen-mode')) {
+          renderApp();
+        }
+      }, 10 * 60 * 1000);
 
       document.getElementById('add-event-btn').addEventListener('click', () => openAddEventModal());
 
