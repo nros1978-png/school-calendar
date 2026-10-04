@@ -1016,7 +1016,51 @@ function setupEventListeners() {
 // INITIALIZATION
 // ----------------------------------------------------
 
+function updateLiveClock() {
+  const timeEl = document.getElementById('live-time-display');
+  const dayEl = document.getElementById('live-day-display');
+  const hebDateEl = document.getElementById('live-heb-date-display');
+  const gregDateEl = document.getElementById('live-greg-date-display');
+  if (!timeEl) return;
+
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  timeEl.textContent = `${hh}:${mm}:${ss}`;
+
+  if (dayEl) {
+    const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+    dayEl.textContent = 'יום ' + dayNames[now.getDay()];
+  }
+
+  const yyyy = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const dateKey = `${yyyy}-${m}-${d}`;
+
+  if (gregDateEl) {
+    gregDateEl.textContent = `${now.getDate()}.${now.getMonth() + 1}.${yyyy}`;
+  }
+
+  if (hebDateEl) {
+    try {
+      const info = DB.getHebrewDateInfo(dateKey);
+      if (info && info.hebrewDate) {
+        hebDateEl.textContent = info.hebrewDate;
+      } else {
+        const hFmt = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long', year: 'numeric' });
+        hebDateEl.textContent = convertHebrewDateStringToLetters(hFmt.format(now));
+      }
+    } catch (e) {
+      hebDateEl.textContent = '';
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
   // 1. Setup Auth change listener
   Auth.onAuthChange((user) => {
     state.currentUser = user;

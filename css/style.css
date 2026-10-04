@@ -2817,4 +2817,113 @@ body.fullscreen-mode .calendar-grid-wrapper {
   flex: 1;
 }
 
+/* Live Clock & Date Widget (Always visible in regular & fullscreen TV mode) */
+.live-datetime-widget {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 5px 14px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-family: inherit;
+  color: #1e293b;
+  flex-shrink: 0;
+}
+
+.live-time-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--primary-color);
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+  border-left: 1px solid #cbd5e1;
+  padding-left: 10px;
+}
+
+.live-time-box i {
+  font-size: 0.95rem;
+}
+
+.live-date-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.live-day-text {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.live-heb-date-text {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.live-date-bullet,
+.live-date-sep {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.live-greg-date-text {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* TV Kiosk / Fullscreen Mode enhancements */
+body.fullscreen-mode .live-datetime-widget {
+  background: white !important;
+  border: 1.5px solid #bfdbfe !important;
+  padding: 5px 16px !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08) !important;
+}
+
+body.fullscreen-mode .live-time-box {
+  font-size: 1.35rem !important;
+  color: #1d4ed8 !important;
+}
+
+body.fullscreen-mode .live-date-box {
+  font-size: 0.95rem !important;
+}
+
+body.fullscreen-mode .live-day-text {
+  font-size: 1.05rem !important;
+}
+
+@media (max-width: 900px) {
+  .live-datetime-widget {
+    padding: 4px 8px;
+    gap: 8px;
+  }
+  .live-time-box {
+    font-size: 1rem;
+    padding-left: 6px;
+  }
+  .live-date-box {
+    font-size: 0.82rem;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 680px) {
+  .live-datetime-widget {
+    width: 100%;
+    justify-content: center;
+    order: 3;
+    margin-top: 4px;
+  }
+}
+
+
 
