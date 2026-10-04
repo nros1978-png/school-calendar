@@ -384,13 +384,16 @@ export const Calendar = {
 
       // Explicit grid rows:
       // Row 1: auto (for date numbers & holiday labels)
-      // Row 2 to (numSlots + 1): 26px for each event slot
-      // Last Row: minmax(8px, 1fr) for bottom spacing
+      // Row 2 to (numSlots + 1): slot height for each event slot
+      // Last Row: bottom spacing
+      const isFullscreen = document.body.classList.contains('fullscreen-mode');
+      const slotTrackHeight = isFullscreen ? '21px' : '26px';
+      const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
       const rowTemplates = ['auto'];
       for (let s = 0; s < numSlots; s++) {
-        rowTemplates.push('26px');
+        rowTemplates.push(slotTrackHeight);
       }
-      rowTemplates.push('minmax(8px, 1fr)');
+      rowTemplates.push(bottomSpacing);
       weekRow.style.gridTemplateRows = rowTemplates.join(' ');
 
       const totalRowTracks = numSlots + 2;

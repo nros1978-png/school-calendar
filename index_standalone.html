@@ -2097,7 +2097,7 @@
       inset: 0 !important;
       z-index: 999999 !important;
       margin: 0 !important;
-      padding: 12px 18px !important;
+      padding: 8px 14px 10px 14px !important;
       width: 100vw !important;
       height: 100vh !important;
       max-width: 100vw !important;
@@ -2106,122 +2106,171 @@
       overflow: hidden !important;
       display: flex !important;
       flex-direction: column !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .dashboard-content {
       padding: 0 !important;
+      margin: 0 !important;
       height: 100% !important;
-      flex: 1 !important;
+      max-height: 100% !important;
+      flex: 1 1 0 !important;
+      min-height: 0 !important;
       display: flex !important;
       flex-direction: column !important;
       overflow: hidden !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .calendar-controls {
-      margin-bottom: 10px !important;
-      padding: 8px 20px !important;
+      margin-bottom: 6px !important;
+      padding: 4px 16px !important;
       background: white !important;
       border-radius: var(--radius-md) !important;
-      box-shadow: var(--shadow-md) !important;
+      box-shadow: var(--shadow-sm) !important;
       border: 1px solid var(--border-color) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
       flex-shrink: 0 !important;
+      min-height: 48px !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .school-cal-logo {
-      width: 52px !important;
-      height: 52px !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+      width: 42px !important;
+      height: 42px !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
     }
 
     body.fullscreen-mode .school-cal-name {
-      font-size: 1.25rem !important;
+      font-size: 1.15rem !important;
       font-weight: 900 !important;
       color: #1e3a8a !important;
+      line-height: 1.2 !important;
     }
 
     body.fullscreen-mode .school-cal-dedication {
-      font-size: 0.85rem !important;
+      font-size: 0.76rem !important;
       color: #475569 !important;
       font-weight: 700 !important;
+      line-height: 1.2 !important;
     }
 
     body.fullscreen-mode .calendar-month-name {
-      font-size: 1.45rem !important;
+      font-size: 1.3rem !important;
       font-weight: 900 !important;
       color: #0f172a !important;
+      line-height: 1.2 !important;
+    }
+
+    body.fullscreen-mode .calendar-month-sub {
+      font-size: 0.78rem !important;
+      line-height: 1.2 !important;
     }
 
     body.fullscreen-mode .calendar-grid-wrapper {
-      flex: 1 !important;
+      flex: 1 1 0 !important;
       display: flex !important;
       flex-direction: column !important;
       overflow: hidden !important;
-      box-shadow: var(--shadow-md) !important;
+      box-shadow: var(--shadow-sm) !important;
       border-radius: var(--radius-md) !important;
+      border: 1px solid var(--border-color) !important;
       min-height: 0 !important;
-      height: calc(100vh - 90px) !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .calendar-weekdays {
       flex-shrink: 0 !important;
+      border-bottom: 1px solid var(--border-color) !important;
     }
 
     body.fullscreen-mode .calendar-weekdays .weekday {
-      padding: 10px 0 !important;
-      font-size: 1.05rem !important;
+      padding: 6px 0 !important;
+      font-size: 0.95rem !important;
       font-weight: 800 !important;
     }
 
     body.fullscreen-mode .calendar-days-grid {
-      flex: 1 !important;
+      flex: 1 1 0 !important;
       display: flex !important;
       flex-direction: column !important;
       overflow: hidden !important;
       min-height: 0 !important;
       height: 100% !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .calendar-week-row {
       flex: 1 1 0 !important;
       min-height: 0 !important;
       overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    body.fullscreen-mode .calendar-week-row:last-child {
+      border-bottom: none !important;
     }
 
     body.fullscreen-mode .calendar-day-cell {
       min-height: 0 !important;
       height: 100% !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .calendar-day-header {
-      padding: 4px 6px !important;
+      padding: 2px 5px !important;
+      box-sizing: border-box !important;
     }
 
     body.fullscreen-mode .day-number-wrapper {
-      height: 22px !important;
-      margin-bottom: 2px !important;
+      height: 18px !important;
+      margin-bottom: 1px !important;
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 4px !important;
     }
 
-    body.fullscreen-mode .hebrew-day-label-small {
+    body.fullscreen-mode .day-number-primary {
       font-size: 0.95rem !important;
       font-weight: 800 !important;
+      line-height: 1 !important;
     }
 
-    body.fullscreen-mode .gregorian-number-small {
-      font-size: 0.88rem !important;
+    body.fullscreen-mode .day-number-secondary {
+      font-size: 0.78rem !important;
       font-weight: 700 !important;
+      line-height: 1 !important;
+    }
+
+    body.fullscreen-mode .holiday-cell-label,
+    body.fullscreen-mode .special-cell-label {
+      font-size: 0.68rem !important;
+      font-weight: 700 !important;
+      padding: 1px 4px !important;
+      line-height: 1.15 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
 
     body.fullscreen-mode .event-bar {
       display: flex !important;
-      margin: 1px 3px !important;
-      padding: 3px 6px !important;
-      font-size: 0.85rem !important;
+      align-items: center !important;
+      margin: 1px 2px !important;
+      padding: 1px 5px !important;
+      font-size: 0.78rem !important;
       font-weight: 700 !important;
-      min-height: 22px !important;
-      height: 22px !important;
+      min-height: 20px !important;
+      height: 20px !important;
+      line-height: 1.2 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
     }
 
     body.fullscreen-mode .btn-fullscreen-active {
@@ -3677,13 +3726,16 @@
 
           // Explicit grid rows:
           // Row 1: auto (for date numbers & holiday labels)
-          // Row 2 to (numSlots + 1): 26px for each event slot
-          // Last Row: minmax(8px, 1fr) for bottom spacing
+          // Row 2 to (numSlots + 1): slot height for each event slot
+          // Last Row: bottom spacing
+          const isFullscreen = document.body.classList.contains('fullscreen-mode');
+          const slotTrackHeight = isFullscreen ? '21px' : '26px';
+          const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
           const rowTemplates = ['auto'];
           for (let s = 0; s < numSlots; s++) {
-            rowTemplates.push('26px');
+            rowTemplates.push(slotTrackHeight);
           }
-          rowTemplates.push('minmax(8px, 1fr)');
+          rowTemplates.push(bottomSpacing);
           weekRow.style.gridTemplateRows = rowTemplates.join(' ');
 
           const totalRowTracks = numSlots + 2;
@@ -5091,6 +5143,7 @@
             if (icon) icon.className = 'fas fa-expand';
             if (text) text.textContent = 'מסך מלא';
             fullscreenBtn.classList.remove('btn-fullscreen-active');
+            renderApp();
           }
         });
       }

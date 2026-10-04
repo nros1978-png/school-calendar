@@ -580,6 +580,7 @@ function setupEventListeners() {
         if (icon) icon.className = 'fas fa-expand';
         if (text) text.textContent = 'מסך מלא';
         fullscreenBtn.classList.remove('btn-fullscreen-active');
+        renderApp();
       }
     });
   }
