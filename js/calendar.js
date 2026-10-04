@@ -251,27 +251,29 @@ export const Calendar = {
     const isFullscreen = document.body.classList.contains('fullscreen-mode');
 
     if (isFullscreen) {
-      // Rolling 5-week kiosk display (current week at top + 4 weeks below = exactly 35 days, 5 rows)
+      // Rolling 5-week kiosk display (current week at top + 4 weeks below, Sunday to Friday = 6 days per week, 30 days total)
       const today = new Date();
       const todayDayOfWeek = today.getDay(); // 0 is Sunday
       const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - todayDayOfWeek);
       currentSunday.setHours(0, 0, 0, 0);
 
-      for (let i = 0; i < 35; i++) {
-        const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + i);
-        const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
-        const dateInfo = DB.getHebrewDateInfo(dateKey);
-        const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
-        const dayGematria = hebParts[0] || '';
-        const hebMonthName = hebParts[1] || '';
-        const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
+      for (let w = 0; w < 5; w++) {
+        for (let dIdx = 0; dIdx < 6; dIdx++) { // 0 to 5 = Sunday to Friday (skipping Saturday)
+          const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + (w * 7) + dIdx);
+          const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+          const dateInfo = DB.getHebrewDateInfo(dateKey);
+          const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
+          const dayGematria = hebParts[0] || '';
+          const hebMonthName = hebParts[1] || '';
+          const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
 
-        daysList.push({
-          dayNumber: d.getDate(),
-          hebrewDayGematria: hebrewDayLabel,
-          dateKey: dateKey,
-          isCurrentMonth: true // All 5 weeks are part of the active rolling window
-        });
+          daysList.push({
+            dayNumber: d.getDate(),
+            hebrewDayGematria: hebrewDayLabel,
+            dateKey: dateKey,
+            isCurrentMonth: true // All 5 weeks are part of the active rolling window
+          });
+        }
       }
     } else if (calendarMode === 'hebrew') {
       const gridData = HebrewCalendar.getMonthGrid(hebrewYear, hebrewMonthIndex);
@@ -334,10 +336,11 @@ export const Calendar = {
     const filteredEvents = this.filterEvents(events, filterType, filterGrade);
     const isMobile = window.innerWidth <= 768;
 
-    // Group days into weeks of 7 days
+    // Group days into weeks (6 days per week in fullscreen, 7 days in standard mode)
+    const daysPerWeek = isFullscreen ? 6 : 7;
     const weeks = [];
-    for (let i = 0; i < daysList.length; i += 7) {
-      weeks.push(daysList.slice(i, i + 7));
+    for (let i = 0; i < daysList.length; i += daysPerWeek) {
+      weeks.push(daysList.slice(i, i + daysPerWeek));
     }
 
     weeks.forEach((weekDays) => {
@@ -345,7 +348,8 @@ export const Calendar = {
       weekRow.className = 'calendar-week-row';
 
       const weekStart = weekDays[0].dateKey;
-      const weekEnd = weekDays[6].dateKey;
+      const weekEnd = weekDays[weekDays.length - 1].dateKey;
+      const lastColIdx = weekDays.length - 1;
 
       let preparedEvents = [];
       let numSlots = 0;
@@ -361,7 +365,7 @@ export const Calendar = {
           const startCol = weekDays.findIndex(d => d.dateKey === effectiveStart);
           const endCol = weekDays.findIndex(d => d.dateKey === effectiveEnd);
           const sCol = startCol !== -1 ? startCol : 0;
-          const eCol = endCol !== -1 ? endCol : 6;
+          const eCol = endCol !== -1 ? endCol : lastColIdx;
           const span = eCol - sCol + 1;
           return {
             event: evt,
@@ -382,7 +386,7 @@ export const Calendar = {
         });
 
         // Packing into vertical slots
-        const colSlots = [[], [], [], [], [], [], []];
+        const colSlots = Array.from({ length: daysPerWeek }, () => []);
         let maxSlot = -1;
         preparedEvents.forEach(item => {
           let slot = 0;
@@ -410,7 +414,6 @@ export const Calendar = {
       // Row 1: auto (for date numbers & holiday labels)
       // Row 2 to (numSlots + 1): slot height for each event slot
       // Last Row: bottom spacing
-      const isFullscreen = document.body.classList.contains('fullscreen-mode');
       const slotTrackHeight = isFullscreen ? '21px' : '26px';
       const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
       const rowTemplates = ['auto'];
@@ -422,11 +425,11 @@ export const Calendar = {
 
       const totalRowTracks = numSlots + 2;
 
-      // 1. Render 7 day background cells (spanning row 1 to the end)
+      // 1. Render day background cells (spanning row 1 to the end)
       weekDays.forEach((day, colIdx) => {
         const cell = document.createElement('div');
         cell.className = 'calendar-day-cell';
-        if (colIdx === 6) cell.classList.add('is-last-col');
+        if (colIdx === lastColIdx) cell.classList.add('is-last-col');
         cell.style.gridColumn = `${colIdx + 1}`;
         cell.style.gridRow = `1 / ${totalRowTracks + 1}`;
 

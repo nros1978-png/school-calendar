@@ -2239,6 +2239,11 @@
     body.fullscreen-mode .calendar-weekdays {
       flex-shrink: 0 !important;
       border-bottom: 1px solid var(--border-color) !important;
+      grid-template-columns: repeat(6, 1fr) !important;
+    }
+
+    body.fullscreen-mode .weekday-shabbat {
+      display: none !important;
     }
 
     body.fullscreen-mode .calendar-weekdays .weekday {
@@ -2263,6 +2268,7 @@
       max-height: calc(100% / 5) !important;
       overflow: hidden !important;
       box-sizing: border-box !important;
+      grid-template-columns: repeat(6, 1fr) !important;
     }
 
     body.fullscreen-mode .calendar-week-row:last-child {
@@ -2339,6 +2345,241 @@
       background: white !important;
       color: var(--text-secondary) !important;
       border: 1px solid var(--border-color) !important;
+    }
+
+    /* ====================================================
+       TV KIOSK SIDE PANEL & DUTY ROSTER STYLING
+       ==================================================== */
+    .calendar-and-panel-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0;
+      min-height: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    .tv-side-panel {
+      display: none !important;
+    }
+
+    body.fullscreen-mode .calendar-and-panel-wrapper {
+      display: flex !important;
+      flex-direction: row !important; /* In RTL: right is start (tv-side-panel), left is calendar */
+      gap: 12px !important;
+      flex: 1 1 0 !important;
+      min-height: 0 !important;
+      height: 100% !important;
+      width: 100% !important;
+      overflow: hidden !important;
+    }
+
+    body.fullscreen-mode .tv-side-panel {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 310px !important;
+      min-width: 310px !important;
+      max-width: 340px !important;
+      flex-shrink: 0 !important;
+      gap: 12px !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+    }
+
+    body.fullscreen-mode .calendar-grid-wrapper {
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      height: 100% !important;
+    }
+
+    /* TV Cards Styling */
+    .tv-card {
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tv-duties-card {
+      flex: 1 1 0;
+      min-height: 0;
+    }
+
+    .tv-announcements-card {
+      flex: 0 0 auto;
+      max-height: 40%;
+      min-height: 120px;
+    }
+
+    .tv-card-header {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tv-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.98rem;
+      color: var(--text-primary);
+    }
+
+    .tv-card-title i {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+    }
+
+    .tv-day-badge {
+      background: var(--primary-color);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      letter-spacing: 0.2px;
+    }
+
+    .tv-edit-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tv-edit-btn:hover {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .tv-duties-list {
+      padding: 8px 12px;
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tv-duty-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      border-right: 4px solid var(--primary-color);
+    }
+
+    .tv-duty-role {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tv-duty-role i {
+      color: #64748b;
+      font-size: 0.82rem;
+    }
+
+    .tv-duty-teacher {
+      font-weight: 800;
+      color: #0f766e;
+      background: #ccfbf1;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+    }
+
+    .tv-announcements-content {
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #334155;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fffbeb;
+      border-top: 1px solid #fef3c7;
+      flex: 1 1 0;
+    }
+
+    .tv-empty-state {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      text-align: center;
+      padding: 16px 8px;
+      font-style: italic;
+    }
+
+    /* Duty Roster Modal */
+    .duty-day-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    .duty-day-tab {
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .duty-day-tab.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .duty-roster-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .duty-roster-row .roster-role-input {
+      flex: 1;
+    }
+
+    .duty-roster-row .roster-teacher-input {
+      flex: 1;
+    }
+
+    .duty-roster-row .remove-duty-btn {
+      padding: 6px 10px;
     }
   </style>
   
@@ -2561,20 +2802,56 @@
             </div>
           </div>
           
-          <!-- View 1: Calendar Grid View -->
-          <div id="calendar-grid-container" class="calendar-grid-wrapper">
-            <!-- Weekday Headers (RTL: Sunday on right) -->
-            <div class="calendar-weekdays">
-              <div class="weekday">ראשון</div>
-              <div class="weekday">שני</div>
-              <div class="weekday">שלישי</div>
-              <div class="weekday">רביעי</div>
-              <div class="weekday">חמישי</div>
-              <div class="weekday">שישי</div>
-              <div class="weekday">שבת</div>
+          <!-- View 1: Calendar Grid View & TV Side Panel -->
+          <div class="calendar-and-panel-wrapper">
+            <!-- TV Side Panel (visible only in fullscreen mode) -->
+            <aside id="tv-side-panel" class="tv-side-panel">
+              <!-- Card 1: Today's Duties -->
+              <div class="tv-card tv-duties-card">
+                <div class="tv-card-header">
+                  <div class="tv-card-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>תורני היום</span>
+                  </div>
+                  <span id="tv-today-day-name" class="tv-day-badge">יום...</span>
+                  <button type="button" id="tv-edit-roster-btn" class="tv-edit-btn" title="עריכת תורנויות והודעות (מנהל)" style="display: none;">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                </div>
+                <div id="tv-duties-list" class="tv-duties-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Card 2: Announcements -->
+              <div class="tv-card tv-announcements-card">
+                <div class="tv-card-header">
+                  <div class="tv-card-title">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>הודעות לצוות</span>
+                  </div>
+                </div>
+                <div id="tv-announcements-content" class="tv-announcements-content">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </aside>
+
+            <!-- Main Calendar Grid Container -->
+            <div id="calendar-grid-container" class="calendar-grid-wrapper">
+              <!-- Weekday Headers (RTL: Sunday on right) -->
+              <div class="calendar-weekdays">
+                <div class="weekday">ראשון</div>
+                <div class="weekday">שני</div>
+                <div class="weekday">שלישי</div>
+                <div class="weekday">רביעי</div>
+                <div class="weekday">חמישי</div>
+                <div class="weekday">שישי</div>
+                <div class="weekday weekday-shabbat">שבת</div>
+              </div>
+              <!-- Dynamic Month Days Grid -->
+              <div id="calendar-days-grid" class="calendar-days-grid"></div>
             </div>
-            <!-- Dynamic Month Days Grid -->
-            <div id="calendar-days-grid" class="calendar-days-grid"></div>
           </div>
 
           <!-- Mobile Events List Container (Visible only on Mobile) -->
@@ -2676,6 +2953,22 @@
                 </div>
               </section>
               
+              <!-- Duty Roster & Announcements Management Console Card -->
+              <section class="admin-card">
+                <div class="admin-card-header">
+                  <h3 class="admin-card-title"><i class="fas fa-clipboard-list"></i>ניהול לוח תורנויות שבועי והודעות מסך</h3>
+                </div>
+                
+                <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 16px;">
+                  הגדר את לוח התורנויות השבועי של צוות ההוראה (ימים ראשון עד שישי) והודעות כלליות.
+                  הנתונים נשמרים בענן ב-Firestore, ומוצגים באופן דינמי במסך הטלוויזיה של חדר המורים לפי תורני אותו היום.
+                </p>
+                
+                <button type="button" id="admin-open-duty-roster-btn" class="btn btn-primary" style="width: 100%;">
+                  <i class="fas fa-edit"></i> פתח עריכת לוח תורנויות והודעות
+                </button>
+              </section>
+
               <!-- System Uploads & Configurations Card -->
               <section class="admin-card">
                 <div class="admin-card-header">
@@ -2870,6 +3163,66 @@
           <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i>בצע מחיקה</button>
         </footer>
       </form>
+    </div>
+  </dialog>
+
+  <!-- Modal D: Duty Roster & Announcements Management Modal -->
+  <dialog id="duty-roster-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 680px; width: 95%;">
+      <header class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-clipboard-list" style="margin-left: 8px;"></i>ניהול לוח תורנויות שבועי והודעות מסך</h3>
+        <button id="duty-roster-modal-close" class="modal-close-btn">&times;</button>
+      </header>
+      
+      <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+        <!-- Section 1: Staff Announcements -->
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="roster-announcements-input" style="font-weight: 800;">
+            <i class="fas fa-bullhorn" style="color: var(--warning-color); margin-left: 6px;"></i>
+            הודעות לצוות ולתלמידים (יוצגו בכרטיסייה במסך):
+          </label>
+          <textarea id="roster-announcements-input" class="form-control" rows="3" placeholder="הקלד הודעות שבועיות, איחולים, תזכורות ועדכונים לצוות..."></textarea>
+        </div>
+
+        <div style="height: 1px; background-color: var(--border-color); margin: 18px 0;"></div>
+
+        <!-- Section 2: Duty Roster per day -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="font-weight: 800; margin-bottom: 0;">
+              <i class="fas fa-calendar-check" style="color: var(--primary-color); margin-left: 6px;"></i>
+              תורנויות שבועיות לפי ימים (ראשון - שישי):
+            </label>
+            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את שמות התפקידים של יום זה לכל שאר ימות השבוע">
+              <i class="fas fa-clone"></i> שכפל תפקידים לכל הימים
+            </button>
+          </div>
+
+          <!-- Day Tabs -->
+          <div class="duty-day-tabs" id="duty-day-tabs">
+            <button type="button" class="duty-day-tab active" data-day="0">יום ראשון</button>
+            <button type="button" class="duty-day-tab" data-day="1">יום שני</button>
+            <button type="button" class="duty-day-tab" data-day="2">יום שלישי</button>
+            <button type="button" class="duty-day-tab" data-day="3">יום רביעי</button>
+            <button type="button" class="duty-day-tab" data-day="4">יום חמישי</button>
+            <button type="button" class="duty-day-tab" data-day="5">יום שישי</button>
+          </div>
+
+          <!-- Duty Rows Container for Active Day -->
+          <div id="duty-rows-container" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+            <!-- Rows rendered dynamically -->
+          </div>
+
+          <button type="button" id="add-duty-row-btn" class="btn btn-secondary" style="font-size: 0.85rem; width: 100%;">
+            <i class="fas fa-plus"></i> הוסף עמדת תורנות ליום זה
+          </button>
+        </div>
+      </div>
+
+      <footer class="modal-footer" style="background-color: #fafafa; justify-content: space-between;">
+        <button type="button" id="duty-roster-cancel-btn" class="btn btn-secondary">ביטול</button>
+        <button type="button" id="duty-roster-save-btn" class="btn btn-primary"><i class="fas fa-save"></i> שמור שינויים</button>
+      </footer>
     </div>
   </dialog>
 
@@ -3144,6 +3497,22 @@
     let cachedEvents = [];
     let cachedUsers = [];
     let cachedCalendarBase = [];
+    let cachedDutyRoster = {
+      announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
+      duties: {
+        '0': [ { role: 'שער ראשי', teacher: 'משה כהן' }, { role: 'חצר עליונה', teacher: 'רחל לוי' }, { role: 'חצר תחתונה', teacher: 'דוד ישראלי' }, { role: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' } ],
+        '1': [ { role: 'שער ראשי', teacher: 'יעקב גולד' }, { role: 'חצר עליונה', teacher: 'חנה פריד' }, { role: 'חצר תחתונה', teacher: 'יוסי כץ' }, { role: 'מסדרון קומה א\'', teacher: 'תמר שפירא' } ],
+        '2': [ { role: 'שער ראשי', teacher: 'אברהם לוין' }, { role: 'חצר עליונה', teacher: 'לאה אבני' }, { role: 'חצר תחתונה', teacher: 'נועם רוזנברג' }, { role: 'מסדרון קומה א\'', teacher: 'אסתר דהן' } ],
+        '3': [ { role: 'שער ראשי', teacher: 'דניאל שר' }, { role: 'חצר עליונה', teacher: 'רבקה מזרחי' }, { role: 'חצר תחתונה', teacher: 'איתמר גבע' }, { role: 'מסדרון קומה א\'', teacher: 'שלומית בר' } ],
+        '4': [ { role: 'שער ראשי', teacher: 'יונתן גל' }, { role: 'חצר עליונה', teacher: 'שרה אהרוני' }, { role: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }, { role: 'מסדרון קומה א\'', teacher: 'מרים כרמל' } ],
+        '5': [ { role: 'שער ראשי', teacher: 'מאיר סגל' }, { role: 'חצר עליונה', teacher: 'אורית רון' }, { role: 'חצר תחתונה', teacher: 'בנימין דגן' }, { role: 'מסדרון קומה א\'', teacher: 'צפורה ברק' } ]
+      }
+    };
+
+    try {
+      const storedRoster = localStorage.getItem('school_duty_roster');
+      if (storedRoster) cachedDutyRoster = JSON.parse(storedRoster);
+    } catch (e) {}
 
     const DB = {
       init(onUpdate) {
@@ -3177,6 +3546,30 @@
         }, (error) => {
           console.warn("Firestore calendar_base listener warning (expected on file:// when not logged in):", error);
         });
+
+        // 4. Listen to Settings / Duty Roster document
+        db.collection('settings').doc('duty_roster').onSnapshot((docSnap) => {
+          if (docSnap.exists) {
+            cachedDutyRoster = docSnap.data();
+            try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+            if (onUpdate) onUpdate();
+          } else {
+            db.collection('settings').doc('duty_roster').set(cachedDutyRoster).catch(() => {});
+          }
+        }, (error) => {
+          console.warn("Firestore duty_roster listener warning:", error);
+        });
+      },
+
+      // --- Duty Roster & Announcements API ---
+      getDutyRoster() {
+        return cachedDutyRoster;
+      },
+
+      async saveDutyRoster(rosterData) {
+        cachedDutyRoster = rosterData;
+        try { localStorage.setItem('school_duty_roster', JSON.stringify(rosterData)); } catch(e) {}
+        await db.collection('settings').doc('duty_roster').set(rosterData, { merge: true });
       },
 
       getUsers() {
@@ -3265,30 +3658,59 @@
 
       getHebrewDateInfo(dateStr) {
         const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr);
-        if (baseEntry) {
-          return {
-            hebrewDate: convertHebrewDateStringToLetters(baseEntry.hebrewDate),
-            status: baseEntry.status,
-            description: baseEntry.description
-          };
+        let hebrewDate = '';
+        let status = baseEntry ? baseEntry.status : 'Regular';
+        let description = baseEntry ? (baseEntry.description || '') : '';
+
+        if (baseEntry && baseEntry.hebrewDate) {
+          hebrewDate = convertHebrewDateStringToLetters(baseEntry.hebrewDate);
+        } else {
+          try {
+            const dateParts = dateStr.split('-');
+            const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+            const hebrewFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long' });
+            const hebrewYearFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { year: 'numeric' });
+            let formattedDate = hebrewFormatter.format(dateObj);
+            let formattedYear = hebrewYearFormatter.format(dateObj);
+            let cleanHebrewDate = `${formattedDate} ${formattedYear}`;
+            cleanHebrewDate = convertHebrewDateStringToLetters(cleanHebrewDate);
+            hebrewDate = cleanHebrewDate;
+          } catch (e) {
+            hebrewDate = '';
+          }
         }
-        try {
-          const dateParts = dateStr.split('-');
-          const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
-          const hebrewFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric', month: 'long' });
-          const hebrewYearFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { year: 'numeric' });
-          let formattedDate = hebrewFormatter.format(dateObj);
-          let formattedYear = hebrewYearFormatter.format(dateObj);
-          let cleanHebrewDate = `${formattedDate} ${formattedYear}`;
-          cleanHebrewDate = convertHebrewDateStringToLetters(cleanHebrewDate);
-          return {
-            hebrewDate: cleanHebrewDate,
-            status: 'Regular',
-            description: ''
-          };
-        } catch (e) {
-          return { hebrewDate: '', status: 'Regular', description: '' };
+
+        // Auto-detect Rosh Chodesh as a Special Day if not already a Holiday
+        if (hebrewDate && status !== 'Holiday' && !description) {
+          const parts = hebrewDate.split(' ');
+          const dayStr = parts[0] || '';
+          const monthStr = (parts[1] || '').replace(/^[בל]/, '');
+
+          if (dayStr === "א'" && monthStr && monthStr !== 'תשרי') {
+            // Day 1 of Hebrew month (except Tishrei which is Rosh Hashana)
+            status = 'Special Day';
+            description = `ראש חודש ${monthStr}`;
+          } else if (dayStr === "ל'") {
+            // Day 30 of Hebrew month is Day 1 of Rosh Chodesh for next month
+            try {
+              const dateParts = dateStr.split('-');
+              const nextDayObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, parseInt(dateParts[2], 10) + 1));
+              const nextHebFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { month: 'long' });
+              const nextMonth = nextHebFormatter.format(nextDayObj).trim().replace(/^[בל]/, '');
+              status = 'Special Day';
+              description = `ראש חודש ${nextMonth}`;
+            } catch (e) {
+              status = 'Special Day';
+              description = 'ראש חודש';
+            }
+          }
         }
+
+        return {
+          hebrewDate,
+          status,
+          description
+        };
       }
     };
 
@@ -3664,27 +4086,29 @@
         const isFullscreen = document.body.classList.contains('fullscreen-mode');
 
         if (isFullscreen) {
-          // Rolling 5-week kiosk display (current week at top + 4 weeks below = exactly 35 days, 5 rows)
+          // Rolling 5-week kiosk display (current week at top + 4 weeks below, Sunday to Friday = 6 days per week, 30 days total)
           const today = new Date();
           const todayDayOfWeek = today.getDay(); // 0 is Sunday
           const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - todayDayOfWeek);
           currentSunday.setHours(0, 0, 0, 0);
 
-          for (let i = 0; i < 35; i++) {
-            const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + i);
-            const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
-            const dateInfo = DB.getHebrewDateInfo(dateKey);
-            const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
-            const dayGematria = hebParts[0] || '';
-            const hebMonthName = hebParts[1] || '';
-            const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
+          for (let w = 0; w < 5; w++) {
+            for (let dIdx = 0; dIdx < 6; dIdx++) { // 0 to 5 = Sunday to Friday (skipping Saturday)
+              const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + (w * 7) + dIdx);
+              const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+              const dateInfo = DB.getHebrewDateInfo(dateKey);
+              const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
+              const dayGematria = hebParts[0] || '';
+              const hebMonthName = hebParts[1] || '';
+              const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
 
-            daysList.push({
-              dayNumber: d.getDate(),
-              hebrewDayGematria: hebrewDayLabel,
-              dateKey: dateKey,
-              isCurrentMonth: true // All 5 weeks are part of the active rolling window
-            });
+              daysList.push({
+                dayNumber: d.getDate(),
+                hebrewDayGematria: hebrewDayLabel,
+                dateKey: dateKey,
+                isCurrentMonth: true // All 5 weeks are part of the active rolling window
+              });
+            }
           }
         } else if (calendarMode === 'hebrew') {
           const gridData = HebrewCalendar.getMonthGrid(hebrewYear, hebrewMonthIndex);
@@ -3747,10 +4171,11 @@
         const filteredEvents = this.filterEvents(events, filterType, filterGrade);
         const isMobile = window.innerWidth <= 768;
 
-        // Group into weeks of 7 days
+        // Group into weeks (6 days per week in fullscreen, 7 days in standard mode)
+        const daysPerWeek = isFullscreen ? 6 : 7;
         const weeks = [];
-        for (let i = 0; i < daysList.length; i += 7) {
-          weeks.push(daysList.slice(i, i + 7));
+        for (let i = 0; i < daysList.length; i += daysPerWeek) {
+          weeks.push(daysList.slice(i, i + daysPerWeek));
         }
 
         weeks.forEach((weekDays) => {
@@ -3758,7 +4183,8 @@
           weekRow.className = 'calendar-week-row';
 
           const weekStart = weekDays[0].dateKey;
-          const weekEnd = weekDays[6].dateKey;
+          const weekEnd = weekDays[weekDays.length - 1].dateKey;
+          const lastColIdx = weekDays.length - 1;
 
           let preparedEvents = [];
           let numSlots = 0;
@@ -3774,7 +4200,7 @@
               const startCol = weekDays.findIndex(d => d.dateKey === effectiveStart);
               const endCol = weekDays.findIndex(d => d.dateKey === effectiveEnd);
               const sCol = startCol !== -1 ? startCol : 0;
-              const eCol = endCol !== -1 ? endCol : 6;
+              const eCol = endCol !== -1 ? endCol : lastColIdx;
               const span = eCol - sCol + 1;
               return {
                 event: evt,
@@ -3795,7 +4221,7 @@
             });
 
             // Packing into vertical slots
-            const colSlots = [[], [], [], [], [], [], []];
+            const colSlots = Array.from({ length: daysPerWeek }, () => []);
             let maxSlot = -1;
             preparedEvents.forEach(item => {
               let slot = 0;
@@ -3823,7 +4249,6 @@
           // Row 1: auto (for date numbers & holiday labels)
           // Row 2 to (numSlots + 1): slot height for each event slot
           // Last Row: bottom spacing
-          const isFullscreen = document.body.classList.contains('fullscreen-mode');
           const slotTrackHeight = isFullscreen ? '21px' : '26px';
           const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
           const rowTemplates = ['auto'];
@@ -3835,11 +4260,11 @@
 
           const totalRowTracks = numSlots + 2;
 
-          // 1. Render 7 day background cells (spanning row 1 to the end)
+          // 1. Render day background cells (spanning row 1 to the end)
           weekDays.forEach((day, colIdx) => {
             const cell = document.createElement('div');
             cell.className = 'calendar-day-cell';
-            if (colIdx === 6) cell.classList.add('is-last-col');
+            if (colIdx === lastColIdx) cell.classList.add('is-last-col');
             cell.style.gridColumn = `${colIdx + 1}`;
             cell.style.gridRow = `1 / ${totalRowTracks + 1}`;
 
@@ -4837,6 +5262,7 @@
           });
 
           renderMobileEventsList();
+          renderTvSidePanel();
         } else {
           document.getElementById('calendar-grid-container').style.display = 'none';
           document.getElementById('gantt-chart-container').style.display = 'flex';
@@ -4943,6 +5369,138 @@
           openEventDetailsModal(event);
         });
         containerObj.appendChild(card);
+      });
+    }
+
+    function renderTvSidePanel() {
+      const panel = document.getElementById('tv-side-panel');
+      if (!panel) return;
+
+      const today = new Date();
+      const dayIndex = today.getDay(); // 0 is Sunday, 5 is Friday, 6 is Saturday
+      const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+      
+      const dayBadge = document.getElementById('tv-today-day-name');
+      if (dayBadge) {
+        dayBadge.textContent = 'יום ' + dayNames[dayIndex];
+      }
+
+      const editBtn = document.getElementById('tv-edit-roster-btn');
+      if (editBtn) {
+        if (state.currentUser && state.currentUser.role === 'Admin') {
+          editBtn.style.display = 'inline-flex';
+        } else {
+          editBtn.style.display = 'none';
+        }
+      }
+
+      const rosterData = DB.getDutyRoster();
+      const dutiesContainer = document.getElementById('tv-duties-list');
+      if (dutiesContainer) {
+        dutiesContainer.innerHTML = '';
+        if (dayIndex === 6) {
+          dutiesContainer.innerHTML = `
+            <div class="tv-empty-state">
+              <i class="fas fa-heart" style="color: var(--primary-color); font-size: 1.2rem; display: block; margin-bottom: 6px;"></i>
+              שבת שלום ומנוחה! אין תורנויות היום.
+            </div>
+          `;
+        } else {
+          const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
+          if (todayDuties.length === 0) {
+            dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
+          } else {
+            todayDuties.forEach(d => {
+              const item = document.createElement('div');
+              item.className = 'tv-duty-item';
+              item.innerHTML = `
+                <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.role || 'תורנות'}</div>
+                <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher || 'לא שובץ'}</div>
+              `;
+              dutiesContainer.appendChild(item);
+            });
+          }
+        }
+      }
+
+      const annContent = document.getElementById('tv-announcements-content');
+      if (annContent) {
+        annContent.textContent = rosterData.announcements || 'אין הודעות מיוחדות כרגע.';
+      }
+    }
+
+    let currentDutyModalDay = 0; // 0=Sunday
+    let dutyModalData = null;
+
+    function openDutyRosterModal() {
+      if (!state.currentUser || state.currentUser.role !== 'Admin') {
+        alert('רק מנהל מערכת יכול לערוך את לוח התורנויות וההודעות.');
+        return;
+      }
+      const modal = document.getElementById('duty-roster-modal');
+      const raw = DB.getDutyRoster();
+      dutyModalData = JSON.parse(JSON.stringify(raw));
+      if (!dutyModalData.duties) dutyModalData.duties = {};
+      for (let i = 0; i <= 5; i++) {
+        if (!dutyModalData.duties[String(i)]) dutyModalData.duties[String(i)] = [];
+      }
+
+      document.getElementById('roster-announcements-input').value = dutyModalData.announcements || '';
+      currentDutyModalDay = 0;
+      switchDutyModalDay(0);
+      modal.classList.add('active');
+    }
+
+    function switchDutyModalDay(dayIdx) {
+      currentDutyModalDay = dayIdx;
+      document.querySelectorAll('.duty-day-tab').forEach(tab => {
+        if (parseInt(tab.dataset.day, 10) === dayIdx) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+      renderDutyModalRows();
+    }
+
+    function renderDutyModalRows() {
+      const container = document.getElementById('duty-rows-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
+      if (dayDuties.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 8px 0; text-align: center;">אין עמדות תורנות ליום זה. לחץ על "הוסף עמדת תורנות" למטה.</div>';
+        return;
+      }
+
+      dayDuties.forEach((d, idx) => {
+        const row = document.createElement('div');
+        row.className = 'duty-roster-row';
+        row.innerHTML = `
+          <input type="text" class="form-control roster-role-input" placeholder="מיקום/תפקיד (למשל: שער ראשי)" value="${d.role || ''}">
+          <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן" value="${d.teacher || ''}">
+          <button type="button" class="btn btn-danger remove-duty-btn" title="מחק שורה זו"><i class="fas fa-trash-alt"></i></button>
+        `;
+
+        const roleInput = row.querySelector('.roster-role-input');
+        const teacherInput = row.querySelector('.roster-teacher-input');
+        const removeBtn = row.querySelector('.remove-duty-btn');
+
+        roleInput.addEventListener('input', (e) => {
+          dayDuties[idx].role = e.target.value;
+        });
+
+        teacherInput.addEventListener('input', (e) => {
+          dayDuties[idx].teacher = e.target.value;
+        });
+
+        removeBtn.addEventListener('click', () => {
+          dayDuties.splice(idx, 1);
+          renderDutyModalRows();
+        });
+
+        container.appendChild(row);
       });
     }
 
@@ -5404,6 +5962,102 @@
         document.getElementById('event-modal').classList.remove('active');
         renderApp();
       });
+
+      // Duty Roster & Announcements modal triggers
+      const tvEditBtn = document.getElementById('tv-edit-roster-btn');
+      if (tvEditBtn) tvEditBtn.addEventListener('click', openDutyRosterModal);
+
+      const adminOpenRosterBtn = document.getElementById('admin-open-duty-roster-btn');
+      if (adminOpenRosterBtn) adminOpenRosterBtn.addEventListener('click', openDutyRosterModal);
+
+      const rosterModalClose = document.getElementById('duty-roster-modal-close');
+      if (rosterModalClose) rosterModalClose.addEventListener('click', () => {
+        document.getElementById('duty-roster-modal').classList.remove('active');
+      });
+
+      const rosterCancelBtn = document.getElementById('duty-roster-cancel-btn');
+      if (rosterCancelBtn) rosterCancelBtn.addEventListener('click', () => {
+        document.getElementById('duty-roster-modal').classList.remove('active');
+      });
+
+      // Duty Day Tabs
+      document.querySelectorAll('.duty-day-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const dayIdx = parseInt(tab.dataset.day, 10);
+          switchDutyModalDay(dayIdx);
+        });
+      });
+
+      // Add Duty Row
+      const addRowBtn = document.getElementById('add-duty-row-btn');
+      if (addRowBtn) {
+        addRowBtn.addEventListener('click', () => {
+          if (!dutyModalData) return;
+          const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
+          dayDuties.push({ role: '', teacher: '' });
+          dutyModalData.duties[String(currentDutyModalDay)] = dayDuties;
+          renderDutyModalRows();
+        });
+      }
+
+      // Copy Roles Template across Sunday - Friday
+      const copyRolesBtn = document.getElementById('copy-roles-template-btn');
+      if (copyRolesBtn) {
+        copyRolesBtn.addEventListener('click', () => {
+          if (!dutyModalData) return;
+          const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
+          const currentRoles = dayDuties.map(d => (d.role || '').trim()).filter(Boolean);
+          if (currentRoles.length === 0) {
+            alert('נא להגדיר לפחות תפקיד אחד ביום זה לפני שכפול.');
+            return;
+          }
+          if (confirm(`האם לשכפל את ${currentRoles.length} עמדות התורנות של יום זה לכל שאר ימות השבוע (ראשון עד שישי)?`)) {
+            for (let i = 0; i <= 5; i++) {
+              if (i === currentDutyModalDay) continue;
+              const existing = dutyModalData.duties[String(i)] || [];
+              const newDayDuties = currentRoles.map(roleName => {
+                const found = existing.find(e => (e.role || '').trim() === roleName);
+                return { role: roleName, teacher: found ? found.teacher : '' };
+              });
+              dutyModalData.duties[String(i)] = newDayDuties;
+            }
+            alert('עמדות התורנות שוכפלו בהצלחה לכל ימות השבוע!');
+          }
+        });
+      }
+
+      // Save Duty Roster
+      const rosterSaveBtn = document.getElementById('duty-roster-save-btn');
+      if (rosterSaveBtn) {
+        rosterSaveBtn.addEventListener('click', async () => {
+          if (!dutyModalData) return;
+          const annInput = document.getElementById('roster-announcements-input');
+          dutyModalData.announcements = annInput ? annInput.value.trim() : '';
+
+          // Filter out empty rows (where both role and teacher are blank)
+          for (let i = 0; i <= 5; i++) {
+            if (dutyModalData.duties[String(i)]) {
+              dutyModalData.duties[String(i)] = dutyModalData.duties[String(i)].filter(d => (d.role || '').trim() || (d.teacher || '').trim());
+            }
+          }
+
+          rosterSaveBtn.disabled = true;
+          rosterSaveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...';
+
+          try {
+            await DB.saveDutyRoster(dutyModalData);
+            document.getElementById('duty-roster-modal').classList.remove('active');
+            renderApp();
+            alert('לוח התורנויות וההודעות נשמרו בהצלחה בענן!');
+          } catch (err) {
+            console.error('Failed to save duty roster:', err);
+            alert('שגיאה בשמירת הנתונים: ' + (err.message || err));
+          } finally {
+            rosterSaveBtn.disabled = false;
+            rosterSaveBtn.innerHTML = '<i class="fas fa-save"></i> שמור שינויים';
+          }
+        });
+      }
     }
 
     // Startup

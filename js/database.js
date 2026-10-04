@@ -95,6 +95,22 @@ const DEFAULT_EVENTS = [
 let cachedEvents = [];
 let cachedUsers = [];
 let cachedCalendarBase = [];
+let cachedDutyRoster = {
+  announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
+  duties: {
+    '0': [ { role: 'שער ראשי', teacher: 'משה כהן' }, { role: 'חצר עליונה', teacher: 'רחל לוי' }, { role: 'חצר תחתונה', teacher: 'דוד ישראלי' }, { role: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' } ],
+    '1': [ { role: 'שער ראשי', teacher: 'יעקב גולד' }, { role: 'חצר עליונה', teacher: 'חנה פריד' }, { role: 'חצר תחתונה', teacher: 'יוסי כץ' }, { role: 'מסדרון קומה א\'', teacher: 'תמר שפירא' } ],
+    '2': [ { role: 'שער ראשי', teacher: 'אברהם לוין' }, { role: 'חצר עליונה', teacher: 'לאה אבני' }, { role: 'חצר תחתונה', teacher: 'נועם רוזנברג' }, { role: 'מסדרון קומה א\'', teacher: 'אסתר דהן' } ],
+    '3': [ { role: 'שער ראשי', teacher: 'דניאל שר' }, { role: 'חצר עליונה', teacher: 'רבקה מזרחי' }, { role: 'חצר תחתונה', teacher: 'איתמר גבע' }, { role: 'מסדרון קומה א\'', teacher: 'שלומית בר' } ],
+    '4': [ { role: 'שער ראשי', teacher: 'יונתן גל' }, { role: 'חצר עליונה', teacher: 'שרה אהרוני' }, { role: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }, { role: 'מסדרון קומה א\'', teacher: 'מרים כרמל' } ],
+    '5': [ { role: 'שער ראשי', teacher: 'מאיר סגל' }, { role: 'חצר עליונה', teacher: 'אורית רון' }, { role: 'חצר תחתונה', teacher: 'בנימין דגן' }, { role: 'מסדרון קומה א\'', teacher: 'צפורה ברק' } ]
+  }
+};
+
+try {
+  const storedRoster = localStorage.getItem('school_duty_roster');
+  if (storedRoster) cachedDutyRoster = JSON.parse(storedRoster);
+} catch (e) {}
 
 export const DB = {
   /**
@@ -130,6 +146,30 @@ export const DB = {
       }
       if (onUpdate) onUpdate();
     });
+
+    // 4. Listen to Settings / Duty Roster document
+    onSnapshot(doc(db, 'settings', 'duty_roster'), (docSnap) => {
+      if (docSnap.exists()) {
+        cachedDutyRoster = docSnap.data();
+        try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+        if (onUpdate) onUpdate();
+      } else {
+        setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster).catch(() => {});
+      }
+    }, (error) => {
+      console.warn("Firestore duty_roster listener warning:", error);
+    });
+  },
+
+  // --- Duty Roster & Announcements API ---
+  getDutyRoster() {
+    return cachedDutyRoster;
+  },
+
+  async saveDutyRoster(rosterData) {
+    cachedDutyRoster = rosterData;
+    try { localStorage.setItem('school_duty_roster', JSON.stringify(rosterData)); } catch(e) {}
+    await setDoc(doc(db, 'settings', 'duty_roster'), rosterData, { merge: true });
   },
 
   // --- Users Collection API ---
@@ -221,49 +261,69 @@ export const DB = {
     }
   },
 
-  // --- Utility Date Helpers ---
   getHebrewDateInfo(dateStr) {
     const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr);
-    
-    if (baseEntry) {
-      return {
-        hebrewDate: convertHebrewDateStringToLetters(baseEntry.hebrewDate),
-        status: baseEntry.status,
-        description: baseEntry.description
-      };
+    let hebrewDate = '';
+    let status = baseEntry ? baseEntry.status : 'Regular';
+    let description = baseEntry ? (baseEntry.description || '') : '';
+
+    if (baseEntry && baseEntry.hebrewDate) {
+      hebrewDate = convertHebrewDateStringToLetters(baseEntry.hebrewDate);
+    } else {
+      try {
+        const dateParts = dateStr.split('-');
+        const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
+        
+        const hebrewFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {
+          day: 'numeric',
+          month: 'long'
+        });
+        
+        const hebrewYearFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {
+          year: 'numeric'
+        });
+
+        let formattedDate = hebrewFormatter.format(dateObj);
+        let formattedYear = hebrewYearFormatter.format(dateObj);
+        
+        let cleanHebrewDate = `${formattedDate} ${formattedYear}`;
+        hebrewDate = convertHebrewDateStringToLetters(cleanHebrewDate);
+      } catch (e) {
+        hebrewDate = '';
+      }
     }
 
-    try {
-      const dateParts = dateStr.split('-');
-      const dateObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]));
-      
-      const hebrewFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {
-        day: 'numeric',
-        month: 'long'
-      });
-      
-      const hebrewYearFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {
-        year: 'numeric'
-      });
+    // Auto-detect Rosh Chodesh as a Special Day if not already a Holiday
+    if (hebrewDate && status !== 'Holiday' && !description) {
+      const parts = hebrewDate.split(' ');
+      const dayStr = parts[0] || '';
+      const monthStr = (parts[1] || '').replace(/^[בל]/, '');
 
-      let formattedDate = hebrewFormatter.format(dateObj);
-      let formattedYear = hebrewYearFormatter.format(dateObj);
-      
-      let cleanHebrewDate = `${formattedDate} ${formattedYear}`;
-      cleanHebrewDate = convertHebrewDateStringToLetters(cleanHebrewDate);
-
-      return {
-        hebrewDate: cleanHebrewDate,
-        status: 'Regular',
-        description: ''
-      };
-    } catch (e) {
-      return {
-        hebrewDate: '',
-        status: 'Regular',
-        description: ''
-      };
+      if (dayStr === "א'" && monthStr && monthStr !== 'תשרי') {
+        // Day 1 of Hebrew month (except Tishrei which is Rosh Hashana)
+        status = 'Special Day';
+        description = `ראש חודש ${monthStr}`;
+      } else if (dayStr === "ל'") {
+        // Day 30 of Hebrew month is Day 1 of Rosh Chodesh for next month
+        try {
+          const dateParts = dateStr.split('-');
+          const nextDayObj = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, parseInt(dateParts[2], 10) + 1));
+          const nextHebFormatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { month: 'long' });
+          const nextMonth = nextHebFormatter.format(nextDayObj).trim().replace(/^[בל]/, '');
+          status = 'Special Day';
+          description = `ראש חודש ${nextMonth}`;
+        } catch (e) {
+          status = 'Special Day';
+          description = 'ראש חודש';
+        }
+      }
     }
+
+    return {
+      hebrewDate,
+      status,
+      description
+    };
   }
 };
 

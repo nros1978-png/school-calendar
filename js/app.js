@@ -175,6 +175,7 @@ function renderApp() {
       });
       
       renderMobileEventsList();
+      renderTvSidePanel();
     } else {
       document.getElementById('calendar-grid-container').style.display = 'none';
       document.getElementById('gantt-chart-container').style.display = 'flex';
@@ -282,6 +283,141 @@ function renderMobileEventsList() {
       openEventDetailsModal(event);
     });
     container.appendChild(card);
+  });
+}
+
+/**
+ * Renders the Duty Roster and Announcements on the TV side panel
+ */
+function renderTvSidePanel() {
+  const panel = document.getElementById('tv-side-panel');
+  if (!panel) return;
+
+  const today = new Date();
+  const dayIndex = today.getDay(); // 0 is Sunday, 5 is Friday, 6 is Saturday
+  const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+  
+  const dayBadge = document.getElementById('tv-today-day-name');
+  if (dayBadge) {
+    dayBadge.textContent = 'יום ' + dayNames[dayIndex];
+  }
+
+  const editBtn = document.getElementById('tv-edit-roster-btn');
+  if (editBtn) {
+    if (state.currentUser && state.currentUser.role === 'Admin') {
+      editBtn.style.display = 'inline-flex';
+    } else {
+      editBtn.style.display = 'none';
+    }
+  }
+
+  const rosterData = DB.getDutyRoster();
+  const dutiesContainer = document.getElementById('tv-duties-list');
+  if (dutiesContainer) {
+    dutiesContainer.innerHTML = '';
+    if (dayIndex === 6) {
+      dutiesContainer.innerHTML = `
+        <div class="tv-empty-state">
+          <i class="fas fa-heart" style="color: var(--primary-color); font-size: 1.2rem; display: block; margin-bottom: 6px;"></i>
+          שבת שלום ומנוחה! אין תורנויות היום.
+        </div>
+      `;
+    } else {
+      const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
+      if (todayDuties.length === 0) {
+        dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
+      } else {
+        todayDuties.forEach(d => {
+          const item = document.createElement('div');
+          item.className = 'tv-duty-item';
+          item.innerHTML = `
+            <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.role || 'תורנות'}</div>
+            <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher || 'לא שובץ'}</div>
+          `;
+          dutiesContainer.appendChild(item);
+        });
+      }
+    }
+  }
+
+  const annContent = document.getElementById('tv-announcements-content');
+  if (annContent) {
+    annContent.textContent = rosterData.announcements || 'אין הודעות מיוחדות כרגע.';
+  }
+}
+
+let currentDutyModalDay = 0; // 0=Sunday
+let dutyModalData = null;
+
+function openDutyRosterModal() {
+  if (!state.currentUser || state.currentUser.role !== 'Admin') {
+    alert('רק מנהל מערכת יכול לערוך את לוח התורנויות וההודעות.');
+    return;
+  }
+  const modal = document.getElementById('duty-roster-modal');
+  const raw = DB.getDutyRoster();
+  dutyModalData = JSON.parse(JSON.stringify(raw));
+  if (!dutyModalData.duties) dutyModalData.duties = {};
+  for (let i = 0; i <= 5; i++) {
+    if (!dutyModalData.duties[String(i)]) dutyModalData.duties[String(i)] = [];
+  }
+
+  document.getElementById('roster-announcements-input').value = dutyModalData.announcements || '';
+  currentDutyModalDay = 0;
+  switchDutyModalDay(0);
+  modal.classList.add('active');
+}
+
+function switchDutyModalDay(dayIdx) {
+  currentDutyModalDay = dayIdx;
+  document.querySelectorAll('.duty-day-tab').forEach(tab => {
+    if (parseInt(tab.dataset.day, 10) === dayIdx) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+  renderDutyModalRows();
+}
+
+function renderDutyModalRows() {
+  const container = document.getElementById('duty-rows-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
+  if (dayDuties.length === 0) {
+    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 8px 0; text-align: center;">אין עמדות תורנות ליום זה. לחץ על "הוסף עמדת תורנות" למטה.</div>';
+    return;
+  }
+
+  dayDuties.forEach((d, idx) => {
+    const row = document.createElement('div');
+    row.className = 'duty-roster-row';
+    row.innerHTML = `
+      <input type="text" class="form-control roster-role-input" placeholder="מיקום/תפקיד (למשל: שער ראשי)" value="${d.role || ''}">
+      <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן" value="${d.teacher || ''}">
+      <button type="button" class="btn btn-danger remove-duty-btn" title="מחק שורה זו"><i class="fas fa-trash-alt"></i></button>
+    `;
+
+    const roleInput = row.querySelector('.roster-role-input');
+    const teacherInput = row.querySelector('.roster-teacher-input');
+    const removeBtn = row.querySelector('.remove-duty-btn');
+
+    roleInput.addEventListener('input', (e) => {
+      dayDuties[idx].role = e.target.value;
+    });
+
+    teacherInput.addEventListener('input', (e) => {
+      dayDuties[idx].teacher = e.target.value;
+    });
+
+    removeBtn.addEventListener('click', () => {
+      dayDuties.splice(idx, 1);
+      renderDutyModalRows();
+    });
+
+    container.appendChild(row);
   });
 }
 
@@ -781,8 +917,101 @@ function setupEventListeners() {
     renderApp();
   });
 
-  // Modals close triggers
+  // Duty Roster & Announcements modal triggers
+  const tvEditBtn = document.getElementById('tv-edit-roster-btn');
+  if (tvEditBtn) tvEditBtn.addEventListener('click', openDutyRosterModal);
+
+  const adminOpenRosterBtn = document.getElementById('admin-open-duty-roster-btn');
+  if (adminOpenRosterBtn) adminOpenRosterBtn.addEventListener('click', openDutyRosterModal);
+
+  const rosterModalClose = document.getElementById('duty-roster-modal-close');
+  if (rosterModalClose) rosterModalClose.addEventListener('click', () => {
+    document.getElementById('duty-roster-modal').classList.remove('active');
+  });
+
+  const rosterCancelBtn = document.getElementById('duty-roster-cancel-btn');
+  if (rosterCancelBtn) rosterCancelBtn.addEventListener('click', () => {
+    document.getElementById('duty-roster-modal').classList.remove('active');
+  });
+
+  // Duty Day Tabs
+  document.querySelectorAll('.duty-day-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const dayIdx = parseInt(tab.dataset.day, 10);
+      switchDutyModalDay(dayIdx);
+    });
+  });
+
+  // Add Duty Row
+  const addRowBtn = document.getElementById('add-duty-row-btn');
+  if (addRowBtn) {
+    addRowBtn.addEventListener('click', () => {
+      if (!dutyModalData) return;
+      const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
+      dayDuties.push({ role: '', teacher: '' });
+      dutyModalData.duties[String(currentDutyModalDay)] = dayDuties;
+      renderDutyModalRows();
+    });
   }
+
+  // Copy Roles Template across Sunday - Friday
+  const copyRolesBtn = document.getElementById('copy-roles-template-btn');
+  if (copyRolesBtn) {
+    copyRolesBtn.addEventListener('click', () => {
+      if (!dutyModalData) return;
+      const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
+      const currentRoles = dayDuties.map(d => (d.role || '').trim()).filter(Boolean);
+      if (currentRoles.length === 0) {
+        alert('נא להגדיר לפחות תפקיד אחד ביום זה לפני שכפול.');
+        return;
+      }
+      if (confirm(`האם לשכפל את ${currentRoles.length} עמדות התורנות של יום זה לכל שאר ימות השבוע (ראשון עד שישי)?`)) {
+        for (let i = 0; i <= 5; i++) {
+          if (i === currentDutyModalDay) continue;
+          const existing = dutyModalData.duties[String(i)] || [];
+          const newDayDuties = currentRoles.map(roleName => {
+            const found = existing.find(e => (e.role || '').trim() === roleName);
+            return { role: roleName, teacher: found ? found.teacher : '' };
+          });
+          dutyModalData.duties[String(i)] = newDayDuties;
+        }
+        alert('עמדות התורנות שוכפלו בהצלחה לכל ימות השבוע!');
+      }
+    });
+  }
+
+  // Save Duty Roster
+  const rosterSaveBtn = document.getElementById('duty-roster-save-btn');
+  if (rosterSaveBtn) {
+    rosterSaveBtn.addEventListener('click', async () => {
+      if (!dutyModalData) return;
+      const annInput = document.getElementById('roster-announcements-input');
+      dutyModalData.announcements = annInput ? annInput.value.trim() : '';
+
+      for (let i = 0; i <= 5; i++) {
+        if (dutyModalData.duties[String(i)]) {
+          dutyModalData.duties[String(i)] = dutyModalData.duties[String(i)].filter(d => (d.role || '').trim() || (d.teacher || '').trim());
+        }
+      }
+
+      rosterSaveBtn.disabled = true;
+      rosterSaveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...';
+
+      try {
+        await DB.saveDutyRoster(dutyModalData);
+        document.getElementById('duty-roster-modal').classList.remove('active');
+        renderApp();
+        alert('לוח התורנויות וההודעות נשמרו בהצלחה בענן!');
+      } catch (err) {
+        console.error('Failed to save duty roster:', err);
+        alert('שגיאה בשמירת הנתונים: ' + (err.message || err));
+      } finally {
+        rosterSaveBtn.disabled = false;
+        rosterSaveBtn.innerHTML = '<i class="fas fa-save"></i> שמור שינויים';
+      }
+    });
+  }
+}
 
 // ----------------------------------------------------
 // INITIALIZATION
