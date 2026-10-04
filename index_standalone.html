@@ -3702,117 +3702,35 @@
       ];
     }
 
+    function isDemoDutyRoster(data) {
+      if (!data) return false;
+      const str = JSON.stringify(data);
+      return str.includes('משה כהן') || str.includes('רחל לוי') || str.includes('נא להקפיד על נוכחות בזמן בתורנויות');
+    }
+
     let cachedDutyRoster = {
-      announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
-      locations: [
-        'שער ראשי',
-        'חצר עליונה',
-        'חצר תחתונה',
-        'מסדרון קומה א\''
-      ],
+      announcements: '',
+      locations: [],
       duties: {
-        '0': [
-          {
-            name: 'הפסקה ראשונה (10:00 - 10:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'משה כהן' },
-              { location: 'חצר עליונה', teacher: 'רחל לוי' },
-              { location: 'חצר תחתונה', teacher: 'דוד ישראלי' }
-            ]
-          },
-          {
-            name: 'הפסקה שנייה (12:00 - 12:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'יעקב גולד' },
-              { location: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' }
-            ]
-          }
-        ],
-        '1': [
-          {
-            name: 'הפסקה ראשונה (10:00 - 10:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'יעקב גולד' },
-              { location: 'חצר עליונה', teacher: 'חנה פריד' },
-              { location: 'חצר תחתונה', teacher: 'יוסי כץ' }
-            ]
-          },
-          {
-            name: 'הפסקה שנייה (12:00 - 12:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'אברהם לוין' },
-              { location: 'מסדרון קומה א\'', teacher: 'תמר שפירא' }
-            ]
-          }
-        ],
-        '2': [
-          {
-            name: 'הפסקה ראשונה (10:00 - 10:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'אברהם לוין' },
-              { location: 'חצר עליונה', teacher: 'לאה אבני' },
-              { location: 'חצר תחתונה', teacher: 'נועם רוזנברג' }
-            ]
-          },
-          {
-            name: 'הפסקה שנייה (12:00 - 12:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'דניאל שר' },
-              { location: 'מסדרון קומה א\'', teacher: 'אסתר דהן' }
-            ]
-          }
-        ],
-        '3': [
-          {
-            name: 'הפסקה ראשונה (10:00 - 10:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'דניאל שר' },
-              { location: 'חצר עליונה', teacher: 'רבקה מזרחי' },
-              { location: 'חצר תחתונה', teacher: 'איתמר גבע' }
-            ]
-          },
-          {
-            name: 'הפסקה שנייה (12:00 - 12:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'יונתן גל' },
-              { location: 'מסדרון קומה א\'', teacher: 'שלומית בר' }
-            ]
-          }
-        ],
-        '4': [
-          {
-            name: 'הפסקה ראשונה (10:00 - 10:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'יונתן גל' },
-              { location: 'חצר עליונה', teacher: 'שרה אהרוני' },
-              { location: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }
-            ]
-          },
-          {
-            name: 'הפסקה שנייה (12:00 - 12:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'מאיר סגל' },
-              { location: 'מסדרון קומה א\'', teacher: 'מרים כרמל' }
-            ]
-          }
-        ],
-        '5': [
-          {
-            name: 'הפסקה ראשונה (10:00 - 10:30)',
-            duties: [
-              { location: 'שער ראשי', teacher: 'מאיר סגל' },
-              { location: 'חצר עליונה', teacher: 'אורית רון' },
-              { location: 'חצר תחתונה', teacher: 'בנימין דגן' },
-              { location: 'מסדרון קומה א\'', teacher: 'צפורה ברק' }
-            ]
-          }
-        ]
+        '0': [],
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': []
       }
     };
 
     try {
       const storedRoster = localStorage.getItem('school_duty_roster');
-      if (storedRoster) cachedDutyRoster = JSON.parse(storedRoster);
+      if (storedRoster) {
+        const parsed = JSON.parse(storedRoster);
+        if (isDemoDutyRoster(parsed)) {
+          localStorage.removeItem('school_duty_roster');
+        } else {
+          cachedDutyRoster = parsed;
+        }
+      }
     } catch (e) {}
 
     const DB = {
@@ -3851,8 +3769,13 @@
         // 4. Listen to Settings / Duty Roster document
         db.collection('settings').doc('duty_roster').onSnapshot((docSnap) => {
           if (docSnap.exists) {
-            cachedDutyRoster = docSnap.data();
-            try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+            const data = docSnap.data();
+            if (isDemoDutyRoster(data)) {
+              db.collection('settings').doc('duty_roster').set(cachedDutyRoster).catch(() => {});
+            } else {
+              cachedDutyRoster = data;
+              try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+            }
             if (onUpdate) onUpdate();
           } else {
             db.collection('settings').doc('duty_roster').set(cachedDutyRoster).catch(() => {});
@@ -3864,8 +3787,11 @@
 
       // --- Duty Roster & Announcements API ---
       getDutyRoster() {
-        if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations) || cachedDutyRoster.locations.length === 0) {
-          cachedDutyRoster.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
+        if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations)) {
+          cachedDutyRoster.locations = [];
+        }
+        if (!cachedDutyRoster.duties) {
+          cachedDutyRoster.duties = { '0': [], '1': [], '2': [], '3': [], '4': [], '5': [] };
         }
         return cachedDutyRoster;
       },
@@ -5711,10 +5637,20 @@
         } else {
           const rawDayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
           const breaks = normalizeDutyDay(rawDayDuties);
-          if (breaks.length === 0 || breaks.every(b => !b.duties || b.duties.length === 0)) {
-            dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
+          const hasAnyAssigned = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
+
+          if (breaks.length === 0 || !hasAnyAssigned) {
+            dutiesContainer.innerHTML = `
+              <div class="tv-empty-state">
+                <i class="fas fa-clipboard-list" style="font-size: 1.4rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
+                טרם הוגדרו תורנויות להיום.
+              </div>
+            `;
           } else {
             breaks.forEach(b => {
+              const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
+              if (assignedDuties.length === 0) return; // Only show breaks that have active assigned duties
+
               const breakCard = document.createElement('div');
               breakCard.className = 'tv-break-card';
 
@@ -5726,23 +5662,15 @@
               const breakItems = document.createElement('div');
               breakItems.className = 'tv-break-items';
 
-              const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
-              if (assignedDuties.length === 0) {
-                const emptyItem = document.createElement('div');
-                emptyItem.style.cssText = 'color: #94a3b8; font-size: 0.82rem; padding: 4px 8px; font-style: italic;';
-                emptyItem.textContent = 'אין שיבוצים להפסקה זו';
-                breakItems.appendChild(emptyItem);
-              } else {
-                assignedDuties.forEach(d => {
-                  const item = document.createElement('div');
-                  item.className = 'tv-duty-item';
-                  item.innerHTML = `
-                    <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
-                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher}</div>
-                  `;
-                  breakItems.appendChild(item);
-                });
-              }
+              assignedDuties.forEach(d => {
+                const item = document.createElement('div');
+                item.className = 'tv-duty-item';
+                item.innerHTML = `
+                  <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
+                  <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher}</div>
+                `;
+                breakItems.appendChild(item);
+              });
 
               breakCard.appendChild(breakItems);
               dutiesContainer.appendChild(breakCard);
@@ -5753,7 +5681,11 @@
 
       const annContent = document.getElementById('tv-announcements-content');
       if (annContent) {
-        annContent.textContent = rosterData.announcements || 'אין הודעות מיוחדות כרגע.';
+        if (rosterData.announcements && rosterData.announcements.trim()) {
+          annContent.textContent = rosterData.announcements.trim();
+        } else {
+          annContent.innerHTML = '<span style="color: #94a3b8; font-style: italic;">אין הודעות כרגע.</span>';
+        }
       }
     }
 
@@ -5770,8 +5702,8 @@
       const raw = DB.getDutyRoster();
       dutyModalData = JSON.parse(JSON.stringify(raw));
       
-      if (!dutyModalData.locations || !Array.isArray(dutyModalData.locations) || dutyModalData.locations.length === 0) {
-        dutyModalData.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
+      if (!dutyModalData.locations || !Array.isArray(dutyModalData.locations)) {
+        dutyModalData.locations = [];
       }
 
       if (!dutyModalData.duties) dutyModalData.duties = {};
