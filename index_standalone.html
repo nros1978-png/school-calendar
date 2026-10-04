@@ -3,7 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>לוח שנה פדגוגי ומערכת גאנט בית ספרית (גרסה עצמאית)</title>
+
+  <script>
+    // Early Android TV & Kiosk Detection (Executes immediately before DOM renders)
+    (function() {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var isTvParam = p.has('tv') || p.has('kiosk') || p.has('fullscreen') || window.location.hash === '#tv';
+        var isStored = localStorage.getItem('tv_mode') === 'true';
+        var ua = navigator.userAgent || '';
+        var isAndroid = /Android/i.test(ua);
+        var noTouch = (navigator.maxTouchPoints === 0 || !('ontouchstart' in window));
+        var notMobile = !/Mobile/i.test(ua);
+        var hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|DTV|OTT|LargeScreen/i.test(ua);
+        var isAndroidTv = isAndroid && (noTouch || notMobile || hasTvWords);
+        
+        if (isTvParam || isStored || isAndroidTv || hasTvWords) {
+          document.documentElement.classList.add('fullscreen-mode');
+          window.__IS_TV_INITIAL__ = true;
+          try { localStorage.setItem('tv_mode', 'true'); } catch(e) {}
+        }
+      } catch (e) {}
+    })();
+  </script>
   
   <!-- FontAwesome Icons & Assistant Font -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -2301,9 +2327,18 @@
       text-overflow: ellipsis !important;
     }
 
-    body.fullscreen-mode .btn-fullscreen-active {
+    body.fullscreen-mode .btn-fullscreen-active,
+    html.fullscreen-mode .btn-fullscreen-active {
       background-color: var(--primary-color) !important;
       color: white !important;
+    }
+
+    body.fullscreen-mode #cal-reload-btn,
+    html.fullscreen-mode #cal-reload-btn {
+      display: flex !important;
+      background: white !important;
+      color: var(--text-secondary) !important;
+      border: 1px solid var(--border-color) !important;
     }
   </style>
   
@@ -2313,6 +2348,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <script>
+    if (window.__IS_TV_INITIAL__ || localStorage.getItem('tv_mode') === 'true') {
+      document.body.classList.add('fullscreen-mode');
+    }
+  </script>
 
   <!-- ====================================================
        1. LOGIN / AUTHENTICATION VIEW
@@ -2511,9 +2551,12 @@
               <button id="cal-next-btn" class="nav-arrow-btn" title="חודש הבא">
                 <i class="fas fa-chevron-left"></i>
               </button>
-              <button id="cal-fullscreen-btn" class="nav-arrow-btn" style="width: auto; padding: 0 12px; font-size: 0.85rem; font-weight: 700; margin-right: 12px; gap: 6px; display: flex; align-items: center;" title="הצגה על מסך מלא (לתצוגת חדר מורים)">
-                <i class="fas fa-expand"></i>
-                <span id="cal-fullscreen-text">מסך מלא</span>
+              <button id="cal-fullscreen-btn" class="nav-arrow-btn" style="width: auto; padding: 0 12px; font-size: 0.85rem; font-weight: 700; margin-right: 12px; gap: 6px; display: flex; align-items: center;" title="מעבר לתצוגת טלוויזיה / מסך מלא (5 שבועות רציפים)">
+                <i class="fas fa-tv"></i>
+                <span id="cal-fullscreen-text">מסך מלא (טלוויזיה)</span>
+              </button>
+              <button id="cal-reload-btn" class="nav-arrow-btn" style="width: 36px; height: 36px; padding: 0; font-size: 0.9rem; margin-right: 6px; display: none; align-items: center; justify-content: center;" title="רענון לוח">
+                <i class="fas fa-sync-alt"></i>
               </button>
             </div>
           </div>
@@ -5183,9 +5226,17 @@
 
       // Fullscreen projection toggle for staff room TV display
       const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
-      
+      const reloadBtn = document.getElementById('cal-reload-btn');
+
+      if (reloadBtn) {
+        reloadBtn.addEventListener('click', () => {
+          window.location.reload(true);
+        });
+      }
+
       const setFullscreenMode = (enable) => {
         if (enable) {
+          document.documentElement.classList.add('fullscreen-mode');
           document.body.classList.add('fullscreen-mode');
           state.activeView = 'calendar';
           localStorage.setItem('tv_mode', 'true');
@@ -5210,6 +5261,7 @@
           }
           renderApp();
         } else {
+          document.documentElement.classList.remove('fullscreen-mode');
           document.body.classList.remove('fullscreen-mode');
           localStorage.setItem('tv_mode', 'false');
           if (document.exitFullscreen && document.fullscreenElement) {
@@ -5218,8 +5270,8 @@
           if (fullscreenBtn) {
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
-            if (icon) icon.className = 'fas fa-expand';
-            if (text) text.textContent = 'מסך מלא';
+            if (icon) icon.className = 'fas fa-tv';
+            if (text) text.textContent = 'מסך מלא (טלוויזיה)';
             fullscreenBtn.classList.remove('btn-fullscreen-active');
           }
           renderApp();
@@ -5228,19 +5280,20 @@
 
       if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', () => {
-          const isCurrentlyFs = document.body.classList.contains('fullscreen-mode');
+          const isCurrentlyFs = document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode');
           setFullscreenMode(!isCurrentlyFs);
         });
 
         // Listen for browser native exit (e.g. Esc key)
         document.addEventListener('fullscreenchange', () => {
-          if (!document.fullscreenElement && document.body.classList.contains('fullscreen-mode')) {
+          if (!document.fullscreenElement && (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode'))) {
+            document.documentElement.classList.remove('fullscreen-mode');
             document.body.classList.remove('fullscreen-mode');
             localStorage.setItem('tv_mode', 'false');
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
-            if (icon) icon.className = 'fas fa-expand';
-            if (text) text.textContent = 'מסך מלא';
+            if (icon) icon.className = 'fas fa-tv';
+            if (text) text.textContent = 'מסך מלא (טלוויזיה)';
             fullscreenBtn.classList.remove('btn-fullscreen-active');
             renderApp();
           }
@@ -5251,15 +5304,20 @@
       const checkAndTriggerTvMode = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const isTvParam = urlParams.has('tv') || urlParams.has('kiosk') || urlParams.has('fullscreen') || window.location.hash === '#tv';
-        const isTvUserAgent = /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|Android.*TV|GoogleTV|AppleTV|POV_TV|Viera|Roku|LargeScreen/i.test(navigator.userAgent);
         const isTvStored = localStorage.getItem('tv_mode') === 'true';
+        const ua = navigator.userAgent || '';
+        const isAndroid = /Android/i.test(ua);
+        const noTouch = (navigator.maxTouchPoints === 0 || !('ontouchstart' in window));
+        const notMobile = !/Mobile/i.test(ua);
+        const hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|DTV|OTT|LargeScreen/i.test(ua);
+        const isAndroidTv = isAndroid && (noTouch || notMobile || hasTvWords);
 
-        if (isTvParam || isTvUserAgent || isTvStored) {
+        if (isTvParam || isTvStored || isAndroidTv || hasTvWords || window.__IS_TV_INITIAL__) {
           setFullscreenMode(true);
 
           // If browser blocked initial programmatic requestFullscreen, trigger on first user interaction
           const onFirstInteraction = () => {
-            if (document.body.classList.contains('fullscreen-mode') && !document.fullscreenElement) {
+            if ((document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) && !document.fullscreenElement) {
               if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(() => {});
               }
