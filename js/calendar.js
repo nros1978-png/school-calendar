@@ -251,27 +251,27 @@ export const Calendar = {
     const isFullscreen = document.body.classList.contains('fullscreen-mode');
 
     if (isFullscreen) {
-      // Rolling 5-week kiosk display (current week at top + 4 weeks below, Sunday to Friday = 6 days per week, 30 days total)
+      // Rolling 4-week kiosk display (current week at top + 3 weeks below, Sunday to Friday = 6 days per week, 24 days total)
       const today = new Date();
       const todayDayOfWeek = today.getDay(); // 0 is Sunday
       const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - todayDayOfWeek);
       currentSunday.setHours(0, 0, 0, 0);
 
-      for (let w = 0; w < 5; w++) {
+      for (let w = 0; w < 4; w++) {
         for (let dIdx = 0; dIdx < 6; dIdx++) { // 0 to 5 = Sunday to Friday (skipping Saturday)
           const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + (w * 7) + dIdx);
           const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
           const dateInfo = DB.getHebrewDateInfo(dateKey);
           const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
           const dayGematria = hebParts[0] || '';
-          const hebMonthName = hebParts[1] || '';
+          const hebMonthName = (hebParts[1] || '').replace(/^[בל]/, '');
           const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
 
           daysList.push({
             dayNumber: d.getDate(),
             hebrewDayGematria: hebrewDayLabel,
             dateKey: dateKey,
-            isCurrentMonth: true // All 5 weeks are part of the active rolling window
+            isCurrentMonth: true // All 4 weeks are part of the active rolling window
           });
         }
       }

@@ -95,15 +95,120 @@ const DEFAULT_EVENTS = [
 let cachedEvents = [];
 let cachedUsers = [];
 let cachedCalendarBase = [];
+export function normalizeDutyDay(dayData) {
+  if (!dayData || !Array.isArray(dayData) || dayData.length === 0) return [];
+  if (dayData[0] && typeof dayData[0] === 'object' && Array.isArray(dayData[0].duties)) {
+    return dayData;
+  }
+  return [
+    {
+      name: 'הפסקה ראשונה (10:00 - 10:30)',
+      duties: dayData.map(d => ({
+        location: d.location || d.role || '',
+        teacher: d.teacher || ''
+      }))
+    }
+  ];
+}
+
 let cachedDutyRoster = {
   announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
   duties: {
-    '0': [ { role: 'שער ראשי', teacher: 'משה כהן' }, { role: 'חצר עליונה', teacher: 'רחל לוי' }, { role: 'חצר תחתונה', teacher: 'דוד ישראלי' }, { role: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' } ],
-    '1': [ { role: 'שער ראשי', teacher: 'יעקב גולד' }, { role: 'חצר עליונה', teacher: 'חנה פריד' }, { role: 'חצר תחתונה', teacher: 'יוסי כץ' }, { role: 'מסדרון קומה א\'', teacher: 'תמר שפירא' } ],
-    '2': [ { role: 'שער ראשי', teacher: 'אברהם לוין' }, { role: 'חצר עליונה', teacher: 'לאה אבני' }, { role: 'חצר תחתונה', teacher: 'נועם רוזנברג' }, { role: 'מסדרון קומה א\'', teacher: 'אסתר דהן' } ],
-    '3': [ { role: 'שער ראשי', teacher: 'דניאל שר' }, { role: 'חצר עליונה', teacher: 'רבקה מזרחי' }, { role: 'חצר תחתונה', teacher: 'איתמר גבע' }, { role: 'מסדרון קומה א\'', teacher: 'שלומית בר' } ],
-    '4': [ { role: 'שער ראשי', teacher: 'יונתן גל' }, { role: 'חצר עליונה', teacher: 'שרה אהרוני' }, { role: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }, { role: 'מסדרון קומה א\'', teacher: 'מרים כרמל' } ],
-    '5': [ { role: 'שער ראשי', teacher: 'מאיר סגל' }, { role: 'חצר עליונה', teacher: 'אורית רון' }, { role: 'חצר תחתונה', teacher: 'בנימין דגן' }, { role: 'מסדרון קומה א\'', teacher: 'צפורה ברק' } ]
+    '0': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'משה כהן' },
+          { location: 'חצר עליונה', teacher: 'רחל לוי' },
+          { location: 'חצר תחתונה', teacher: 'דוד ישראלי' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יעקב גולד' },
+          { location: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' }
+        ]
+      }
+    ],
+    '1': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יעקב גולד' },
+          { location: 'חצר עליונה', teacher: 'חנה פריד' },
+          { location: 'חצר תחתונה', teacher: 'יוסי כץ' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'אברהם לוין' },
+          { location: 'מסדרון קומה א\'', teacher: 'תמר שפירא' }
+        ]
+      }
+    ],
+    '2': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'אברהם לוין' },
+          { location: 'חצר עליונה', teacher: 'לאה אבני' },
+          { location: 'חצר תחתונה', teacher: 'נועם רוזנברג' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'דניאל שר' },
+          { location: 'מסדרון קומה א\'', teacher: 'אסתר דהן' }
+        ]
+      }
+    ],
+    '3': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'דניאל שר' },
+          { location: 'חצר עליונה', teacher: 'רבקה מזרחי' },
+          { location: 'חצר תחתונה', teacher: 'איתמר גבע' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יונתן גל' },
+          { location: 'מסדרון קומה א\'', teacher: 'שלומית בר' }
+        ]
+      }
+    ],
+    '4': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יונתן גל' },
+          { location: 'חצר עליונה', teacher: 'שרה אהרוני' },
+          { location: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'מאיר סגל' },
+          { location: 'מסדרון קומה א\'', teacher: 'מרים כרמל' }
+        ]
+      }
+    ],
+    '5': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'מאיר סגל' },
+          { location: 'חצר עליונה', teacher: 'אורית רון' },
+          { location: 'חצר תחתונה', teacher: 'בנימין דגן' }
+        ]
+      }
+    ]
   }
 };
 

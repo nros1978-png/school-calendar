@@ -42,9 +42,10 @@ function getHebrewMonthHeaderString(year, month) {
     
     const firstHeb = convertHebrewDateStringToLetters(formatter.format(firstDay).trim());
     const lastHeb = convertHebrewDateStringToLetters(formatter.format(lastDay).trim());
+    const cleanHeb = (s) => (s || '').replace(/^[בל]/, '');
     
     if (firstHeb === lastHeb) {
-      return firstHeb;
+      return cleanHeb(firstHeb);
     }
     
     const firstParts = firstHeb.split(' ');
@@ -53,8 +54,8 @@ function getHebrewMonthHeaderString(year, month) {
     const firstYear = firstParts[firstParts.length - 1];
     const lastYear = lastParts[lastParts.length - 1];
     
-    const firstMonth = firstParts.slice(0, firstParts.length - 1).join(' ');
-    const lastMonth = lastParts.slice(0, lastParts.length - 1).join(' ');
+    const firstMonth = cleanHeb(firstParts.slice(0, firstParts.length - 1).join(' '));
+    const lastMonth = cleanHeb(lastParts.slice(0, lastParts.length - 1).join(' '));
     
     if (firstYear === lastYear) {
       return `${firstMonth} - ${lastMonth} ${firstYear}`;
@@ -97,10 +98,10 @@ function renderApp() {
     if (document.body.classList.contains('fullscreen-mode')) {
       const today = new Date();
       const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
-      const endSaturday = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + 34);
+      const endFriday = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + 26);
 
       const startKey = formatDateKey(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate());
-      const endKey = formatDateKey(endSaturday.getFullYear(), endSaturday.getMonth(), endSaturday.getDate());
+      const endKey = formatDateKey(endFriday.getFullYear(), endFriday.getMonth(), endFriday.getDate());
 
       const startInfo = DB.getHebrewDateInfo(startKey);
       const endInfo = DB.getHebrewDateInfo(endKey);
@@ -108,25 +109,23 @@ function renderApp() {
       const startParts = (startInfo.hebrewDate || '').split(' ');
       const endParts = (endInfo.hebrewDate || '').split(' ');
 
-      const startHebMonth = startParts.length >= 2 ? startParts[1] : '';
-      const endHebMonth = endParts.length >= 2 ? endParts[1] : '';
+      const cleanHeb = (s) => (s || '').replace(/^[בל]/, '');
+      const startHebMonth = cleanHeb(startParts.length >= 2 ? startParts[1] : '');
+      const endHebMonth = cleanHeb(endParts.length >= 2 ? endParts[1] : '');
       const hebYear = endParts.length >= 3 ? endParts[2] : (startParts.length >= 3 ? startParts[2] : '');
 
       let hebRange = startHebMonth;
       if (endHebMonth && endHebMonth !== startHebMonth) {
-        hebRange = `${startHebMonth} – ${endHebMonth}`;
+        hebRange = `${startHebMonth} - ${endHebMonth}`;
       }
       if (hebYear) hebRange += ` ${hebYear}`;
 
-      const gregRange = `${currentSunday.getDate()}/${currentSunday.getMonth() + 1} – ${endSaturday.getDate()}/${endSaturday.getMonth() + 1}/${endSaturday.getFullYear()}`;
+      const gregRange = `${currentSunday.getDate()}/${currentSunday.getMonth() + 1} – ${endFriday.getDate()}/${endFriday.getMonth() + 1}/${endFriday.getFullYear()}`;
 
       monthNameElement.innerHTML = `
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <span>${hebRange}</span>
           <span class="cal-header-sub" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">(${gregRange})</span>
-          <span class="cal-tv-kiosk-badge">
-            <i class="fas fa-tv"></i> השבוע הנוכחי + 4 שבועות קדימה
-          </span>
         </div>
       `;
     } else {

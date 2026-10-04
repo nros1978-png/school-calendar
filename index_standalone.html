@@ -2265,7 +2265,7 @@
     body.fullscreen-mode .calendar-week-row {
       flex: 1 1 0 !important;
       min-height: 0 !important;
-      max-height: calc(100% / 5) !important;
+      max-height: calc(100% / 4) !important;
       overflow: hidden !important;
       box-sizing: border-box !important;
       grid-template-columns: repeat(6, 1fr) !important;
@@ -2470,7 +2470,7 @@
     }
 
     .tv-duties-list {
-      padding: 8px 12px;
+      padding: 8px 10px;
       flex: 1 1 0;
       min-height: 0;
       overflow-y: auto;
@@ -2479,21 +2479,52 @@
       gap: 8px;
     }
 
+    .tv-break-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tv-break-title {
+      background: #e2e8f0;
+      color: #1e293b;
+      font-weight: 800;
+      font-size: 0.86rem;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .tv-break-title i {
+      color: var(--primary-color);
+      font-size: 0.82rem;
+    }
+
+    .tv-break-items {
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
     .tv-duty-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
-      background: #f8fafc;
+      padding: 6px 10px;
+      background: white;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      border-right: 4px solid var(--primary-color);
+      border-radius: 6px;
+      border-right: 3px solid var(--primary-color);
     }
 
     .tv-duty-role {
       font-weight: 700;
       color: #1e293b;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -2501,7 +2532,7 @@
 
     .tv-duty-role i {
       color: #64748b;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
     }
 
     .tv-duty-teacher {
@@ -2510,7 +2541,7 @@
       background: #ccfbf1;
       padding: 2px 8px;
       border-radius: 6px;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
     }
 
     .tv-announcements-content {
@@ -2534,7 +2565,7 @@
       font-style: italic;
     }
 
-    /* Duty Roster Modal */
+    /* Duty Roster Modal (Organized by Breaks) */
     .duty-day-tabs {
       display: flex;
       gap: 6px;
@@ -2563,13 +2594,53 @@
       border-color: var(--primary-color);
     }
 
+    .roster-break-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .roster-break-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .roster-break-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .roster-break-name-wrap i {
+      color: var(--primary-color);
+      font-size: 1.05rem;
+    }
+
+    .roster-break-name-wrap input {
+      font-weight: 800;
+      padding: 5px 8px;
+      font-size: 0.92rem;
+    }
+
+    .roster-break-duties-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .duty-roster-row {
       display: flex;
       gap: 8px;
       align-items: center;
-      margin-bottom: 8px;
     }
 
+    .duty-roster-row .roster-location-input,
     .duty-roster-row .roster-role-input {
       flex: 1;
     }
@@ -3191,10 +3262,10 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <label class="form-label" style="font-weight: 800; margin-bottom: 0;">
               <i class="fas fa-calendar-check" style="color: var(--primary-color); margin-left: 6px;"></i>
-              תורנויות שבועיות לפי ימים (ראשון - שישי):
+              תורנויות שבועיות לפי הפסקות ומיקומים (ראשון - שישי):
             </label>
-            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את שמות התפקידים של יום זה לכל שאר ימות השבוע">
-              <i class="fas fa-clone"></i> שכפל תפקידים לכל הימים
+            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את מבנה ההפסקות והמיקומים של יום זה לכל שאר ימות השבוע">
+              <i class="fas fa-clone"></i> שכפל מבנה הפסקות לכל הימים
             </button>
           </div>
 
@@ -3208,13 +3279,13 @@
             <button type="button" class="duty-day-tab" data-day="5">יום שישי</button>
           </div>
 
-          <!-- Duty Rows Container for Active Day -->
-          <div id="duty-rows-container" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
-            <!-- Rows rendered dynamically -->
+          <!-- Duty Rows Container for Active Day (Breaks & Locations) -->
+          <div id="duty-rows-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
+            <!-- Breaks and duties rendered dynamically -->
           </div>
 
-          <button type="button" id="add-duty-row-btn" class="btn btn-secondary" style="font-size: 0.85rem; width: 100%;">
-            <i class="fas fa-plus"></i> הוסף עמדת תורנות ליום זה
+          <button type="button" id="add-duty-break-btn" class="btn btn-secondary" style="font-size: 0.88rem; width: 100%; font-weight: 700; padding: 8px;">
+            <i class="fas fa-plus-circle"></i> הוסף הפסקה חדשה ליום זה
           </button>
         </div>
       </div>
@@ -3497,15 +3568,122 @@
     let cachedEvents = [];
     let cachedUsers = [];
     let cachedCalendarBase = [];
+    function normalizeDutyDay(dayData) {
+      if (!dayData || !Array.isArray(dayData)) return [];
+      if (dayData.length === 0) return [];
+      if (dayData[0] && typeof dayData[0] === 'object' && Array.isArray(dayData[0].duties)) {
+        return dayData;
+      }
+      return [
+        {
+          name: 'הפסקה ראשונה (10:00 - 10:30)',
+          duties: dayData.map(d => ({
+            location: d.location || d.role || '',
+            teacher: d.teacher || ''
+          }))
+        }
+      ];
+    }
+
     let cachedDutyRoster = {
       announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
       duties: {
-        '0': [ { role: 'שער ראשי', teacher: 'משה כהן' }, { role: 'חצר עליונה', teacher: 'רחל לוי' }, { role: 'חצר תחתונה', teacher: 'דוד ישראלי' }, { role: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' } ],
-        '1': [ { role: 'שער ראשי', teacher: 'יעקב גולד' }, { role: 'חצר עליונה', teacher: 'חנה פריד' }, { role: 'חצר תחתונה', teacher: 'יוסי כץ' }, { role: 'מסדרון קומה א\'', teacher: 'תמר שפירא' } ],
-        '2': [ { role: 'שער ראשי', teacher: 'אברהם לוין' }, { role: 'חצר עליונה', teacher: 'לאה אבני' }, { role: 'חצר תחתונה', teacher: 'נועם רוזנברג' }, { role: 'מסדרון קומה א\'', teacher: 'אסתר דהן' } ],
-        '3': [ { role: 'שער ראשי', teacher: 'דניאל שר' }, { role: 'חצר עליונה', teacher: 'רבקה מזרחי' }, { role: 'חצר תחתונה', teacher: 'איתמר גבע' }, { role: 'מסדרון קומה א\'', teacher: 'שלומית בר' } ],
-        '4': [ { role: 'שער ראשי', teacher: 'יונתן גל' }, { role: 'חצר עליונה', teacher: 'שרה אהרוני' }, { role: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }, { role: 'מסדרון קומה א\'', teacher: 'מרים כרמל' } ],
-        '5': [ { role: 'שער ראשי', teacher: 'מאיר סגל' }, { role: 'חצר עליונה', teacher: 'אורית רון' }, { role: 'חצר תחתונה', teacher: 'בנימין דגן' }, { role: 'מסדרון קומה א\'', teacher: 'צפורה ברק' } ]
+        '0': [
+          {
+            name: 'הפסקה ראשונה (10:00 - 10:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'משה כהן' },
+              { location: 'חצר עליונה', teacher: 'רחל לוי' },
+              { location: 'חצר תחתונה', teacher: 'דוד ישראלי' }
+            ]
+          },
+          {
+            name: 'הפסקה שנייה (12:00 - 12:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'יעקב גולד' },
+              { location: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' }
+            ]
+          }
+        ],
+        '1': [
+          {
+            name: 'הפסקה ראשונה (10:00 - 10:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'יעקב גולד' },
+              { location: 'חצר עליונה', teacher: 'חנה פריד' },
+              { location: 'חצר תחתונה', teacher: 'יוסי כץ' }
+            ]
+          },
+          {
+            name: 'הפסקה שנייה (12:00 - 12:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'אברהם לוין' },
+              { location: 'מסדרון קומה א\'', teacher: 'תמר שפירא' }
+            ]
+          }
+        ],
+        '2': [
+          {
+            name: 'הפסקה ראשונה (10:00 - 10:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'אברהם לוין' },
+              { location: 'חצר עליונה', teacher: 'לאה אבני' },
+              { location: 'חצר תחתונה', teacher: 'נועם רוזנברג' }
+            ]
+          },
+          {
+            name: 'הפסקה שנייה (12:00 - 12:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'דניאל שר' },
+              { location: 'מסדרון קומה א\'', teacher: 'אסתר דהן' }
+            ]
+          }
+        ],
+        '3': [
+          {
+            name: 'הפסקה ראשונה (10:00 - 10:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'דניאל שר' },
+              { location: 'חצר עליונה', teacher: 'רבקה מזרחי' },
+              { location: 'חצר תחתונה', teacher: 'איתמר גבע' }
+            ]
+          },
+          {
+            name: 'הפסקה שנייה (12:00 - 12:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'יונתן גל' },
+              { location: 'מסדרון קומה א\'', teacher: 'שלומית בר' }
+            ]
+          }
+        ],
+        '4': [
+          {
+            name: 'הפסקה ראשונה (10:00 - 10:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'יונתן גל' },
+              { location: 'חצר עליונה', teacher: 'שרה אהרוני' },
+              { location: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }
+            ]
+          },
+          {
+            name: 'הפסקה שנייה (12:00 - 12:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'מאיר סגל' },
+              { location: 'מסדרון קומה א\'', teacher: 'מרים כרמל' }
+            ]
+          }
+        ],
+        '5': [
+          {
+            name: 'הפסקה ראשונה (10:00 - 10:30)',
+            duties: [
+              { location: 'שער ראשי', teacher: 'מאיר סגל' },
+              { location: 'חצר עליונה', teacher: 'אורית רון' },
+              { location: 'חצר תחתונה', teacher: 'בנימין דגן' },
+              { location: 'מסדרון קומה א\'', teacher: 'צפורה ברק' }
+            ]
+          }
+        ]
       }
     };
 
@@ -4092,21 +4270,21 @@
           const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - todayDayOfWeek);
           currentSunday.setHours(0, 0, 0, 0);
 
-          for (let w = 0; w < 5; w++) {
+          for (let w = 0; w < 4; w++) {
             for (let dIdx = 0; dIdx < 6; dIdx++) { // 0 to 5 = Sunday to Friday (skipping Saturday)
               const d = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + (w * 7) + dIdx);
               const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
               const dateInfo = DB.getHebrewDateInfo(dateKey);
               const hebParts = dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ') : [];
               const dayGematria = hebParts[0] || '';
-              const hebMonthName = hebParts[1] || '';
+              const hebMonthName = (hebParts[1] || '').replace(/^[בל]/, '');
               const hebrewDayLabel = (dayGematria === "א'" && hebMonthName) ? `${dayGematria} ${hebMonthName}` : dayGematria;
 
               daysList.push({
                 dayNumber: d.getDate(),
                 hebrewDayGematria: hebrewDayLabel,
                 dateKey: dateKey,
-                isCurrentMonth: true // All 5 weeks are part of the active rolling window
+                isCurrentMonth: true // All 4 weeks are part of the active rolling window
               });
             }
           }
@@ -5095,14 +5273,15 @@
         const formatter = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { month: 'long', year: 'numeric' });
         const firstHeb = convertHebrewDateStringToLetters(formatter.format(firstDay).trim());
         const lastHeb = convertHebrewDateStringToLetters(formatter.format(lastDay).trim());
-        if (firstHeb === lastHeb) return firstHeb;
+        const cleanHeb = (s) => (s || '').replace(/^[בל]/, '');
+        if (firstHeb === lastHeb) return cleanHeb(firstHeb);
         
         const firstParts = firstHeb.split(' ');
         const lastParts = lastHeb.split(' ');
         const firstYear = firstParts[firstParts.length - 1];
         const lastYear = lastParts[lastParts.length - 1];
-        const firstMonth = firstParts.slice(0, firstParts.length - 1).join(' ');
-        const lastMonth = lastParts.slice(0, lastParts.length - 1).join(' ');
+        const firstMonth = cleanHeb(firstParts.slice(0, firstParts.length - 1).join(' '));
+        const lastMonth = cleanHeb(lastParts.slice(0, lastParts.length - 1).join(' '));
         
         if (firstYear === lastYear) return `${firstMonth} - ${lastMonth} ${firstYear}`;
         return `${firstMonth} ${firstYear} - ${lastMonth} ${lastYear}`;
@@ -5147,10 +5326,10 @@
         if (document.body.classList.contains('fullscreen-mode')) {
           const today = new Date();
           const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
-          const endSaturday = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + 34);
+          const endFriday = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + 26);
 
           const startKey = formatDateKey(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate());
-          const endKey = formatDateKey(endSaturday.getFullYear(), endSaturday.getMonth(), endSaturday.getDate());
+          const endKey = formatDateKey(endFriday.getFullYear(), endFriday.getMonth(), endFriday.getDate());
 
           const startInfo = DB.getHebrewDateInfo(startKey);
           const endInfo = DB.getHebrewDateInfo(endKey);
@@ -5158,25 +5337,23 @@
           const startParts = (startInfo.hebrewDate || '').split(' ');
           const endParts = (endInfo.hebrewDate || '').split(' ');
 
-          const startHebMonth = startParts.length >= 2 ? startParts[1] : '';
-          const endHebMonth = endParts.length >= 2 ? endParts[1] : '';
+          const cleanHeb = (s) => (s || '').replace(/^[בל]/, '');
+          const startHebMonth = cleanHeb(startParts.length >= 2 ? startParts[1] : '');
+          const endHebMonth = cleanHeb(endParts.length >= 2 ? endParts[1] : '');
           const hebYear = endParts.length >= 3 ? endParts[2] : (startParts.length >= 3 ? startParts[2] : convertYearToGematria(state.currentHebrewYear));
 
           let hebRange = startHebMonth;
           if (endHebMonth && endHebMonth !== startHebMonth) {
-            hebRange = `${startHebMonth} – ${endHebMonth}`;
+            hebRange = `${startHebMonth} - ${endHebMonth}`;
           }
           if (hebYear) hebRange += ` ${hebYear}`;
 
-          const gregRange = `${currentSunday.getDate()}/${currentSunday.getMonth() + 1} – ${endSaturday.getDate()}/${endSaturday.getMonth() + 1}/${endSaturday.getFullYear()}`;
+          const gregRange = `${currentSunday.getDate()}/${currentSunday.getMonth() + 1} – ${endFriday.getDate()}/${endFriday.getMonth() + 1}/${endFriday.getFullYear()}`;
 
           monthNameElement.innerHTML = `
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <span>${hebRange}</span>
               <span class="cal-header-sub" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">(${gregRange})</span>
-              <span class="cal-tv-kiosk-badge">
-                <i class="fas fa-tv"></i> השבוע הנוכחי + 4 שבועות קדימה
-              </span>
             </div>
           `;
         } else if (state.calendarMode === 'hebrew') {
@@ -5406,18 +5583,42 @@
             </div>
           `;
         } else {
-          const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
-          if (todayDuties.length === 0) {
+          const rawDayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
+          const breaks = normalizeDutyDay(rawDayDuties);
+          if (breaks.length === 0 || breaks.every(b => !b.duties || b.duties.length === 0)) {
             dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
           } else {
-            todayDuties.forEach(d => {
-              const item = document.createElement('div');
-              item.className = 'tv-duty-item';
-              item.innerHTML = `
-                <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.role || 'תורנות'}</div>
-                <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher || 'לא שובץ'}</div>
-              `;
-              dutiesContainer.appendChild(item);
+            breaks.forEach(b => {
+              const breakCard = document.createElement('div');
+              breakCard.className = 'tv-break-card';
+
+              const breakTitle = document.createElement('div');
+              breakTitle.className = 'tv-break-title';
+              breakTitle.innerHTML = `<i class="fas fa-bell"></i> ${b.name || 'הפסקה'}`;
+              breakCard.appendChild(breakTitle);
+
+              const breakItems = document.createElement('div');
+              breakItems.className = 'tv-break-items';
+
+              if (!b.duties || b.duties.length === 0) {
+                const emptyItem = document.createElement('div');
+                emptyItem.style.cssText = 'color: #94a3b8; font-size: 0.82rem; padding: 4px 8px; font-style: italic;';
+                emptyItem.textContent = 'אין שיבוצים להפסקה זו';
+                breakItems.appendChild(emptyItem);
+              } else {
+                b.duties.forEach(d => {
+                  const item = document.createElement('div');
+                  item.className = 'tv-duty-item';
+                  item.innerHTML = `
+                    <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
+                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher || 'לא שובץ'}</div>
+                  `;
+                  breakItems.appendChild(item);
+                });
+              }
+
+              breakCard.appendChild(breakItems);
+              dutiesContainer.appendChild(breakCard);
             });
           }
         }
@@ -5442,7 +5643,7 @@
       dutyModalData = JSON.parse(JSON.stringify(raw));
       if (!dutyModalData.duties) dutyModalData.duties = {};
       for (let i = 0; i <= 5; i++) {
-        if (!dutyModalData.duties[String(i)]) dutyModalData.duties[String(i)] = [];
+        dutyModalData.duties[String(i)] = normalizeDutyDay(dutyModalData.duties[String(i)]);
       }
 
       document.getElementById('roster-announcements-input').value = dutyModalData.announcements || '';
@@ -5468,39 +5669,100 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
-      if (dayDuties.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 8px 0; text-align: center;">אין עמדות תורנות ליום זה. לחץ על "הוסף עמדת תורנות" למטה.</div>';
+      const dayBreaks = dutyModalData.duties[String(currentDutyModalDay)] || [];
+      if (dayBreaks.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.88rem; padding: 14px 0; text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">אין הפסקות שהוגדרו ליום זה.<br>לחץ על <strong>"הוסף הפסקה חדשה ליום זה"</strong> למטה כדי להתחיל.</div>';
         return;
       }
 
-      dayDuties.forEach((d, idx) => {
-        const row = document.createElement('div');
-        row.className = 'duty-roster-row';
-        row.innerHTML = `
-          <input type="text" class="form-control roster-role-input" placeholder="מיקום/תפקיד (למשל: שער ראשי)" value="${d.role || ''}">
-          <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן" value="${d.teacher || ''}">
-          <button type="button" class="btn btn-danger remove-duty-btn" title="מחק שורה זו"><i class="fas fa-trash-alt"></i></button>
+      dayBreaks.forEach((b, bIdx) => {
+        const breakCard = document.createElement('div');
+        breakCard.className = 'roster-break-card';
+
+        // Break Header
+        const header = document.createElement('div');
+        header.className = 'roster-break-card-header';
+        header.innerHTML = `
+          <div class="roster-break-name-wrap">
+            <i class="fas fa-bell"></i>
+            <input type="text" class="form-control roster-break-title-input" placeholder="שם ההפסקה (למשל: הפסקה ראשונה 10:00)" value="${b.name || ''}">
+          </div>
+          <button type="button" class="btn btn-danger btn-sm remove-break-btn" title="מחק הפסקה זו" style="padding: 4px 10px; font-size: 0.8rem; white-space: nowrap;">
+            <i class="fas fa-trash-alt"></i> מחק הפסקה
+          </button>
         `;
 
-        const roleInput = row.querySelector('.roster-role-input');
-        const teacherInput = row.querySelector('.roster-teacher-input');
-        const removeBtn = row.querySelector('.remove-duty-btn');
-
-        roleInput.addEventListener('input', (e) => {
-          dayDuties[idx].role = e.target.value;
+        const titleInput = header.querySelector('.roster-break-title-input');
+        titleInput.addEventListener('input', (e) => {
+          b.name = e.target.value;
         });
 
-        teacherInput.addEventListener('input', (e) => {
-          dayDuties[idx].teacher = e.target.value;
+        const removeBreakBtn = header.querySelector('.remove-break-btn');
+        removeBreakBtn.addEventListener('click', () => {
+          if (confirm(`האם למחוק את "${b.name || 'הפסקה זו'}" ואת כל העמדות שבה?`)) {
+            dayBreaks.splice(bIdx, 1);
+            renderDutyModalRows();
+          }
         });
 
-        removeBtn.addEventListener('click', () => {
-          dayDuties.splice(idx, 1);
+        breakCard.appendChild(header);
+
+        // Break Duties list
+        const dutiesList = document.createElement('div');
+        dutiesList.className = 'roster-break-duties-list';
+
+        if (!b.duties || b.duties.length === 0) {
+          const emptyNotice = document.createElement('div');
+          emptyNotice.style.cssText = 'color: #94a3b8; font-size: 0.82rem; padding: 4px 6px; font-style: italic;';
+          emptyNotice.textContent = 'לא נוספו עמדות להפסקה זו.';
+          dutiesList.appendChild(emptyNotice);
+        } else {
+          b.duties.forEach((d, dIdx) => {
+            const row = document.createElement('div');
+            row.className = 'duty-roster-row';
+            row.innerHTML = `
+              <input type="text" class="form-control roster-location-input" placeholder="מיקום (למשל: שער ראשי, חצר עליונה)" value="${d.location || d.role || ''}">
+              <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן" value="${d.teacher || ''}">
+              <button type="button" class="btn btn-danger remove-duty-btn" title="מחק עמדה זו"><i class="fas fa-times"></i></button>
+            `;
+
+            const locInput = row.querySelector('.roster-location-input');
+            const teacherInput = row.querySelector('.roster-teacher-input');
+            const removeBtn = row.querySelector('.remove-duty-btn');
+
+            locInput.addEventListener('input', (e) => {
+              d.location = e.target.value;
+            });
+
+            teacherInput.addEventListener('input', (e) => {
+              d.teacher = e.target.value;
+            });
+
+            removeBtn.addEventListener('click', () => {
+              b.duties.splice(dIdx, 1);
+              renderDutyModalRows();
+            });
+
+            dutiesList.appendChild(row);
+          });
+        }
+
+        breakCard.appendChild(dutiesList);
+
+        // Add Location button inside this break card
+        const addLocBtn = document.createElement('button');
+        addLocBtn.type = 'button';
+        addLocBtn.className = 'btn btn-secondary add-loc-btn';
+        addLocBtn.style.cssText = 'font-size: 0.8rem; padding: 4px 10px; margin-top: 8px; align-self: flex-start;';
+        addLocBtn.innerHTML = '<i class="fas fa-plus"></i> הוסף מיקום להפסקה זו';
+        addLocBtn.addEventListener('click', () => {
+          if (!b.duties) b.duties = [];
+          b.duties.push({ location: '', teacher: '' });
           renderDutyModalRows();
         });
+        breakCard.appendChild(addLocBtn);
 
-        container.appendChild(row);
+        container.appendChild(breakCard);
       });
     }
 
@@ -5814,7 +6076,7 @@
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-compress';
-            if (text) text.textContent = 'יציאה ממסך מלא';
+            if (text) text.textContent = 'חזרה לתצוגה רגילה';
             fullscreenBtn.classList.add('btn-fullscreen-active');
           }
           renderApp();
@@ -5842,20 +6104,13 @@
           setFullscreenMode(!isCurrentlyFs);
         });
 
-        // Listen for browser native exit (e.g. Esc key)
-        document.addEventListener('fullscreenchange', () => {
-          if (!document.fullscreenElement && (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode'))) {
-            document.documentElement.classList.remove('fullscreen-mode');
-            document.body.classList.remove('fullscreen-mode');
-            localStorage.setItem('tv_mode', 'false');
-            const icon = fullscreenBtn.querySelector('i');
-            const text = document.getElementById('cal-fullscreen-text');
-            if (icon) icon.className = 'fas fa-tv';
-            if (text) text.textContent = 'מסך מלא (טלוויזיה)';
-            fullscreenBtn.classList.remove('btn-fullscreen-active');
-            renderApp();
-          }
-        });
+        if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) {
+          const icon = fullscreenBtn.querySelector('i');
+          const text = document.getElementById('cal-fullscreen-text');
+          if (icon) icon.className = 'fas fa-compress';
+          if (text) text.textContent = 'חזרה לתצוגה רגילה';
+          fullscreenBtn.classList.add('btn-fullscreen-active');
+        }
       }
 
       // Check and automatically trigger TV fullscreen kiosk mode
@@ -5988,40 +6243,58 @@
         });
       });
 
-      // Add Duty Row
-      const addRowBtn = document.getElementById('add-duty-row-btn');
-      if (addRowBtn) {
-        addRowBtn.addEventListener('click', () => {
+      // Add Break to Active Day
+      const addBreakBtn = document.getElementById('add-duty-break-btn');
+      if (addBreakBtn) {
+        addBreakBtn.addEventListener('click', () => {
           if (!dutyModalData) return;
-          const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
-          dayDuties.push({ role: '', teacher: '' });
-          dutyModalData.duties[String(currentDutyModalDay)] = dayDuties;
+          const dayBreaks = dutyModalData.duties[String(currentDutyModalDay)] || [];
+          const breakNum = dayBreaks.length + 1;
+          const defaultNames = ['ראשונה', 'שנייה', 'שלישית', 'רביעית', 'חמישית'];
+          const suffix = defaultNames[breakNum - 1] || `${breakNum}`;
+          dayBreaks.push({
+            name: `הפסקה ${suffix}`,
+            duties: [
+              { location: 'שער ראשי', teacher: '' },
+              { location: 'חצר עליונה', teacher: '' }
+            ]
+          });
+          dutyModalData.duties[String(currentDutyModalDay)] = dayBreaks;
           renderDutyModalRows();
         });
       }
 
-      // Copy Roles Template across Sunday - Friday
+      // Copy Breaks & Locations Structure across Sunday - Friday
       const copyRolesBtn = document.getElementById('copy-roles-template-btn');
       if (copyRolesBtn) {
         copyRolesBtn.addEventListener('click', () => {
           if (!dutyModalData) return;
-          const dayDuties = dutyModalData.duties[String(currentDutyModalDay)] || [];
-          const currentRoles = dayDuties.map(d => (d.role || '').trim()).filter(Boolean);
-          if (currentRoles.length === 0) {
-            alert('נא להגדיר לפחות תפקיד אחד ביום זה לפני שכפול.');
+          const dayBreaks = dutyModalData.duties[String(currentDutyModalDay)] || [];
+          if (dayBreaks.length === 0) {
+            alert('נא להגדיר לפחות הפסקה אחת ביום זה לפני שכפול.');
             return;
           }
-          if (confirm(`האם לשכפל את ${currentRoles.length} עמדות התורנות של יום זה לכל שאר ימות השבוע (ראשון עד שישי)?`)) {
+          if (confirm('האם לשכפל את מבנה ההפסקות והמיקומים של יום זה לכל שאר ימות השבוע (ראשון עד שישי)? שיבוצים קיימים בימים האחרים יישמרו במיקומים התואמים.')) {
             for (let i = 0; i <= 5; i++) {
               if (i === currentDutyModalDay) continue;
-              const existing = dutyModalData.duties[String(i)] || [];
-              const newDayDuties = currentRoles.map(roleName => {
-                const found = existing.find(e => (e.role || '').trim() === roleName);
-                return { role: roleName, teacher: found ? found.teacher : '' };
+              const existingBreaks = dutyModalData.duties[String(i)] || [];
+              const newDayBreaks = dayBreaks.map((b, bIdx) => {
+                const existingB = existingBreaks[bIdx] || {};
+                const existingDuties = existingB.duties || [];
+                return {
+                  name: b.name,
+                  duties: (b.duties || []).map(d => {
+                    const match = existingDuties.find(ed => (ed.location || ed.role || '').trim() === (d.location || d.role || '').trim());
+                    return {
+                      location: d.location || d.role || '',
+                      teacher: match ? match.teacher : ''
+                    };
+                  })
+                };
               });
-              dutyModalData.duties[String(i)] = newDayDuties;
+              dutyModalData.duties[String(i)] = newDayBreaks;
             }
-            alert('עמדות התורנות שוכפלו בהצלחה לכל ימות השבוע!');
+            alert('מבנה ההפסקות והמיקומים שוכפל בהצלחה לכל ימות השבוע!');
           }
         });
       }
@@ -6034,11 +6307,18 @@
           const annInput = document.getElementById('roster-announcements-input');
           dutyModalData.announcements = annInput ? annInput.value.trim() : '';
 
-          // Filter out empty rows (where both role and teacher are blank)
+          // Clean empty breaks and empty locations
           for (let i = 0; i <= 5; i++) {
-            if (dutyModalData.duties[String(i)]) {
-              dutyModalData.duties[String(i)] = dutyModalData.duties[String(i)].filter(d => (d.role || '').trim() || (d.teacher || '').trim());
-            }
+            const breaks = dutyModalData.duties[String(i)] || [];
+            dutyModalData.duties[String(i)] = breaks
+              .filter(b => (b.name || '').trim() || (b.duties && b.duties.length > 0))
+              .map(b => ({
+                name: (b.name || '').trim() || 'הפסקה',
+                duties: (b.duties || []).filter(d => (d.location || d.role || '').trim() || (d.teacher || '').trim()).map(d => ({
+                  location: (d.location || d.role || '').trim(),
+                  teacher: (d.teacher || '').trim()
+                }))
+              }));
           }
 
           rosterSaveBtn.disabled = true;

@@ -2321,7 +2321,7 @@ body.fullscreen-mode .calendar-days-grid {
 body.fullscreen-mode .calendar-week-row {
   flex: 1 1 0 !important;
   min-height: 0 !important;
-  max-height: calc(100% / 5) !important;
+  max-height: calc(100% / 4) !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
   grid-template-columns: repeat(6, 1fr) !important;
@@ -2526,7 +2526,7 @@ body.fullscreen-mode .calendar-grid-wrapper {
 }
 
 .tv-duties-list {
-  padding: 8px 12px;
+  padding: 8px 10px;
   flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
@@ -2535,21 +2535,52 @@ body.fullscreen-mode .calendar-grid-wrapper {
   gap: 8px;
 }
 
+.tv-break-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tv-break-title {
+  background: #e2e8f0;
+  color: #1e293b;
+  font-weight: 800;
+  font-size: 0.86rem;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.tv-break-title i {
+  color: var(--primary-color);
+  font-size: 0.82rem;
+}
+
+.tv-break-items {
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 .tv-duty-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background: #f8fafc;
+  padding: 6px 10px;
+  background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  border-right: 4px solid var(--primary-color);
+  border-radius: 6px;
+  border-right: 3px solid var(--primary-color);
 }
 
 .tv-duty-role {
   font-weight: 700;
   color: #1e293b;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2557,7 +2588,7 @@ body.fullscreen-mode .calendar-grid-wrapper {
 
 .tv-duty-role i {
   color: #64748b;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .tv-duty-teacher {
@@ -2566,7 +2597,7 @@ body.fullscreen-mode .calendar-grid-wrapper {
   background: #ccfbf1;
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
 }
 
 .tv-announcements-content {
@@ -2590,7 +2621,7 @@ body.fullscreen-mode .calendar-grid-wrapper {
   font-style: italic;
 }
 
-/* Duty Roster Modal */
+/* Duty Roster Modal (Organized by Breaks) */
 .duty-day-tabs {
   display: flex;
   gap: 6px;
@@ -2619,13 +2650,53 @@ body.fullscreen-mode .calendar-grid-wrapper {
   border-color: var(--primary-color);
 }
 
+.roster-break-card {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.roster-break-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.roster-break-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.roster-break-name-wrap i {
+  color: var(--primary-color);
+  font-size: 1.05rem;
+}
+
+.roster-break-name-wrap input {
+  font-weight: 800;
+  padding: 5px 8px;
+  font-size: 0.92rem;
+}
+
+.roster-break-duties-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .duty-roster-row {
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 8px;
 }
 
+.duty-roster-row .roster-location-input,
 .duty-roster-row .roster-role-input {
   flex: 1;
 }
