@@ -2594,6 +2594,78 @@
       border-color: var(--primary-color);
     }
 
+    /* Duty Roster Modal (Organized by Breaks & Global Locations) */
+    .duty-modal-nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 16px;
+      padding-bottom: 2px;
+    }
+
+    .duty-modal-nav-tab {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -4px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .duty-modal-nav-tab:hover {
+      color: var(--primary-color);
+    }
+
+    .duty-modal-nav-tab.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .duty-modal-tab-section {
+      display: none;
+    }
+
+    .duty-modal-tab-section.active {
+      display: block;
+    }
+
+    /* Locations Management Section */
+    .roster-locations-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .roster-location-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .roster-location-item i.fa-map-marker-alt {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+    }
+
+    .roster-location-item .location-name-input {
+      flex: 1;
+      font-weight: 700;
+    }
+
     .roster-break-card {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -2638,19 +2710,30 @@
       display: flex;
       gap: 8px;
       align-items: center;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 8px;
     }
 
-    .duty-roster-row .roster-location-input,
-    .duty-roster-row .roster-role-input {
-      flex: 1;
+    .duty-roster-row .roster-location-label {
+      width: 160px;
+      min-width: 120px;
+      font-weight: 700;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.88rem;
+    }
+
+    .duty-roster-row .roster-location-label i {
+      color: var(--primary-color);
+      font-size: 0.82rem;
     }
 
     .duty-roster-row .roster-teacher-input {
       flex: 1;
-    }
-
-    .duty-roster-row .remove-duty-btn {
-      padding: 6px 10px;
     }
   </style>
   
@@ -3239,33 +3322,34 @@
 
   <!-- Modal D: Duty Roster & Announcements Management Modal -->
   <dialog id="duty-roster-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 680px; width: 95%;">
+    <div class="modal-content" style="max-width: 720px; width: 95%;">
       <header class="modal-header">
         <h3 class="modal-title"><i class="fas fa-clipboard-list" style="margin-left: 8px;"></i>ניהול לוח תורנויות שבועי והודעות מסך</h3>
         <button id="duty-roster-modal-close" class="modal-close-btn">&times;</button>
       </header>
       
       <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-        <!-- Section 1: Staff Announcements -->
-        <div class="form-group" style="margin-bottom: 20px;">
-          <label class="form-label" for="roster-announcements-input" style="font-weight: 800;">
-            <i class="fas fa-bullhorn" style="color: var(--warning-color); margin-left: 6px;"></i>
-            הודעות לצוות ולתלמידים (יוצגו בכרטיסייה במסך):
-          </label>
-          <textarea id="roster-announcements-input" class="form-control" rows="3" placeholder="הקלד הודעות שבועיות, איחולים, תזכורות ועדכונים לצוות..."></textarea>
+        <!-- Top Navigation Tabs -->
+        <div class="duty-modal-nav-tabs">
+          <button type="button" class="duty-modal-nav-tab active" data-tab="schedule">
+            <i class="fas fa-calendar-check"></i> שיבוץ תורנים שבועי
+          </button>
+          <button type="button" class="duty-modal-nav-tab" data-tab="locations">
+            <i class="fas fa-map-marker-alt"></i> ניהול מיקומי תורנות
+          </button>
+          <button type="button" class="duty-modal-nav-tab" data-tab="announcements">
+            <i class="fas fa-bullhorn"></i> הודעות מסך לצוות
+          </button>
         </div>
 
-        <div style="height: 1px; background-color: var(--border-color); margin: 18px 0;"></div>
-
-        <!-- Section 2: Duty Roster per day -->
-        <div class="form-group">
+        <!-- Tab 1: Schedule (שיבוץ שבועי) -->
+        <div id="duty-tab-schedule" class="duty-modal-tab-section active">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <label class="form-label" style="font-weight: 800; margin-bottom: 0;">
-              <i class="fas fa-calendar-check" style="color: var(--primary-color); margin-left: 6px;"></i>
               תורנויות שבועיות לפי הפסקות ומיקומים (ראשון - שישי):
             </label>
-            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את מבנה ההפסקות והמיקומים של יום זה לכל שאר ימות השבוע">
-              <i class="fas fa-clone"></i> שכפל מבנה הפסקות לכל הימים
+            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את רשימת ההפסקות של יום זה לכל שאר ימות השבוע">
+              <i class="fas fa-clone"></i> שכפל הפסקות לכל הימים
             </button>
           </div>
 
@@ -3287,6 +3371,39 @@
           <button type="button" id="add-duty-break-btn" class="btn btn-secondary" style="font-size: 0.88rem; width: 100%; font-weight: 700; padding: 8px;">
             <i class="fas fa-plus-circle"></i> הוסף הפסקה חדשה ליום זה
           </button>
+        </div>
+
+        <!-- Tab 2: Locations (ניהול מיקומים) -->
+        <div id="duty-tab-locations" class="duty-modal-tab-section">
+          <div style="padding: 10px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 0.88rem; color: #1e40af; margin-bottom: 14px;">
+            <i class="fas fa-info-circle"></i>
+            <strong>מיקומי תורנות קבועים:</strong> כל מיקום שמוגדר כאן מתווסף באופן אוטומטי לכל הפסקה ולכל יום במערכת. בלוח השיבוצים פשוט מזינים את שם המורה המשובץ.
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+            <input type="text" id="new-location-name-input" class="form-control" placeholder="שם מיקום / עמדת תורנות חדשה (למשל: ספריה, שער אחורי)">
+            <button type="button" id="add-new-location-btn" class="btn btn-primary" style="white-space: nowrap; font-weight: 700;">
+              <i class="fas fa-plus"></i> הוסף עמדה
+            </button>
+          </div>
+
+          <label class="form-label" style="font-weight: 800; margin-bottom: 8px;">
+            רשימת המיקומים הקיימים (ניתן לערוך שמות ישירות או למחוק):
+          </label>
+          <div id="locations-list-container" class="roster-locations-grid">
+            <!-- Locations rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Announcements (הודעות לצוות) -->
+        <div id="duty-tab-announcements" class="duty-modal-tab-section">
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label" for="roster-announcements-input" style="font-weight: 800;">
+              <i class="fas fa-bullhorn" style="color: var(--warning-color); margin-left: 6px;"></i>
+              הודעות שיוצגו בכרטיסיית ההודעות במסך הטלוויזיה:
+            </label>
+            <textarea id="roster-announcements-input" class="form-control" rows="5" placeholder="הקלד הודעות שבועיות, איחולים, תזכורות ועדכונים לצוות..."></textarea>
+          </div>
         </div>
       </div>
 
@@ -3587,6 +3704,12 @@
 
     let cachedDutyRoster = {
       announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
+      locations: [
+        'שער ראשי',
+        'חצר עליונה',
+        'חצר תחתונה',
+        'מסדרון קומה א\''
+      ],
       duties: {
         '0': [
           {
@@ -3741,6 +3864,9 @@
 
       // --- Duty Roster & Announcements API ---
       getDutyRoster() {
+        if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations) || cachedDutyRoster.locations.length === 0) {
+          cachedDutyRoster.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
+        }
         return cachedDutyRoster;
       },
 
@@ -5600,18 +5726,19 @@
               const breakItems = document.createElement('div');
               breakItems.className = 'tv-break-items';
 
-              if (!b.duties || b.duties.length === 0) {
+              const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
+              if (assignedDuties.length === 0) {
                 const emptyItem = document.createElement('div');
                 emptyItem.style.cssText = 'color: #94a3b8; font-size: 0.82rem; padding: 4px 8px; font-style: italic;';
                 emptyItem.textContent = 'אין שיבוצים להפסקה זו';
                 breakItems.appendChild(emptyItem);
               } else {
-                b.duties.forEach(d => {
+                assignedDuties.forEach(d => {
                   const item = document.createElement('div');
                   item.className = 'tv-duty-item';
                   item.innerHTML = `
                     <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
-                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher || 'לא שובץ'}</div>
+                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher}</div>
                   `;
                   breakItems.appendChild(item);
                 });
@@ -5631,6 +5758,7 @@
     }
 
     let currentDutyModalDay = 0; // 0=Sunday
+    let currentDutyNavTab = 'schedule';
     let dutyModalData = null;
 
     function openDutyRosterModal() {
@@ -5641,15 +5769,47 @@
       const modal = document.getElementById('duty-roster-modal');
       const raw = DB.getDutyRoster();
       dutyModalData = JSON.parse(JSON.stringify(raw));
+      
+      if (!dutyModalData.locations || !Array.isArray(dutyModalData.locations) || dutyModalData.locations.length === 0) {
+        dutyModalData.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
+      }
+
       if (!dutyModalData.duties) dutyModalData.duties = {};
       for (let i = 0; i <= 5; i++) {
         dutyModalData.duties[String(i)] = normalizeDutyDay(dutyModalData.duties[String(i)]);
       }
 
       document.getElementById('roster-announcements-input').value = dutyModalData.announcements || '';
+      switchDutyNavTab('schedule');
       currentDutyModalDay = 0;
       switchDutyModalDay(0);
+      renderLocationsTabList();
       modal.classList.add('active');
+    }
+
+    function switchDutyNavTab(tabName) {
+      currentDutyNavTab = tabName;
+      document.querySelectorAll('.duty-modal-nav-tab').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.duty-modal-tab-section').forEach(sec => {
+        if (sec.id === 'duty-tab-' + tabName) {
+          sec.classList.add('active');
+        } else {
+          sec.classList.remove('active');
+        }
+      });
+
+      if (tabName === 'schedule') {
+        renderDutyModalRows();
+      } else if (tabName === 'locations') {
+        renderLocationsTabList();
+      }
     }
 
     function switchDutyModalDay(dayIdx) {
@@ -5664,9 +5824,60 @@
       renderDutyModalRows();
     }
 
+    function renderLocationsTabList() {
+      const container = document.getElementById('locations-list-container');
+      if (!container || !dutyModalData) return;
+      container.innerHTML = '';
+
+      if (!dutyModalData.locations || dutyModalData.locations.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.88rem; padding: 10px; text-align: center;">לא הוגדרו מיקומים. הקלד שם מיקום למעלה ולחץ "הוסף עמדה".</div>';
+        return;
+      }
+
+      dutyModalData.locations.forEach((loc, lIdx) => {
+        const item = document.createElement('div');
+        item.className = 'roster-location-item';
+        item.innerHTML = `
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" class="form-control location-name-input" value="${loc}" placeholder="שם העמדה / המיקום">
+          <button type="button" class="btn btn-danger btn-sm remove-location-btn" title="מחק עמדה זו מכל ההפסקות" style="padding: 4px 10px;">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        `;
+
+        const nameInput = item.querySelector('.location-name-input');
+        nameInput.addEventListener('input', (e) => {
+          const oldVal = dutyModalData.locations[lIdx];
+          const newVal = e.target.value;
+          dutyModalData.locations[lIdx] = newVal;
+          // Synchronize rename across all breaks in all days
+          for (let d = 0; d <= 5; d++) {
+            const breaks = dutyModalData.duties[String(d)] || [];
+            breaks.forEach(b => {
+              (b.duties || []).forEach(duty => {
+                if ((duty.location || duty.role) === oldVal) {
+                  duty.location = newVal;
+                }
+              });
+            });
+          }
+        });
+
+        const removeBtn = item.querySelector('.remove-location-btn');
+        removeBtn.addEventListener('click', () => {
+          if (confirm(`האם למחוק את המיקום "${loc}"? הוא יוסר מכל ההפסקות.`)) {
+            dutyModalData.locations.splice(lIdx, 1);
+            renderLocationsTabList();
+          }
+        });
+
+        container.appendChild(item);
+      });
+    }
+
     function renderDutyModalRows() {
       const container = document.getElementById('duty-rows-container');
-      if (!container) return;
+      if (!container || !dutyModalData) return;
       container.innerHTML = '';
 
       const dayBreaks = dutyModalData.duties[String(currentDutyModalDay)] || [];
@@ -5674,6 +5885,8 @@
         container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.88rem; padding: 14px 0; text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">אין הפסקות שהוגדרו ליום זה.<br>לחץ על <strong>"הוסף הפסקה חדשה ליום זה"</strong> למטה כדי להתחיל.</div>';
         return;
       }
+
+      const locations = dutyModalData.locations || [];
 
       dayBreaks.forEach((b, bIdx) => {
         const breakCard = document.createElement('div');
@@ -5699,7 +5912,7 @@
 
         const removeBreakBtn = header.querySelector('.remove-break-btn');
         removeBreakBtn.addEventListener('click', () => {
-          if (confirm(`האם למחוק את "${b.name || 'הפסקה זו'}" ואת כל העמדות שבה?`)) {
+          if (confirm(`האם למחוק את "${b.name || 'הפסקה זו'}"?`)) {
             dayBreaks.splice(bIdx, 1);
             renderDutyModalRows();
           }
@@ -5707,40 +5920,40 @@
 
         breakCard.appendChild(header);
 
-        // Break Duties list
+        // Break Duties list - All locations from the central list are automatically populated!
         const dutiesList = document.createElement('div');
         dutiesList.className = 'roster-break-duties-list';
 
-        if (!b.duties || b.duties.length === 0) {
+        if (!b.duties) b.duties = [];
+
+        if (locations.length === 0) {
           const emptyNotice = document.createElement('div');
           emptyNotice.style.cssText = 'color: #94a3b8; font-size: 0.82rem; padding: 4px 6px; font-style: italic;';
-          emptyNotice.textContent = 'לא נוספו עמדות להפסקה זו.';
+          emptyNotice.textContent = 'לא הוגדרו מיקומים במערכת. עבור ללשונית "ניהול מיקומי תורנות" כדי להוסיף מיקומים.';
           dutiesList.appendChild(emptyNotice);
         } else {
-          b.duties.forEach((d, dIdx) => {
+          locations.forEach(loc => {
+            let d = b.duties.find(x => (x.location || x.role || '').trim() === loc.trim());
+            const teacherVal = d ? (d.teacher || '') : '';
+
             const row = document.createElement('div');
             row.className = 'duty-roster-row';
             row.innerHTML = `
-              <input type="text" class="form-control roster-location-input" placeholder="מיקום (למשל: שער ראשי, חצר עליונה)" value="${d.location || d.role || ''}">
-              <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן" value="${d.teacher || ''}">
-              <button type="button" class="btn btn-danger remove-duty-btn" title="מחק עמדה זו"><i class="fas fa-times"></i></button>
+              <div class="roster-location-label" title="${loc}">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>${loc}</span>
+              </div>
+              <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן (השאר ריק אם אין תורנות)" value="${teacherVal}">
             `;
 
-            const locInput = row.querySelector('.roster-location-input');
             const teacherInput = row.querySelector('.roster-teacher-input');
-            const removeBtn = row.querySelector('.remove-duty-btn');
-
-            locInput.addEventListener('input', (e) => {
-              d.location = e.target.value;
-            });
-
             teacherInput.addEventListener('input', (e) => {
-              d.teacher = e.target.value;
-            });
-
-            removeBtn.addEventListener('click', () => {
-              b.duties.splice(dIdx, 1);
-              renderDutyModalRows();
+              let item = b.duties.find(x => (x.location || x.role || '').trim() === loc.trim());
+              if (!item) {
+                item = { location: loc, teacher: '' };
+                b.duties.push(item);
+              }
+              item.teacher = e.target.value;
             });
 
             dutiesList.appendChild(row);
@@ -5748,20 +5961,6 @@
         }
 
         breakCard.appendChild(dutiesList);
-
-        // Add Location button inside this break card
-        const addLocBtn = document.createElement('button');
-        addLocBtn.type = 'button';
-        addLocBtn.className = 'btn btn-secondary add-loc-btn';
-        addLocBtn.style.cssText = 'font-size: 0.8rem; padding: 4px 10px; margin-top: 8px; align-self: flex-start;';
-        addLocBtn.innerHTML = '<i class="fas fa-plus"></i> הוסף מיקום להפסקה זו';
-        addLocBtn.addEventListener('click', () => {
-          if (!b.duties) b.duties = [];
-          b.duties.push({ location: '', teacher: '' });
-          renderDutyModalRows();
-        });
-        breakCard.appendChild(addLocBtn);
-
         container.appendChild(breakCard);
       });
     }
@@ -6235,6 +6434,43 @@
         document.getElementById('duty-roster-modal').classList.remove('active');
       });
 
+      // Duty Top Nav Tabs (Schedule, Locations, Announcements)
+      document.querySelectorAll('.duty-modal-nav-tab').forEach(tabBtn => {
+        tabBtn.addEventListener('click', () => {
+          switchDutyNavTab(tabBtn.dataset.tab);
+        });
+      });
+
+      // Add New Location in Locations Tab
+      const addLocationBtn = document.getElementById('add-new-location-btn');
+      const newLocInput = document.getElementById('new-location-name-input');
+      const handleAddNewLocation = () => {
+        if (!dutyModalData) return;
+        const val = (newLocInput ? newLocInput.value : '').trim();
+        if (!val) {
+          alert('נא להזין שם עבור המיקום החדש.');
+          return;
+        }
+        if (dutyModalData.locations.some(loc => loc.trim() === val)) {
+          alert('מיקום בשם זה כבר קיים ברשימה.');
+          return;
+        }
+        dutyModalData.locations.push(val);
+        if (newLocInput) newLocInput.value = '';
+        renderLocationsTabList();
+        renderDutyModalRows();
+      };
+
+      if (addLocationBtn) addLocationBtn.addEventListener('click', handleAddNewLocation);
+      if (newLocInput) {
+        newLocInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddNewLocation();
+          }
+        });
+      }
+
       // Duty Day Tabs
       document.querySelectorAll('.duty-day-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -6243,28 +6479,25 @@
         });
       });
 
-      // Add Break to Active Day
+      // Add Break to Active Day (all defined locations will appear in it automatically)
       const addBreakBtn = document.getElementById('add-duty-break-btn');
       if (addBreakBtn) {
         addBreakBtn.addEventListener('click', () => {
           if (!dutyModalData) return;
           const dayBreaks = dutyModalData.duties[String(currentDutyModalDay)] || [];
           const breakNum = dayBreaks.length + 1;
-          const defaultNames = ['ראשונה', 'שנייה', 'שלישית', 'רביעית', 'חמישית'];
+          const defaultNames = ['ראשונה', 'שנייה', 'שלישית', 'רביעית', 'חמישית', 'שישית'];
           const suffix = defaultNames[breakNum - 1] || `${breakNum}`;
           dayBreaks.push({
             name: `הפסקה ${suffix}`,
-            duties: [
-              { location: 'שער ראשי', teacher: '' },
-              { location: 'חצר עליונה', teacher: '' }
-            ]
+            duties: []
           });
           dutyModalData.duties[String(currentDutyModalDay)] = dayBreaks;
           renderDutyModalRows();
         });
       }
 
-      // Copy Breaks & Locations Structure across Sunday - Friday
+      // Copy Breaks Structure across Sunday - Friday
       const copyRolesBtn = document.getElementById('copy-roles-template-btn');
       if (copyRolesBtn) {
         copyRolesBtn.addEventListener('click', () => {
@@ -6274,7 +6507,7 @@
             alert('נא להגדיר לפחות הפסקה אחת ביום זה לפני שכפול.');
             return;
           }
-          if (confirm('האם לשכפל את מבנה ההפסקות והמיקומים של יום זה לכל שאר ימות השבוע (ראשון עד שישי)? שיבוצים קיימים בימים האחרים יישמרו במיקומים התואמים.')) {
+          if (confirm('האם לשכפל את רשימת ההפסקות של יום זה לכל שאר ימות השבוע (ראשון עד שישי)? שיבוצים קיימים בימים האחרים יישמרו במיקומים התואמים.')) {
             for (let i = 0; i <= 5; i++) {
               if (i === currentDutyModalDay) continue;
               const existingBreaks = dutyModalData.duties[String(i)] || [];
@@ -6287,14 +6520,14 @@
                     const match = existingDuties.find(ed => (ed.location || ed.role || '').trim() === (d.location || d.role || '').trim());
                     return {
                       location: d.location || d.role || '',
-                      teacher: match ? match.teacher : ''
+                      teacher: match ? match.teacher : (d.teacher || '')
                     };
                   })
                 };
               });
               dutyModalData.duties[String(i)] = newDayBreaks;
             }
-            alert('מבנה ההפסקות והמיקומים שוכפל בהצלחה לכל ימות השבוע!');
+            alert('מבנה ההפסקות שוכפל בהצלחה לכל ימות השבוע!');
           }
         });
       }
@@ -6307,14 +6540,19 @@
           const annInput = document.getElementById('roster-announcements-input');
           dutyModalData.announcements = annInput ? annInput.value.trim() : '';
 
-          // Clean empty breaks and empty locations
+          // Clean empty locations in central list
+          dutyModalData.locations = (dutyModalData.locations || [])
+            .map(l => (l || '').trim())
+            .filter(Boolean);
+
+          // Clean breaks
           for (let i = 0; i <= 5; i++) {
             const breaks = dutyModalData.duties[String(i)] || [];
             dutyModalData.duties[String(i)] = breaks
-              .filter(b => (b.name || '').trim() || (b.duties && b.duties.length > 0))
+              .filter(b => (b.name || '').trim())
               .map(b => ({
                 name: (b.name || '').trim() || 'הפסקה',
-                duties: (b.duties || []).filter(d => (d.location || d.role || '').trim() || (d.teacher || '').trim()).map(d => ({
+                duties: (b.duties || []).filter(d => (d.location || d.role || '').trim() && (d.teacher || '').trim()).map(d => ({
                   location: (d.location || d.role || '').trim(),
                   teacher: (d.teacher || '').trim()
                 }))
@@ -6328,7 +6566,7 @@
             await DB.saveDutyRoster(dutyModalData);
             document.getElementById('duty-roster-modal').classList.remove('active');
             renderApp();
-            alert('לוח התורנויות וההודעות נשמרו בהצלחה בענן!');
+            alert('לוח התורנויות והמיקומים נשמרו בהצלחה בענן!');
           } catch (err) {
             console.error('Failed to save duty roster:', err);
             alert('שגיאה בשמירת הנתונים: ' + (err.message || err));

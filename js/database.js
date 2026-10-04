@@ -113,6 +113,12 @@ export function normalizeDutyDay(dayData) {
 
 let cachedDutyRoster = {
   announcements: 'ברוכים הבאים לשנת הלימודים! נא להקפיד על נוכחות בזמן בתורנויות.',
+  locations: [
+    'שער ראשי',
+    'חצר עליונה',
+    'חצר תחתונה',
+    'מסדרון קומה א\''
+  ],
   duties: {
     '0': [
       {
@@ -268,6 +274,9 @@ export const DB = {
 
   // --- Duty Roster & Announcements API ---
   getDutyRoster() {
+    if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations) || cachedDutyRoster.locations.length === 0) {
+      cachedDutyRoster.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
+    }
     return cachedDutyRoster;
   },
 
