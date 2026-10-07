@@ -11,7 +11,20 @@
   <script>
     // Early Android TV & Kiosk Detection (Executes immediately before DOM renders)
     (function() {
+// TV identification must never classify a phone as a kiosk.
+function isTvDevice() {
+  const ua = navigator.userAgent || '';
+  return /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|AppleTV|DTV|OTT|LargeScreen|Android.*TV/i.test(ua) ||
+    (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
+}
+function isPhoneLayout() {
+  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+}
+
+      window.isTvDevice = isTvDevice;
+      window.isPhoneLayout = isPhoneLayout;
       try {
+        if (isPhoneLayout()) { localStorage.removeItem('tv_mode'); return; }
         var p = new URLSearchParams(window.location.search);
         var isTvParam = p.has('tv') || p.has('kiosk') || p.has('fullscreen') || window.location.hash === '#tv';
         var isStored = localStorage.getItem('tv_mode') === 'true';
@@ -2870,7 +2883,53 @@
         margin-top: 4px;
       }
     }
-  </style>
+  
+/* TV density: half-width sidebar, measured text fit, and reserved holiday space. */
+body.fullscreen-mode .tv-side-panel {
+  width: 155px !important; min-width: 155px !important; max-width: 155px !important;
+}
+body.fullscreen-mode .tv-card-header { padding: 5px !important; flex-wrap: wrap; gap: 3px; }
+body.fullscreen-mode .tv-card-title { font-size: 0.75rem; gap: 3px; }
+body.fullscreen-mode .tv-duties-list { padding: 4px; gap: 4px; }
+body.fullscreen-mode .tv-break-card { flex-shrink: 0; }
+body.fullscreen-mode .tv-break-title { padding: 3px 4px; font-size: 0.7rem; overflow-wrap: anywhere; }
+body.fullscreen-mode .tv-break-items { padding: 3px; gap: 3px; }
+body.fullscreen-mode .tv-duty-item { padding: 3px; gap: 3px; flex-wrap: wrap; }
+body.fullscreen-mode .tv-duty-role, body.fullscreen-mode .tv-duty-teacher {
+  font-size: 0.68rem; min-width: 0; overflow-wrap: anywhere;
+}
+body.fullscreen-mode .tv-duty-teacher { padding: 1px 3px; }
+body.fullscreen-mode .calendar-week-row { height: 0; min-height: 0 !important; }
+body.fullscreen-mode .calendar-day-header { min-height: 0; }
+body.fullscreen-mode .event-bar { min-height: 0 !important; height: auto !important; align-self: stretch; }
+body.fullscreen-mode .holiday-cell-label, body.fullscreen-mode .special-cell-label {
+  min-height: 0; flex-shrink: 1; overflow-wrap: anywhere !important;
+}
+/* Phones always retain the interactive day list and event dialogs. */
+@media (max-width: 768px) {
+  body:not(.fullscreen-mode) #cal-fullscreen-btn { display: none !important; }
+  body:not(.fullscreen-mode) .app-container { width: 100%; height: 100dvh; }
+  body:not(.fullscreen-mode) .content-area { width: 100%; min-width: 0; height: 100%; }
+  body:not(.fullscreen-mode) .calendar-grid-wrapper { min-height: 0 !important; }
+  body:not(.fullscreen-mode) .calendar-controls { flex-wrap: wrap; gap: 8px; padding: 8px; }
+  body:not(.fullscreen-mode) .calendar-month-name { min-width: 0; flex-wrap: wrap; }
+  body:not(.fullscreen-mode) .calendar-week-row { flex: 0 0 auto; }
+  body:not(.fullscreen-mode) .modal-overlay { z-index: 1000000; }
+}
+
+
+@media (max-width: 768px) {
+  body:not(.fullscreen-mode) .calendar-grid-wrapper { flex: 0 0 auto; height: auto; }
+  body:not(.fullscreen-mode) .calendar-days-grid { flex: 0 0 auto; overflow: visible; }
+  body:not(.fullscreen-mode) .calendar-week-row { height: 55px; }
+  body:not(.fullscreen-mode) .calendar-and-panel-wrapper { flex: 0 0 auto; }
+  body:not(.fullscreen-mode) .dashboard-content { flex: 0 0 auto; height: auto; }
+}
+
+
+body.phone-layout #cal-fullscreen-btn { display: none !important; }
+body.phone-layout .mobile-events-list-container { display: block; }
+</style>
   
   <!-- Firebase Compat SDKs (safe for file:// local testing) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -4585,7 +4644,7 @@
         const today = new Date();
         const todayKey = formatDateKey(today.getFullYear(), today.getMonth(), today.getDate());
         const filteredEvents = this.filterEvents(events, filterType, filterGrade);
-        const isMobile = window.innerWidth <= 768;
+        const isMobile = !isFullscreen && isPhoneLayout();
 
         // Group into weeks (6 days per week in fullscreen, 7 days in standard mode)
         const daysPerWeek = isFullscreen ? 6 : 7;
@@ -4665,15 +4724,9 @@
           // Row 1: auto (for date numbers & holiday labels)
           // Row 2 to (numSlots + 1): slot height for each event slot
           // Last Row: bottom spacing
-          let slotTrackHeight = '26px';
-          if (isFullscreen) {
-            if (numSlots <= 1) slotTrackHeight = '34px';
-            else if (numSlots === 2) slotTrackHeight = '30px';
-            else if (numSlots === 3) slotTrackHeight = '25px';
-            else if (numSlots === 4) slotTrackHeight = '22px';
-            else slotTrackHeight = '19px';
-          }
-          const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
+          const slotTrackHeight = isFullscreen ? 'minmax(0, 1fr)' : '26px';
+          weekRow.dataset.eventSlots = String(numSlots);
+          const bottomSpacing = isFullscreen ? '2px' : 'minmax(8px, 1fr)';
           const rowTemplates = ['auto'];
           for (let s = 0; s < numSlots; s++) {
             rowTemplates.push(slotTrackHeight);
@@ -4857,8 +4910,36 @@
 
           gridContainer.appendChild(weekRow);
         });
+        if (isFullscreen) requestAnimationFrame(() => this.fitTvLayout(gridContainer));
       },
-      filterEvents(events, filterType, filterGrade) {
+      fitTvLayout(container) {
+    if (!document.body.classList.contains('fullscreen-mode') || !container.isConnected) return;
+    const fitText = (element, initial, minimum) => {
+      let size = initial;
+      element.style.setProperty('font-size', size + 'px', 'important');
+      element.style.setProperty('line-height', '1.08', 'important');
+      while (size > minimum && (element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth + 1)) {
+        size -= 0.5;
+        element.style.setProperty('font-size', size + 'px', 'important');
+      }
+    };
+    container.querySelectorAll('.calendar-week-row').forEach(row => {
+      const headers = Array.from(row.querySelectorAll('.calendar-day-header'));
+      const count = Number(row.dataset.eventSlots || 0);
+      const budget = Math.max(20, row.clientHeight * (count ? 0.38 : 0.8));
+      headers.forEach(header => {
+        header.style.maxHeight = budget + 'px';
+        header.querySelectorAll('.holiday-cell-label, .special-cell-label').forEach(label => {
+          label.style.maxHeight = Math.max(8, budget - 24) + 'px';
+          fitText(label, 12, 5);
+        });
+      });
+      const headerHeight = Math.min(budget, Math.max(24, ...headers.map(header => header.scrollHeight)));
+      row.style.gridTemplateRows = [headerHeight + 'px', ...Array(count).fill('minmax(0, 1fr)'), '2px'].join(' ');
+      row.querySelectorAll('.event-bar').forEach(bar => fitText(bar, 14, 4));
+    });
+  },
+  filterEvents(events, filterType, filterGrade) {
         return events.filter(event => {
           if (filterType !== 'all' && event.eventType !== filterType) return false;
           if (filterGrade !== 'all') {
@@ -5515,6 +5596,16 @@
     // ----------------------------------------------------
     // 6. MAIN COORDINATOR (APP)
     // ----------------------------------------------------
+    // TV identification must never classify a phone as a kiosk.
+function isTvDevice() {
+  const ua = navigator.userAgent || '';
+  return /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|AppleTV|DTV|OTT|LargeScreen|Android.*TV/i.test(ua) ||
+    (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
+}
+function isPhoneLayout() {
+  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+}
+
     const state = {
       calendarMode: 'hebrew',
       currentHebrewYear: 5787,
@@ -5568,6 +5659,7 @@
     }
 
     function renderApp() {
+  document.body.classList.toggle('phone-layout', isPhoneLayout());
       const events = DB.getEvents();
 
       const formatDateKey = (y, m, d) => {
@@ -6411,6 +6503,7 @@
       }
 
       const setFullscreenMode = (enable) => {
+        if (enable && isPhoneLayout()) return;
         if (enable) {
           document.documentElement.classList.add('fullscreen-mode');
           document.body.classList.add('fullscreen-mode');
@@ -6469,6 +6562,13 @@
 
       // Check and automatically trigger TV fullscreen kiosk mode
       const checkAndTriggerTvMode = () => {
+        if (isPhoneLayout()) {
+          document.documentElement.classList.remove('fullscreen-mode');
+          document.body.classList.remove('fullscreen-mode');
+          localStorage.removeItem('tv_mode');
+          if (fullscreenBtn) fullscreenBtn.style.display = 'none';
+          return;
+        }
         const urlParams = new URLSearchParams(window.location.search);
         const isTvParam = urlParams.has('tv') || urlParams.has('kiosk') || urlParams.has('fullscreen') || window.location.hash === '#tv';
         const isTvStored = localStorage.getItem('tv_mode') === 'true';
@@ -6499,6 +6599,23 @@
         }
       };
       checkAndTriggerTvMode();
+      let layoutResizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(layoutResizeTimer);
+        layoutResizeTimer = setTimeout(() => {
+          if (isPhoneLayout()) {
+            document.documentElement.classList.remove('fullscreen-mode');
+            document.body.classList.remove('fullscreen-mode');
+            localStorage.removeItem('tv_mode');
+          }
+          if (fullscreenBtn) fullscreenBtn.style.display = isPhoneLayout() ? 'none' : '';
+          renderApp();
+        }, 120);
+      });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+        const grid = document.querySelector('.calendar-days-grid');
+        if (grid) Calendar.fitTvLayout(grid);
+      });
 
       // Periodic silent auto-refresh every 3 minutes (picks up all remote updates seamlessly)
       const triggerSilentRefresh = async () => {
@@ -6862,3 +6979,4 @@
   </script>
 </body>
 </html>
+

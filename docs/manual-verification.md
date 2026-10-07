@@ -109,3 +109,14 @@ Since this project has no automated unit or integration tests, follow this check
   - [ ] Perform a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`).
   - [ ] Open Developer Tools Console (`F12`). Verify zero 404 or MIME-type errors.
   - [ ] Test TV mode on the live site: [https://nros1978-png.github.io/school-calendar/?tv](https://nros1978-png.github.io/school-calendar/?tv).
+
+## 7. Phone / TV layout regression checks (October 2026)
+- [ ] At 360px and 390px phone widths, the complete calendar grid is visible by scrolling; the selected day's event list remains interactive.
+- [ ] Tap an event card and close its details dialog. Verify the dialog fits the screen and sits above navigation.
+- [ ] Open ?tv on a phone, including landscape orientation. Verify normal phone layout and no fullscreen button, even with previously stored tv_mode=true.
+- [ ] At 1280x720 and 1920x1080 TV sizes, verify the sidebar is 155px wide (previously 310px).
+- [ ] Verify long event titles and Rosh Chodesh / holiday labels remain visible together, including days containing multiple events.
+- [ ] Resize the screen and verify text fits again. Verify loading the Assistant font does not introduce clipping.
+- [ ] Verify automatic kiosk detection on the actual school TV. Native browser fullscreen may still require a user gesture; kiosk layout must activate immediately.
+- [ ] Verify silent remote refresh remains scheduled every 180,000ms without a page reload.
+

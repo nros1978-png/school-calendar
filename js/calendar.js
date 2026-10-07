@@ -3,6 +3,17 @@
 
 import { DB } from './database.js';
 
+// TV identification must never classify a phone as a kiosk.
+function isTvDevice() {
+  const ua = navigator.userAgent || '';
+  return /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|AppleTV|DTV|OTT|LargeScreen|Android.*TV/i.test(ua) ||
+    (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
+}
+function isPhoneLayout() {
+  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+}
+
+
 function convertNumToGematriaDay(num) {
   const gematriaLetters = {
     1: 'א', 2: 'ב', 3: 'ג', 4: 'ד', 5: 'ה', 6: 'ו', 7: 'ז', 8: 'ח', 9: 'ט',
@@ -334,7 +345,7 @@ export const Calendar = {
 
     // Filter events based on criteria
     const filteredEvents = this.filterEvents(events, filterType, filterGrade);
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = !isFullscreen && isPhoneLayout();
 
     // Group days into weeks (6 days per week in fullscreen, 7 days in standard mode)
     const daysPerWeek = isFullscreen ? 6 : 7;
@@ -414,15 +425,9 @@ export const Calendar = {
       // Row 1: auto (for date numbers & holiday labels)
       // Row 2 to (numSlots + 1): slot height for each event slot
       // Last Row: bottom spacing
-      let slotTrackHeight = '26px';
-      if (isFullscreen) {
-        if (numSlots <= 1) slotTrackHeight = '34px';
-        else if (numSlots === 2) slotTrackHeight = '30px';
-        else if (numSlots === 3) slotTrackHeight = '25px';
-        else if (numSlots === 4) slotTrackHeight = '22px';
-        else slotTrackHeight = '19px';
-      }
-      const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
+      const slotTrackHeight = isFullscreen ? 'minmax(0, 1fr)' : '26px';
+      weekRow.dataset.eventSlots = String(numSlots);
+      const bottomSpacing = isFullscreen ? '2px' : 'minmax(8px, 1fr)';
       const rowTemplates = ['auto'];
       for (let s = 0; s < numSlots; s++) {
         rowTemplates.push(slotTrackHeight);
@@ -607,7 +612,36 @@ export const Calendar = {
 
       gridContainer.appendChild(weekRow);
     });
+    if (isFullscreen) requestAnimationFrame(() => this.fitTvLayout(gridContainer));
   },
+fitTvLayout(container) {
+    if (!document.body.classList.contains('fullscreen-mode') || !container.isConnected) return;
+    const fitText = (element, initial, minimum) => {
+      let size = initial;
+      element.style.setProperty('font-size', size + 'px', 'important');
+      element.style.setProperty('line-height', '1.08', 'important');
+      while (size > minimum && (element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth + 1)) {
+        size -= 0.5;
+        element.style.setProperty('font-size', size + 'px', 'important');
+      }
+    };
+    container.querySelectorAll('.calendar-week-row').forEach(row => {
+      const headers = Array.from(row.querySelectorAll('.calendar-day-header'));
+      const count = Number(row.dataset.eventSlots || 0);
+      const budget = Math.max(20, row.clientHeight * (count ? 0.38 : 0.8));
+      headers.forEach(header => {
+        header.style.maxHeight = budget + 'px';
+        header.querySelectorAll('.holiday-cell-label, .special-cell-label').forEach(label => {
+          label.style.maxHeight = Math.max(8, budget - 24) + 'px';
+          fitText(label, 12, 5);
+        });
+      });
+      const headerHeight = Math.min(budget, Math.max(24, ...headers.map(header => header.scrollHeight)));
+      row.style.gridTemplateRows = [headerHeight + 'px', ...Array(count).fill('minmax(0, 1fr)'), '2px'].join(' ');
+      row.querySelectorAll('.event-bar').forEach(bar => fitText(bar, 14, 4));
+    });
+  },
+  
 
   /**
    * Filter events based on active dropdowns

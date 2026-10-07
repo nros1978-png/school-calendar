@@ -8,6 +8,16 @@ import { Gantt } from './gantt.js';
 import { Admin } from './admin.js';
 
 // Application State
+// TV identification must never classify a phone as a kiosk.
+function isTvDevice() {
+  const ua = navigator.userAgent || '';
+  return /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|AppleTV|DTV|OTT|LargeScreen|Android.*TV/i.test(ua) ||
+    (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
+}
+function isPhoneLayout() {
+  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+}
+
 const state = {
   currentYear: 2026,
   currentMonth: 8, // September (0-indexed, so 8)
@@ -72,6 +82,7 @@ function getHebrewMonthHeaderString(year, month) {
  * Main application render function that refreshes the active view based on state
  */
 function renderApp() {
+  document.body.classList.toggle('phone-layout', isPhoneLayout());
   const events = DB.getEvents();
 
   // Helper to format date object to YYYY-MM-DD local string
@@ -708,101 +719,121 @@ function setupEventListeners() {
   const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
 
   const setFullscreenMode = (enable) => {
-    if (enable) {
-      document.body.classList.add('fullscreen-mode');
-      state.activeView = 'calendar';
-      localStorage.setItem('tv_mode', 'true');
-      const switchCal = document.getElementById('switch-calendar');
-      const switchGantt = document.getElementById('switch-gantt');
-      if (switchCal) switchCal.classList.add('active');
-      if (switchGantt) switchGantt.classList.remove('active');
-      const calContainer = document.getElementById('calendar-grid-container');
-      const ganttContainer = document.getElementById('gantt-chart-container');
-      if (calContainer) calContainer.style.display = 'flex';
-      if (ganttContainer) ganttContainer.style.display = 'none';
+        if (enable && isPhoneLayout()) return;
+        if (enable) {
+          document.documentElement.classList.add('fullscreen-mode');
+          document.body.classList.add('fullscreen-mode');
+          state.activeView = 'calendar';
+          localStorage.setItem('tv_mode', 'true');
+          const switchCal = document.getElementById('switch-calendar');
+          const switchGantt = document.getElementById('switch-gantt');
+          if (switchCal) switchCal.classList.add('active');
+          if (switchGantt) switchGantt.classList.remove('active');
+          const calContainer = document.getElementById('calendar-grid-container');
+          const ganttContainer = document.getElementById('gantt-chart-container');
+          if (calContainer) calContainer.style.display = 'flex';
+          if (ganttContainer) ganttContainer.style.display = 'none';
 
-      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-      if (fullscreenBtn) {
-        fullscreenBtn.style.display = 'none';
-        const icon = fullscreenBtn.querySelector('i');
-        const text = document.getElementById('cal-fullscreen-text');
-        if (icon) icon.className = 'fas fa-compress';
-        if (text) text.textContent = 'חזרה לתצוגה רגילה';
-        fullscreenBtn.classList.add('btn-fullscreen-active');
-      }
-      renderApp();
-    } else {
-      document.body.classList.remove('fullscreen-mode');
-      localStorage.setItem('tv_mode', 'false');
-      if (document.exitFullscreen && document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
-      if (fullscreenBtn) {
-        fullscreenBtn.style.display = '';
-        const icon = fullscreenBtn.querySelector('i');
-        const text = document.getElementById('cal-fullscreen-text');
-        if (icon) icon.className = 'fas fa-tv';
-        if (text) text.textContent = 'מסך מלא (טלוויזיה)';
-        fullscreenBtn.classList.remove('btn-fullscreen-active');
-      }
-      renderApp();
-    }
-  };
-
-  if (fullscreenBtn) {
-    fullscreenBtn.addEventListener('click', () => {
-      const isCurrentlyFs = document.body.classList.contains('fullscreen-mode');
-      setFullscreenMode(!isCurrentlyFs);
-    });
-
-    // Listen for browser native exit (e.g. Esc key)
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement && document.body.classList.contains('fullscreen-mode')) {
-        document.body.classList.remove('fullscreen-mode');
-        localStorage.setItem('tv_mode', 'false');
-        if (fullscreenBtn) {
-          fullscreenBtn.style.display = '';
-          const icon = fullscreenBtn.querySelector('i');
-          const text = document.getElementById('cal-fullscreen-text');
-          if (icon) icon.className = 'fas fa-tv';
-          if (text) text.textContent = 'מסך מלא (טלוויזיה)';
-          fullscreenBtn.classList.remove('btn-fullscreen-active');
-        }
-        renderApp();
-      }
-    });
-  }
-
-  // Check and automatically trigger TV fullscreen kiosk mode
-  const checkAndTriggerTvMode = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isTvParam = urlParams.has('tv') || urlParams.has('kiosk') || urlParams.has('fullscreen') || window.location.hash === '#tv';
-    const isTvUserAgent = /SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|Android.*TV|GoogleTV|AppleTV|POV_TV|Viera|Roku|LargeScreen/i.test(navigator.userAgent);
-    const isTvStored = localStorage.getItem('tv_mode') === 'true';
-
-    if (isTvParam || isTvUserAgent || isTvStored) {
-      setFullscreenMode(true);
-
-      const onFirstInteraction = () => {
-        if (document.body.classList.contains('fullscreen-mode') && !document.fullscreenElement) {
-          if (document.documentElement.requestFullscreen) {
+          if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => {});
           }
+          if (fullscreenBtn) {
+            fullscreenBtn.style.display = 'none';
+            const icon = fullscreenBtn.querySelector('i');
+            const text = document.getElementById('cal-fullscreen-text');
+            if (icon) icon.className = 'fas fa-compress';
+            if (text) text.textContent = 'חזרה לתצוגה רגילה';
+            fullscreenBtn.classList.add('btn-fullscreen-active');
+          }
+          renderApp();
+        } else {
+          document.documentElement.classList.remove('fullscreen-mode');
+          document.body.classList.remove('fullscreen-mode');
+          localStorage.setItem('tv_mode', 'false');
+          if (document.exitFullscreen && document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          }
+          if (fullscreenBtn) {
+            fullscreenBtn.style.display = '';
+            const icon = fullscreenBtn.querySelector('i');
+            const text = document.getElementById('cal-fullscreen-text');
+            if (icon) icon.className = 'fas fa-tv';
+            if (text) text.textContent = 'מסך מלא (טלוויזיה)';
+            fullscreenBtn.classList.remove('btn-fullscreen-active');
+          }
+          renderApp();
         }
-        window.removeEventListener('click', onFirstInteraction);
-        window.removeEventListener('keydown', onFirstInteraction);
-        window.removeEventListener('touchstart', onFirstInteraction);
       };
-      window.addEventListener('click', onFirstInteraction, { passive: true });
-      window.addEventListener('keydown', onFirstInteraction, { passive: true });
-      window.addEventListener('touchstart', onFirstInteraction, { passive: true });
-    }
-  };
-  checkAndTriggerTvMode();
 
-  // Periodic silent auto-refresh every 3 minutes (picks up all updates seamlessly)
+      if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+          const isCurrentlyFs = document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode');
+          setFullscreenMode(!isCurrentlyFs);
+        });
+
+        if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) {
+          fullscreenBtn.style.display = 'none';
+        }
+      }
+
+      // Check and automatically trigger TV fullscreen kiosk mode
+      const checkAndTriggerTvMode = () => {
+        if (isPhoneLayout()) {
+          document.documentElement.classList.remove('fullscreen-mode');
+          document.body.classList.remove('fullscreen-mode');
+          localStorage.removeItem('tv_mode');
+          if (fullscreenBtn) fullscreenBtn.style.display = 'none';
+          return;
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        const isTvParam = urlParams.has('tv') || urlParams.has('kiosk') || urlParams.has('fullscreen') || window.location.hash === '#tv';
+        const isTvStored = localStorage.getItem('tv_mode') === 'true';
+        const ua = navigator.userAgent || '';
+        const isAndroid = /Android/i.test(ua);
+        const noTouch = (navigator.maxTouchPoints === 0 || !('ontouchstart' in window));
+        const notMobile = !/Mobile/i.test(ua);
+        const hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|DTV|OTT|LargeScreen/i.test(ua);
+        const isAndroidTv = isAndroid && (noTouch || notMobile || hasTvWords);
+
+        if (isTvParam || isTvStored || isAndroidTv || hasTvWords || window.__IS_TV_INITIAL__) {
+          setFullscreenMode(true);
+
+          // If browser blocked initial programmatic requestFullscreen, trigger on first user interaction
+          const onFirstInteraction = () => {
+            if ((document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) && !document.fullscreenElement) {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+              }
+            }
+            window.removeEventListener('click', onFirstInteraction);
+            window.removeEventListener('keydown', onFirstInteraction);
+            window.removeEventListener('touchstart', onFirstInteraction);
+          };
+          window.addEventListener('click', onFirstInteraction, { passive: true });
+          window.addEventListener('keydown', onFirstInteraction, { passive: true });
+          window.addEventListener('touchstart', onFirstInteraction, { passive: true });
+        }
+      };
+      checkAndTriggerTvMode();
+      let layoutResizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(layoutResizeTimer);
+        layoutResizeTimer = setTimeout(() => {
+          if (isPhoneLayout()) {
+            document.documentElement.classList.remove('fullscreen-mode');
+            document.body.classList.remove('fullscreen-mode');
+            localStorage.removeItem('tv_mode');
+          }
+          if (fullscreenBtn) fullscreenBtn.style.display = isPhoneLayout() ? 'none' : '';
+          renderApp();
+        }, 120);
+      });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+        const grid = document.querySelector('.calendar-days-grid');
+        if (grid) Calendar.fitTvLayout(grid);
+      });
+
+      // Periodic silent auto-refresh every 3 minutes (picks up all updates seamlessly)
   const triggerSilentRefresh = async () => {
     try {
       if (typeof DB !== 'undefined' && DB.refreshFromRemote) {

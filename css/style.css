@@ -2954,3 +2954,47 @@ body.fullscreen-mode .live-day-text {
 
 
 
+
+/* TV density: half-width sidebar, measured text fit, and reserved holiday space. */
+body.fullscreen-mode .tv-side-panel {
+  width: 155px !important; min-width: 155px !important; max-width: 155px !important;
+}
+body.fullscreen-mode .tv-card-header { padding: 5px !important; flex-wrap: wrap; gap: 3px; }
+body.fullscreen-mode .tv-card-title { font-size: 0.75rem; gap: 3px; }
+body.fullscreen-mode .tv-duties-list { padding: 4px; gap: 4px; }
+body.fullscreen-mode .tv-break-card { flex-shrink: 0; }
+body.fullscreen-mode .tv-break-title { padding: 3px 4px; font-size: 0.7rem; overflow-wrap: anywhere; }
+body.fullscreen-mode .tv-break-items { padding: 3px; gap: 3px; }
+body.fullscreen-mode .tv-duty-item { padding: 3px; gap: 3px; flex-wrap: wrap; }
+body.fullscreen-mode .tv-duty-role, body.fullscreen-mode .tv-duty-teacher {
+  font-size: 0.68rem; min-width: 0; overflow-wrap: anywhere;
+}
+body.fullscreen-mode .tv-duty-teacher { padding: 1px 3px; }
+body.fullscreen-mode .calendar-week-row { height: 0; min-height: 0 !important; }
+body.fullscreen-mode .calendar-day-header { min-height: 0; }
+body.fullscreen-mode .event-bar { min-height: 0 !important; height: auto !important; align-self: stretch; }
+body.fullscreen-mode .holiday-cell-label, body.fullscreen-mode .special-cell-label {
+  min-height: 0; flex-shrink: 1; overflow-wrap: anywhere !important;
+}
+/* Phones always retain the interactive day list and event dialogs. */
+@media (max-width: 768px) {
+  body:not(.fullscreen-mode) #cal-fullscreen-btn { display: none !important; }
+  body:not(.fullscreen-mode) .app-container { width: 100%; height: 100dvh; }
+  body:not(.fullscreen-mode) .content-area { width: 100%; min-width: 0; height: 100%; }
+  body:not(.fullscreen-mode) .calendar-grid-wrapper { min-height: 0 !important; }
+  body:not(.fullscreen-mode) .calendar-controls { flex-wrap: wrap; gap: 8px; padding: 8px; }
+  body:not(.fullscreen-mode) .calendar-month-name { min-width: 0; flex-wrap: wrap; }
+  body:not(.fullscreen-mode) .calendar-week-row { flex: 0 0 auto; }
+  body:not(.fullscreen-mode) .modal-overlay { z-index: 1000000; }
+}
+
+@media (max-width: 768px) {
+  body:not(.fullscreen-mode) .calendar-grid-wrapper { flex: 0 0 auto; height: auto; }
+  body:not(.fullscreen-mode) .calendar-days-grid { flex: 0 0 auto; overflow: visible; }
+  body:not(.fullscreen-mode) .calendar-week-row { height: 55px; }
+  body:not(.fullscreen-mode) .calendar-and-panel-wrapper { flex: 0 0 auto; }
+  body:not(.fullscreen-mode) .dashboard-content { flex: 0 0 auto; height: auto; }
+}
+
+body.phone-layout #cal-fullscreen-btn { display: none !important; }
+body.phone-layout .mobile-events-list-container { display: block; }
