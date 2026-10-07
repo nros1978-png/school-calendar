@@ -18,7 +18,12 @@ function isTvDevice() {
     (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
 }
 function isPhoneLayout() {
-  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+  if (isTvDevice()) return false;
+  const ua = navigator.userAgent || '';
+  const isMobileUA = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua);
+  const isNarrow = window.innerWidth <= 768;
+  const isLandscapeMobile = (window.innerWidth <= 950 && window.innerHeight <= 500 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+  return isMobileUA || isNarrow || isLandscapeMobile;
 }
 
       window.isTvDevice = isTvDevice;
@@ -32,7 +37,7 @@ function isPhoneLayout() {
         var isAndroid = /Android/i.test(ua);
         var noTouch = (navigator.maxTouchPoints === 0 || !('ontouchstart' in window));
         var notMobile = !/Mobile/i.test(ua);
-        var hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|DTV|OTT|LargeScreen/i.test(ua);
+        var hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|AppleTV|DTV|OTT|LargeScreen|Android.*TV/i.test(ua);
         var isAndroidTv = isAndroid && (noTouch || notMobile || hasTvWords);
         
         if (isTvParam || isStored || isAndroidTv || hasTvWords) {
@@ -2884,7 +2889,9 @@ function isPhoneLayout() {
       }
     }
   
-/* TV density: half-width sidebar, measured text fit, and reserved holiday space. */
+/* ====================================================
+   TV KIOSK PRESENTATION MODE (155px side panel, wrapping, minimum font)
+   ==================================================== */
 body.fullscreen-mode .tv-side-panel {
   width: 155px !important; min-width: 155px !important; max-width: 155px !important;
 }
@@ -2901,34 +2908,460 @@ body.fullscreen-mode .tv-duty-role, body.fullscreen-mode .tv-duty-teacher {
 body.fullscreen-mode .tv-duty-teacher { padding: 1px 3px; }
 body.fullscreen-mode .calendar-week-row { height: 0; min-height: 0 !important; }
 body.fullscreen-mode .calendar-day-header { min-height: 0; }
-body.fullscreen-mode .event-bar { min-height: 0 !important; height: auto !important; align-self: stretch; }
+body.fullscreen-mode .event-bar {
+  min-height: 0 !important;
+  height: auto !important;
+  align-self: stretch;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
 body.fullscreen-mode .holiday-cell-label, body.fullscreen-mode .special-cell-label {
   min-height: 0; flex-shrink: 1; overflow-wrap: anywhere !important;
 }
-/* Phones always retain the interactive day list and event dialogs. */
-@media (max-width: 768px) {
-  body:not(.fullscreen-mode) #cal-fullscreen-btn { display: none !important; }
-  body:not(.fullscreen-mode) .app-container { width: 100%; height: 100dvh; }
-  body:not(.fullscreen-mode) .content-area { width: 100%; min-width: 0; height: 100%; }
-  body:not(.fullscreen-mode) .calendar-grid-wrapper { min-height: 0 !important; }
-  body:not(.fullscreen-mode) .calendar-controls { flex-wrap: wrap; gap: 8px; padding: 8px; }
-  body:not(.fullscreen-mode) .calendar-month-name { min-width: 0; flex-wrap: wrap; }
-  body:not(.fullscreen-mode) .calendar-week-row { flex: 0 0 auto; }
-  body:not(.fullscreen-mode) .modal-overlay { z-index: 1000000; }
+body.fullscreen-mode .tv-page-indicator {
+  font-size: 0.68rem;
+  color: var(--primary-color, #2563eb);
+  font-weight: 700;
+  margin-right: 4px;
 }
 
-
-@media (max-width: 768px) {
-  body:not(.fullscreen-mode) .calendar-grid-wrapper { flex: 0 0 auto; height: auto; }
-  body:not(.fullscreen-mode) .calendar-days-grid { flex: 0 0 auto; overflow: visible; }
-  body:not(.fullscreen-mode) .calendar-week-row { height: 55px; }
-  body:not(.fullscreen-mode) .calendar-and-panel-wrapper { flex: 0 0 auto; }
-  body:not(.fullscreen-mode) .dashboard-content { flex: 0 0 auto; height: auto; }
+/* ====================================================
+   PHONE PRESENTATION MODE (Strictly isolated & scoped)
+   ==================================================== */
+body.phone-layout {
+  overflow-x: hidden !important;
 }
 
+body.phone-layout .app-container {
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 100dvh !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
 
-body.phone-layout #cal-fullscreen-btn { display: none !important; }
-body.phone-layout .mobile-events-list-container { display: block; }
+body.phone-layout .content-area {
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-width: 0 !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+}
+
+body.phone-layout .dashboard-content {
+  width: 100% !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  padding: 8px 8px 80px 8px !important;
+  flex: 0 0 auto !important;
+}
+
+body.phone-layout .sidebar {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  width: 100% !important;
+  height: 60px !important;
+  flex-direction: row !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08) !important;
+  z-index: 99 !important;
+  padding: 0 !important;
+  border-top: 1px solid var(--border-color) !important;
+  border-right: none !important;
+  border-left: none !important;
+}
+
+body.phone-layout .sidebar-header,
+body.phone-layout .user-profile-card,
+body.phone-layout .sidebar-footer {
+  display: none !important;
+}
+
+body.phone-layout nav {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+body.phone-layout .sidebar-menu {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-around !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.phone-layout .menu-item {
+  flex-grow: 1 !important;
+  margin: 0 !important;
+}
+
+/* Hide TV & desktop controls on phone */
+body.phone-layout #live-datetime-widget,
+body.phone-layout #cal-fullscreen-btn,
+body.phone-layout #cal-reload-btn,
+body.phone-layout .tv-side-panel,
+body.phone-layout .calendar-weekdays,
+body.phone-layout .mobile-events-list-container {
+  display: none !important;
+}
+
+/* Header & navigation on phone */
+body.phone-layout .calendar-controls {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  padding: 8px 4px !important;
+  width: 100% !important;
+}
+
+body.phone-layout .calendar-header-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+body.phone-layout .school-cal-logo {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+}
+
+body.phone-layout .school-cal-name {
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+body.phone-layout .school-cal-dedication {
+  font-size: 0.72rem !important;
+  color: var(--text-secondary, #64748b) !important;
+}
+
+body.phone-layout .calendar-month-name {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  padding: 4px 0 !important;
+}
+
+body.phone-layout .nav-arrows {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+body.phone-layout .nav-arrow-btn {
+  height: 38px !important;
+  min-width: 38px !important;
+  font-size: 0.9rem !important;
+}
+
+body.phone-layout .cal-mode-toggle {
+  margin-left: 4px !important;
+}
+
+body.phone-layout .calendar-and-panel-wrapper {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+}
+
+body.phone-layout .calendar-grid-wrapper {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+
+/* 2 Cards Per Row Phone Calendar Grid */
+body.phone-layout .calendar-days-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  direction: rtl !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 4px 0 !important;
+}
+
+/* Phone Day Card */
+body.phone-layout .phone-day-card {
+  background: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  min-height: 110px;
+}
+
+body.phone-layout .phone-day-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body.phone-layout .phone-day-card.selected-day {
+  border: 2px solid var(--primary-color, #2563eb) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18) !important;
+  background-color: #f8faff;
+}
+
+body.phone-layout .phone-day-card.is-today {
+  border-color: #3b82f6;
+  background-color: #f0f7ff;
+}
+
+body.phone-layout .phone-day-card.is-holiday {
+  border-color: #fca5a5;
+  background-color: #fffaf0;
+}
+
+body.phone-layout .phone-day-card.is-special-day {
+  border-color: #fde047;
+  background-color: #fefce8;
+}
+
+/* Phone Card Header */
+body.phone-layout .phone-card-header {
+  padding: 7px 9px 5px 9px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(248, 250, 252, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+body.phone-layout .phone-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+body.phone-layout .phone-card-weekday {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-primary, #1e293b);
+}
+
+body.phone-layout .phone-card-date-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #475569);
+  font-weight: 600;
+}
+
+body.phone-layout .phone-card-greg-num {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+body.phone-layout .phone-card-heb-date {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+body.phone-layout .phone-today-pill {
+  background: var(--primary-color, #2563eb);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 999px;
+  margin-right: 2px;
+}
+
+/* Holiday & Special Day Badges */
+body.phone-layout .phone-holiday-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+body.phone-layout .phone-special-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a16207;
+  background: #fef08a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+/* Events Container inside Phone Card */
+body.phone-layout .phone-card-events {
+  padding: 6px 7px 8px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 auto;
+}
+
+/* Event Item on Phone */
+body.phone-layout .phone-event-item {
+  border-radius: 6px;
+  padding: 5px 7px;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.1s;
+  border-right: 3px solid transparent;
+  background: #f1f5f9;
+}
+
+body.phone-layout .phone-event-item:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+body.phone-layout .phone-event-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #0f172a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Event Category Colors */
+body.phone-layout .phone-event-item.evt-staff {
+  background: #e0f2fe;
+  border-right-color: #0284c7;
+}
+body.phone-layout .phone-event-item.evt-admin {
+  background: #f3e8ff;
+  border-right-color: #9333ea;
+}
+body.phone-layout .phone-event-item.evt-social {
+  background: #ffedd5;
+  border-right-color: #ea580c;
+}
+body.phone-layout .phone-event-item.evt-academic {
+  background: #dcfce7;
+  border-right-color: #16a34a;
+}
+body.phone-layout .phone-event-item.evt-trip {
+  background: #fce7f3;
+  border-right-color: #db2777;
+}
+body.phone-layout .phone-event-item.evt-other {
+  background: #f1f5f9;
+  border-right-color: #64748b;
+}
+
+/* More Events Button & Collapsible Container */
+body.phone-layout .phone-more-events-btn {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-color, #2563eb);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 2px;
+}
+
+body.phone-layout .phone-more-events-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+body.phone-layout .phone-extra-events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+/* Mobile Floating Action Button */
+body.phone-layout .mobile-fab {
+  position: fixed !important;
+  bottom: 22px !important;
+  left: 22px !important;
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 50% !important;
+  background: var(--primary-color, #2563eb) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.3rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  z-index: 99999 !important;
+  transition: transform 0.15s, background-color 0.15s !important;
+}
+
+body.phone-layout .mobile-fab:active {
+  transform: scale(0.92) !important;
+}
+
+/* Modals & Dialogs on Phone */
+body.phone-layout .modal-overlay {
+  padding: 10px !important;
+  z-index: 100000 !important;
+}
+
+body.phone-layout .modal-card,
+body.phone-layout .event-details-dialog {
+  max-width: 95vw !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  margin: auto !important;
+  overflow-y: auto !important;
+}
+
+/* Media Query Baseline for Narrow Viewports */
+@media (max-width: 768px) {
+  body:not(.fullscreen-mode) #live-datetime-widget,
+  body:not(.fullscreen-mode) #cal-fullscreen-btn,
+  body:not(.fullscreen-mode) #cal-reload-btn,
+  body:not(.fullscreen-mode) .tv-side-panel {
+    display: none !important;
+  }
+}
 </style>
   
   <!-- Firebase Compat SDKs (safe for file:// local testing) -->
@@ -4646,6 +5079,21 @@ body.phone-layout .mobile-events-list-container { display: block; }
         const filteredEvents = this.filterEvents(events, filterType, filterGrade);
         const isMobile = !isFullscreen && isPhoneLayout();
 
+        if (isMobile) {
+          this.stopTvRotation();
+          this.renderPhoneGrid({
+            gridContainer,
+            daysList,
+            filteredEvents,
+            calendarMode,
+            todayKey,
+            selectedDate,
+            onDaySelect,
+            onEventClick
+          });
+          return;
+        }
+
         // Group into weeks (6 days per week in fullscreen, 7 days in standard mode)
         const daysPerWeek = isFullscreen ? 6 : 7;
         const weeks = [];
@@ -4720,21 +5168,35 @@ body.phone-layout .mobile-events-list-container { display: block; }
             numSlots = maxSlot + 1;
           }
 
+          // In TV mode, handle dense days with predictable multi-page rotation (up to 3 simultaneous slots)
+          const MAX_TV_SLOTS = 3;
+          let visibleNumSlots = numSlots;
+          let totalPages = 1;
+          let currentPage = 0;
+
+          if (isFullscreen) {
+            totalPages = Math.max(1, Math.ceil(numSlots / MAX_TV_SLOTS));
+            currentPage = (this._tvPageOffset || 0) % totalPages;
+            visibleNumSlots = Math.min(numSlots, MAX_TV_SLOTS);
+            weekRow.dataset.tvTotalPages = String(totalPages);
+            weekRow.dataset.tvCurrentPage = String(currentPage);
+          }
+
           // Explicit grid rows:
           // Row 1: auto (for date numbers & holiday labels)
-          // Row 2 to (numSlots + 1): slot height for each event slot
+          // Row 2 to (visibleNumSlots + 1): slot height for each event slot
           // Last Row: bottom spacing
           const slotTrackHeight = isFullscreen ? 'minmax(0, 1fr)' : '26px';
-          weekRow.dataset.eventSlots = String(numSlots);
+          weekRow.dataset.eventSlots = String(visibleNumSlots);
           const bottomSpacing = isFullscreen ? '2px' : 'minmax(8px, 1fr)';
           const rowTemplates = ['auto'];
-          for (let s = 0; s < numSlots; s++) {
+          for (let s = 0; s < visibleNumSlots; s++) {
             rowTemplates.push(slotTrackHeight);
           }
           rowTemplates.push(bottomSpacing);
           weekRow.style.gridTemplateRows = rowTemplates.join(' ');
 
-          const totalRowTracks = numSlots + 2;
+          const totalRowTracks = visibleNumSlots + 2;
 
           // 1. Render day background cells (spanning row 1 to the end)
           weekDays.forEach((day, colIdx) => {
@@ -4798,147 +5260,357 @@ body.phone-layout .mobile-events-list-container { display: block; }
               dayHeader.appendChild(primaryLabel);
             }
 
+            if (isFullscreen && totalPages > 1 && colIdx === 0) {
+              const pageBadge = document.createElement('span');
+              pageBadge.className = 'tv-page-indicator';
+              pageBadge.textContent = `(${currentPage + 1}/${totalPages})`;
+              dayHeader.appendChild(pageBadge);
+            }
+
             header.appendChild(dayHeader);
 
-            if (!isMobile) {
-              if (dateInfo.status === 'Holiday' && dateInfo.description) {
-                const holidayLabel = document.createElement('div');
-                holidayLabel.className = 'holiday-cell-label';
-                holidayLabel.textContent = dateInfo.description;
-                if (isFullscreen) {
-                  const descLen = (dateInfo.description || '').length;
-                  let hFont = 0.74;
-                  if (numSlots >= 4 || descLen > 25) hFont = 0.60;
-                  else if (numSlots >= 3 || descLen > 18) hFont = 0.65;
-                  else if (descLen > 12) hFont = 0.70;
-                  holidayLabel.style.fontSize = `${hFont}rem`;
-                  holidayLabel.style.lineHeight = '1.12';
-                }
-                header.appendChild(holidayLabel);
-              } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
-                const specialLabel = document.createElement('div');
-                specialLabel.className = 'special-cell-label';
-                specialLabel.textContent = dateInfo.description;
-                if (isFullscreen) {
-                  const descLen = (dateInfo.description || '').length;
-                  let sFont = 0.74;
-                  if (numSlots >= 4 || descLen > 25) sFont = 0.60;
-                  else if (numSlots >= 3 || descLen > 18) sFont = 0.65;
-                  else if (descLen > 12) sFont = 0.70;
-                  specialLabel.style.fontSize = `${sFont}rem`;
-                  specialLabel.style.lineHeight = '1.12';
-                }
-                header.appendChild(specialLabel);
+            if (dateInfo.status === 'Holiday' && dateInfo.description) {
+              const holidayLabel = document.createElement('div');
+              holidayLabel.className = 'holiday-cell-label';
+              holidayLabel.textContent = dateInfo.description;
+              if (isFullscreen) {
+                holidayLabel.style.fontSize = '0.72rem';
+                holidayLabel.style.lineHeight = '1.12';
               }
-            } else {
-              const activeDayEvents = filteredEvents.filter(e => day.dateKey >= e.startDate && day.dateKey <= e.endDate);
-              if (activeDayEvents.length > 0) {
-                const dotsContainer = document.createElement('div');
-                dotsContainer.className = 'mobile-dots-container';
-                activeDayEvents.slice(0, 4).forEach(evt => {
-                  const dot = document.createElement('span');
-                  let typeClass = 'evt-staff';
-                  switch (evt.eventType) {
-                    case 'צוותי': typeClass = 'evt-staff'; break;
-                    case 'מנהלתי': typeClass = 'evt-admin'; break;
-                    case 'חברתי': typeClass = 'evt-social'; break;
-                    case 'פדגוגי': typeClass = 'evt-academic'; break;
-                    case 'טיול': typeClass = 'evt-trip'; break;
-                    case 'אחר': typeClass = 'evt-other'; break;
-                  }
-                  dot.className = `event-dot ${typeClass}`;
-                  dotsContainer.appendChild(dot);
-                });
-                header.appendChild(dotsContainer);
+              header.appendChild(holidayLabel);
+            } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
+              const specialLabel = document.createElement('div');
+              specialLabel.className = 'special-cell-label';
+              specialLabel.textContent = dateInfo.description;
+              if (isFullscreen) {
+                specialLabel.style.fontSize = '0.72rem';
+                specialLabel.style.lineHeight = '1.12';
               }
+              header.appendChild(specialLabel);
             }
 
             weekRow.appendChild(header);
           });
 
-          // 3. Render Events in the week (Desktop only)
-          if (!isMobile) {
-            preparedEvents.forEach(item => {
-              const eventBar = document.createElement('div');
-              let typeClass = 'evt-staff';
-              switch (item.event.eventType) {
-                case 'צוותי': typeClass = 'evt-staff'; break;
-                case 'מנהלתי': typeClass = 'evt-admin'; break;
-                case 'חברתי': typeClass = 'evt-social'; break;
-                case 'פדגוגי': typeClass = 'evt-academic'; break;
-                case 'טיול': typeClass = 'evt-trip'; break;
-                case 'אחר': typeClass = 'evt-other'; break;
+          // 3. Render Events in the week
+          preparedEvents.forEach(item => {
+            if (isFullscreen) {
+              const itemPage = Math.floor(item.slot / MAX_TV_SLOTS);
+              if (itemPage !== currentPage) {
+                return;
               }
+            }
 
-              let segmentClass = 'single-day';
-              if (item.span > 1 || !item.startsThisWeek || !item.endsThisWeek) {
-                segmentClass = 'multi-day-span';
-                if (item.startsThisWeek && !item.endsThisWeek) segmentClass += ' continues-next';
-                else if (!item.startsThisWeek && item.endsThisWeek) segmentClass += ' continues-prev';
-                else if (!item.startsThisWeek && !item.endsThisWeek) segmentClass += ' continues-both';
-              }
+            const eventBar = document.createElement('div');
+            let typeClass = 'evt-staff';
+            switch (item.event.eventType) {
+              case 'צוותי': typeClass = 'evt-staff'; break;
+              case 'מנהלתי': typeClass = 'evt-admin'; break;
+              case 'חברתי': typeClass = 'evt-social'; break;
+              case 'פדגוגי': typeClass = 'evt-academic'; break;
+              case 'טיול': typeClass = 'evt-trip'; break;
+              case 'אחר': typeClass = 'evt-other'; break;
+            }
 
-              eventBar.className = `event-bar ${segmentClass} ${typeClass}`;
-              eventBar.style.gridColumn = `${item.startCol + 1} / span ${item.span}`;
-              eventBar.style.gridRow = `${item.slot + 2}`;
+            let segmentClass = 'single-day';
+            if (item.span > 1 || !item.startsThisWeek || !item.endsThisWeek) {
+              segmentClass = 'multi-day-span';
+              if (item.startsThisWeek && !item.endsThisWeek) segmentClass += ' continues-next';
+              else if (!item.startsThisWeek && item.endsThisWeek) segmentClass += ' continues-prev';
+              else if (!item.startsThisWeek && !item.endsThisWeek) segmentClass += ' continues-both';
+            }
 
-              const titleSuffix = (!item.startsThisWeek && item.span > 1) ? ' (המשך)' : '';
-              eventBar.textContent = item.event.title + titleSuffix;
-              eventBar.title = `${item.event.title} (${item.event.eventType})`;
+            eventBar.className = `event-bar ${segmentClass} ${typeClass}`;
+            eventBar.setAttribute('data-event-id', item.event.id);
+            eventBar.style.gridColumn = `${item.startCol + 1} / span ${item.span}`;
+            const displaySlot = isFullscreen ? (item.slot % MAX_TV_SLOTS) : item.slot;
+            eventBar.style.gridRow = `${displaySlot + 2}`;
 
-              if (isFullscreen) {
-                const titleLen = (item.event.title || '').length;
-                let evFont = 0.82;
-                if (numSlots <= 1) evFont = titleLen > 20 ? 0.76 : 0.85;
-                else if (numSlots === 2) evFont = titleLen > 20 ? 0.72 : 0.80;
-                else if (numSlots === 3) evFont = titleLen > 20 ? 0.65 : 0.72;
-                else if (numSlots === 4) evFont = titleLen > 20 ? 0.58 : 0.65;
-                else evFont = titleLen > 20 ? 0.52 : 0.58;
+            const titleSuffix = (!item.startsThisWeek && item.span > 1) ? ' (המשך)' : '';
+            eventBar.textContent = item.event.title + titleSuffix;
+            eventBar.title = `${item.event.title} (${item.event.eventType})`;
 
-                eventBar.style.fontSize = `${evFont}rem`;
-                eventBar.style.lineHeight = evFont < 0.65 ? '1.05' : '1.15';
-              }
+            if (isFullscreen) {
+              eventBar.style.fontSize = '0.78rem';
+              eventBar.style.lineHeight = '1.15';
+            }
 
-              eventBar.addEventListener('click', (e) => {
-                e.stopPropagation();
-                onEventClick(item.event);
-              });
-
-              weekRow.appendChild(eventBar);
+            eventBar.addEventListener('click', (e) => {
+              e.stopPropagation();
+              onEventClick(item.event);
             });
-          }
+
+            weekRow.appendChild(eventBar);
+          });
 
           gridContainer.appendChild(weekRow);
         });
-        if (isFullscreen) requestAnimationFrame(() => this.fitTvLayout(gridContainer));
+
+        if (isFullscreen) {
+          requestAnimationFrame(() => this.fitTvLayout(gridContainer));
+          this.startTvRotation(gridContainer, {
+            calendarMode,
+            year,
+            month,
+            hebrewYear,
+            hebrewMonthIndex,
+            containerId,
+            events,
+            filterType,
+            filterGrade,
+            onDayClick,
+            onEventClick,
+            selectedDate,
+            onDaySelect
+          });
+        } else {
+          this.stopTvRotation();
+        }
       },
-      fitTvLayout(container) {
-    if (!document.body.classList.contains('fullscreen-mode') || !container.isConnected) return;
-    const fitText = (element, initial, minimum) => {
-      let size = initial;
-      element.style.setProperty('font-size', size + 'px', 'important');
-      element.style.setProperty('line-height', '1.08', 'important');
-      while (size > minimum && (element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth + 1)) {
-        size -= 0.5;
-        element.style.setProperty('font-size', size + 'px', 'important');
-      }
-    };
-    container.querySelectorAll('.calendar-week-row').forEach(row => {
-      const headers = Array.from(row.querySelectorAll('.calendar-day-header'));
-      const count = Number(row.dataset.eventSlots || 0);
-      const budget = Math.max(20, row.clientHeight * (count ? 0.38 : 0.8));
-      headers.forEach(header => {
-        header.style.maxHeight = budget + 'px';
-        header.querySelectorAll('.holiday-cell-label, .special-cell-label').forEach(label => {
-          label.style.maxHeight = Math.max(8, budget - 24) + 'px';
-          fitText(label, 12, 5);
+
+      /**
+       * Dedicated 2-cards-per-row grid renderer for Phone layout
+       */
+      renderPhoneGrid({
+        gridContainer,
+        daysList,
+        filteredEvents,
+        calendarMode,
+        todayKey,
+        selectedDate,
+        onDaySelect,
+        onEventClick
+      }) {
+        gridContainer.innerHTML = '';
+
+        // Show only days belonging to the displayed month, avoiding unnecessary filler cells.
+        const monthDays = daysList.filter(d => d.isCurrentMonth);
+
+        monthDays.forEach(day => {
+          const card = document.createElement('div');
+          card.className = 'phone-day-card';
+          card.dataset.date = day.dateKey;
+
+          if (day.dateKey === selectedDate) card.classList.add('selected-day');
+          if (day.dateKey === todayKey) card.classList.add('is-today');
+
+          const dateInfo = DB.getHebrewDateInfo(day.dateKey);
+          if (dateInfo.status === 'Holiday') card.classList.add('is-holiday');
+          else if (dateInfo.status === 'Special Day') card.classList.add('is-special-day');
+
+          // Card Header
+          const header = document.createElement('div');
+          header.className = 'phone-card-header';
+
+          const [y, m, d] = day.dateKey.split('-').map(Number);
+          const dt = new Date(y, m - 1, d);
+          const dayNames = ['יום ראשון', 'יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'שישי', 'שבת'];
+          const weekdayName = dayNames[dt.getDay()];
+
+          const topRow = document.createElement('div');
+          topRow.className = 'phone-card-top-row';
+
+          const weekdayEl = document.createElement('span');
+          weekdayEl.className = 'phone-card-weekday';
+          weekdayEl.textContent = weekdayName;
+          topRow.appendChild(weekdayEl);
+
+          const dateBadge = document.createElement('div');
+          dateBadge.className = 'phone-card-date-badge';
+
+          const gregNum = document.createElement('span');
+          gregNum.className = 'phone-card-greg-num';
+          gregNum.textContent = day.dayNumber;
+
+          const hebDateStr = day.hebrewDayGematria || (dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '');
+          const hebLabel = document.createElement('span');
+          hebLabel.className = 'phone-card-heb-date';
+          hebLabel.textContent = hebDateStr;
+
+          if (calendarMode === 'hebrew') {
+            dateBadge.appendChild(hebLabel);
+            dateBadge.appendChild(document.createTextNode(' · '));
+            dateBadge.appendChild(gregNum);
+          } else {
+            dateBadge.appendChild(gregNum);
+            if (hebDateStr) {
+              dateBadge.appendChild(document.createTextNode(' · '));
+              dateBadge.appendChild(hebLabel);
+            }
+          }
+
+          if (day.dateKey === todayKey) {
+            const todayPill = document.createElement('span');
+            todayPill.className = 'phone-today-pill';
+            todayPill.textContent = 'היום';
+            dateBadge.appendChild(todayPill);
+          }
+
+          topRow.appendChild(dateBadge);
+          header.appendChild(topRow);
+
+          // Holiday / Special Day Label
+          if (dateInfo.status === 'Holiday' && dateInfo.description) {
+            const hBadge = document.createElement('div');
+            hBadge.className = 'phone-holiday-badge';
+            hBadge.innerHTML = `<i class="fas fa-umbrella-beach"></i> <span>${dateInfo.description}</span>`;
+            header.appendChild(hBadge);
+          } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
+            const sBadge = document.createElement('div');
+            sBadge.className = 'phone-special-badge';
+            sBadge.innerHTML = `<i class="fas fa-star"></i> <span>${dateInfo.description}</span>`;
+            header.appendChild(sBadge);
+          }
+
+          // Tapping the day heading selects that date
+          header.addEventListener('click', (e) => {
+            e.stopPropagation();
+            gridContainer.querySelectorAll('.phone-day-card.selected-day').forEach(c => c.classList.remove('selected-day'));
+            card.classList.add('selected-day');
+            if (onDaySelect) onDaySelect(day.dateKey);
+          });
+
+          card.addEventListener('click', () => {
+            gridContainer.querySelectorAll('.phone-day-card.selected-day').forEach(c => c.classList.remove('selected-day'));
+            card.classList.add('selected-day');
+            if (onDaySelect) onDaySelect(day.dateKey);
+          });
+
+          card.appendChild(header);
+
+          // Events Container
+          const eventsContainer = document.createElement('div');
+          eventsContainer.className = 'phone-card-events';
+
+          const activeDayEvents = filteredEvents.filter(evt => day.dateKey >= evt.startDate && day.dateKey <= evt.endDate);
+
+          const createEventItem = (evt) => {
+            const item = document.createElement('div');
+            let typeClass = 'evt-staff';
+            switch (evt.eventType) {
+              case 'צוותי': typeClass = 'evt-staff'; break;
+              case 'מנהלתי': typeClass = 'evt-admin'; break;
+              case 'חברתי': typeClass = 'evt-social'; break;
+              case 'פדגוגי': typeClass = 'evt-academic'; break;
+              case 'טיול': typeClass = 'evt-trip'; break;
+              case 'אחר': typeClass = 'evt-other'; break;
+            }
+            item.className = `phone-event-item ${typeClass}`;
+            item.setAttribute('data-event-id', evt.id);
+
+            const titleSpan = document.createElement('div');
+            titleSpan.className = 'phone-event-title';
+            titleSpan.textContent = evt.title;
+            item.appendChild(titleSpan);
+
+            item.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (onEventClick) onEventClick(evt);
+            });
+            return item;
+          };
+
+          // Show up to three event titles per day (allowing up to two lines per title)
+          const visibleEvents = activeDayEvents.slice(0, 3);
+          visibleEvents.forEach(evt => {
+            eventsContainer.appendChild(createEventItem(evt));
+          });
+
+          // If more events exist, show a clear “עוד N אירועים” control that reveals all events for that day
+          if (activeDayEvents.length > 3) {
+            const extraEvents = activeDayEvents.slice(3);
+            const extraContainer = document.createElement('div');
+            extraContainer.className = 'phone-extra-events-container';
+            extraContainer.style.display = 'none';
+
+            extraEvents.forEach(evt => {
+              extraContainer.appendChild(createEventItem(evt));
+            });
+            eventsContainer.appendChild(extraContainer);
+
+            const moreBtn = document.createElement('button');
+            moreBtn.type = 'button';
+            moreBtn.className = 'phone-more-events-btn';
+            moreBtn.innerHTML = `<span>עוד ${extraEvents.length} אירועים</span> <i class="fas fa-chevron-down"></i>`;
+            moreBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const isHidden = extraContainer.style.display === 'none';
+              if (isHidden) {
+                extraContainer.style.display = 'flex';
+                moreBtn.innerHTML = `<span>הסתר אירועים</span> <i class="fas fa-chevron-up"></i>`;
+                moreBtn.classList.add('expanded');
+              } else {
+                extraContainer.style.display = 'none';
+                moreBtn.innerHTML = `<span>עוד ${extraEvents.length} אירועים</span> <i class="fas fa-chevron-down"></i>`;
+                moreBtn.classList.remove('expanded');
+              }
+            });
+            eventsContainer.appendChild(moreBtn);
+          }
+
+          card.appendChild(eventsContainer);
+          gridContainer.appendChild(card);
         });
-      });
-      const headerHeight = Math.min(budget, Math.max(24, ...headers.map(header => header.scrollHeight)));
-      row.style.gridTemplateRows = [headerHeight + 'px', ...Array(count).fill('minmax(0, 1fr)'), '2px'].join(' ');
-      row.querySelectorAll('.event-bar').forEach(bar => fitText(bar, 14, 4));
-    });
-  },
+      },
+
+      /**
+       * TV Text fitting helper enforcing minimum font size and reserved holiday space
+       */
+      fitTvLayout(container) {
+        if (!document.body.classList.contains('fullscreen-mode') || !container.isConnected) return;
+        const fitText = (element, initialPx, minimumPx) => {
+          let size = initialPx;
+          element.style.setProperty('font-size', size + 'px', 'important');
+          element.style.setProperty('line-height', '1.12', 'important');
+          element.style.setProperty('white-space', 'normal', 'important');
+          element.style.setProperty('word-break', 'break-word', 'important');
+          while (size > minimumPx && (element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth + 1)) {
+            size -= 0.5;
+            element.style.setProperty('font-size', size + 'px', 'important');
+          }
+        };
+        container.querySelectorAll('.calendar-week-row').forEach(row => {
+          const headers = Array.from(row.querySelectorAll('.calendar-day-header'));
+          const count = Number(row.dataset.eventSlots || 0);
+          const budget = Math.max(26, row.clientHeight * (count ? 0.32 : 0.8));
+          headers.forEach(header => {
+            header.style.maxHeight = budget + 'px';
+            header.querySelectorAll('.holiday-cell-label, .special-cell-label').forEach(label => {
+              label.style.maxHeight = Math.max(12, budget - 18) + 'px';
+              fitText(label, 12, 10);
+            });
+          });
+          const headerHeight = Math.min(budget, Math.max(26, ...headers.map(header => header.scrollHeight)));
+          row.style.gridTemplateRows = [headerHeight + 'px', ...Array(count).fill('minmax(0, 1fr)'), '2px'].join(' ');
+          row.querySelectorAll('.event-bar').forEach(bar => fitText(bar, 13, 10.5));
+        });
+      },
+
+      stopTvRotation() {
+        if (this._tvRotationTimer) {
+          clearInterval(this._tvRotationTimer);
+          this._tvRotationTimer = null;
+        }
+      },
+
+      startTvRotation(container, renderArgs) {
+        this.stopTvRotation();
+        if (!document.body.classList.contains('fullscreen-mode')) return;
+        let hasMultiPage = false;
+        container.querySelectorAll('.calendar-week-row').forEach(row => {
+          if (Number(row.dataset.tvTotalPages || 1) > 1) hasMultiPage = true;
+        });
+        if (!hasMultiPage || !renderArgs) return;
+
+        this._tvRotationTimer = setInterval(() => {
+          if (!document.body.classList.contains('fullscreen-mode')) {
+            this.stopTvRotation();
+            return;
+          }
+          this._tvPageOffset = (this._tvPageOffset || 0) + 1;
+          this.render(renderArgs);
+        }, 8000);
+      },
   filterEvents(events, filterType, filterGrade) {
         return events.filter(event => {
           if (filterType !== 'all' && event.eventType !== filterType) return false;
@@ -5603,7 +6275,12 @@ function isTvDevice() {
     (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
 }
 function isPhoneLayout() {
-  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+  if (isTvDevice()) return false;
+  const ua = navigator.userAgent || '';
+  const isMobileUA = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua);
+  const isNarrow = window.innerWidth <= 768;
+  const isLandscapeMobile = (window.innerWidth <= 950 && window.innerHeight <= 500 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+  return isMobileUA || isNarrow || isLandscapeMobile;
 }
 
     const state = {
@@ -5659,7 +6336,28 @@ function isPhoneLayout() {
     }
 
     function renderApp() {
-  document.body.classList.toggle('phone-layout', isPhoneLayout());
+      const isPhone = isPhoneLayout();
+      const isTv = !isPhone && (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode'));
+
+      document.body.classList.toggle('phone-layout', isPhone);
+      document.body.classList.toggle('desktop-mode', !isPhone && !isTv);
+      document.body.classList.toggle('fullscreen-mode', isTv);
+      document.documentElement.classList.toggle('fullscreen-mode', isTv);
+
+      if (isPhone) {
+        localStorage.removeItem('tv_mode');
+      }
+
+      const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
+      if (fullscreenBtn) {
+        fullscreenBtn.style.display = (isPhone || isTv) ? 'none' : 'flex';
+      }
+
+      const liveWidget = document.getElementById('live-datetime-widget');
+      if (liveWidget) {
+        liveWidget.style.display = isPhone ? 'none' : 'flex';
+      }
+
       const events = DB.getEvents();
 
       const formatDateKey = (y, m, d) => {
@@ -6507,6 +7205,7 @@ function isPhoneLayout() {
         if (enable) {
           document.documentElement.classList.add('fullscreen-mode');
           document.body.classList.add('fullscreen-mode');
+          document.body.classList.remove('phone-layout', 'desktop-mode');
           state.activeView = 'calendar';
           localStorage.setItem('tv_mode', 'true');
           const switchCal = document.getElementById('switch-calendar');
@@ -6555,7 +7254,7 @@ function isPhoneLayout() {
           setFullscreenMode(!isCurrentlyFs);
         });
 
-        if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) {
+        if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode') || isPhoneLayout()) {
           fullscreenBtn.style.display = 'none';
         }
       }
@@ -6576,7 +7275,7 @@ function isPhoneLayout() {
         const isAndroid = /Android/i.test(ua);
         const noTouch = (navigator.maxTouchPoints === 0 || !('ontouchstart' in window));
         const notMobile = !/Mobile/i.test(ua);
-        const hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|DTV|OTT|LargeScreen/i.test(ua);
+        const hasTvWords = /TV|SmartTV|Tizen|Web0S|webOS|HbbTV|BRAVIA|NetCast|POV_TV|Viera|Roku|AFT|MiBox|Shield|Chromecast|GoogleTV|AppleTV|DTV|OTT|LargeScreen|Android.*TV/i.test(ua);
         const isAndroidTv = isAndroid && (noTouch || notMobile || hasTvWords);
 
         if (isTvParam || isTvStored || isAndroidTv || hasTvWords || window.__IS_TV_INITIAL__) {
@@ -6600,7 +7299,7 @@ function isPhoneLayout() {
       };
       checkAndTriggerTvMode();
       let layoutResizeTimer;
-      window.addEventListener('resize', () => {
+      const handleResizeOrRotate = () => {
         clearTimeout(layoutResizeTimer);
         layoutResizeTimer = setTimeout(() => {
           if (isPhoneLayout()) {
@@ -6608,16 +7307,18 @@ function isPhoneLayout() {
             document.body.classList.remove('fullscreen-mode');
             localStorage.removeItem('tv_mode');
           }
-          if (fullscreenBtn) fullscreenBtn.style.display = isPhoneLayout() ? 'none' : '';
           renderApp();
-        }, 120);
-      });
+        }, 100);
+      };
+      window.addEventListener('resize', handleResizeOrRotate);
+      window.addEventListener('orientationchange', handleResizeOrRotate);
+
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
         const grid = document.querySelector('.calendar-days-grid');
-        if (grid) Calendar.fitTvLayout(grid);
+        if (grid && document.body.classList.contains('fullscreen-mode')) Calendar.fitTvLayout(grid);
       });
 
-      // Periodic silent auto-refresh every 3 minutes (picks up all remote updates seamlessly)
+      // Periodic silent auto-refresh every 3 minutes (picks up all updates seamlessly)
       const triggerSilentRefresh = async () => {
         try {
           if (typeof DB !== 'undefined' && DB.refreshFromRemote) {
@@ -6628,7 +7329,9 @@ function isPhoneLayout() {
         }
         renderApp();
       };
-      setInterval(triggerSilentRefresh, 3 * 60 * 1000);
+      if (!window._silentRefreshTimer) {
+        window._silentRefreshTimer = setInterval(triggerSilentRefresh, 3 * 60 * 1000);
+      }
 
       document.getElementById('add-event-btn').addEventListener('click', () => openAddEventModal());
 

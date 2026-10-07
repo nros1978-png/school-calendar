@@ -15,7 +15,12 @@ function isTvDevice() {
     (/Android/i.test(ua) && !/Mobile/i.test(ua) && navigator.maxTouchPoints === 0);
 }
 function isPhoneLayout() {
-  return !isTvDevice() && (/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent || '') || window.innerWidth <= 768);
+  if (isTvDevice()) return false;
+  const ua = navigator.userAgent || '';
+  const isMobileUA = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua);
+  const isNarrow = window.innerWidth <= 768;
+  const isLandscapeMobile = (window.innerWidth <= 950 && window.innerHeight <= 500 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+  return isMobileUA || isNarrow || isLandscapeMobile;
 }
 
 const state = {
@@ -82,7 +87,28 @@ function getHebrewMonthHeaderString(year, month) {
  * Main application render function that refreshes the active view based on state
  */
 function renderApp() {
-  document.body.classList.toggle('phone-layout', isPhoneLayout());
+  const isPhone = isPhoneLayout();
+  const isTv = !isPhone && (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode'));
+
+  document.body.classList.toggle('phone-layout', isPhone);
+  document.body.classList.toggle('desktop-mode', !isPhone && !isTv);
+  document.body.classList.toggle('fullscreen-mode', isTv);
+  document.documentElement.classList.toggle('fullscreen-mode', isTv);
+
+  if (isPhone) {
+    localStorage.removeItem('tv_mode');
+  }
+
+  const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
+  if (fullscreenBtn) {
+    fullscreenBtn.style.display = (isPhone || isTv) ? 'none' : 'flex';
+  }
+
+  const liveWidget = document.getElementById('live-datetime-widget');
+  if (liveWidget) {
+    liveWidget.style.display = isPhone ? 'none' : 'flex';
+  }
+
   const events = DB.getEvents();
 
   // Helper to format date object to YYYY-MM-DD local string
@@ -106,7 +132,7 @@ function renderApp() {
   // 1. Update Month Header Title
   const monthNameElement = document.getElementById('calendar-month-name');
   if (monthNameElement) {
-    if (document.body.classList.contains('fullscreen-mode')) {
+    if (isTv) {
       const today = new Date();
       const currentSunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
       const endFriday = new Date(currentSunday.getFullYear(), currentSunday.getMonth(), currentSunday.getDate() + 26);
@@ -152,7 +178,7 @@ function renderApp() {
   // Toggle Mobile FAB visibility based on authorization
   const fab = document.getElementById('mobile-add-event-fab');
   if (fab) {
-    if (state.currentUser && state.currentUser.isAuthorized) {
+    if (isPhone && state.currentUser && state.currentUser.isAuthorized) {
       fab.style.display = 'flex';
     } else {
       fab.style.display = 'none';
@@ -180,12 +206,16 @@ function renderApp() {
         selectedDate: state.selectedDate,
         onDaySelect: (dateStr) => {
           state.selectedDate = dateStr;
-          renderApp();
+          if (!isPhoneLayout()) {
+            renderApp();
+          }
         }
       });
       
-      renderMobileEventsList();
-      renderTvSidePanel();
+      if (!isPhone) {
+        renderTvSidePanel();
+      }
+
     } else {
       document.getElementById('calendar-grid-container').style.display = 'none';
       document.getElementById('gantt-chart-container').style.display = 'flex';
@@ -718,11 +748,12 @@ function setupEventListeners() {
   // Fullscreen projection toggle for staff room TV display
   const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
 
-  const setFullscreenMode = (enable) => {
+      const setFullscreenMode = (enable) => {
         if (enable && isPhoneLayout()) return;
         if (enable) {
           document.documentElement.classList.add('fullscreen-mode');
           document.body.classList.add('fullscreen-mode');
+          document.body.classList.remove('phone-layout', 'desktop-mode');
           state.activeView = 'calendar';
           localStorage.setItem('tv_mode', 'true');
           const switchCal = document.getElementById('switch-calendar');
@@ -739,11 +770,6 @@ function setupEventListeners() {
           }
           if (fullscreenBtn) {
             fullscreenBtn.style.display = 'none';
-            const icon = fullscreenBtn.querySelector('i');
-            const text = document.getElementById('cal-fullscreen-text');
-            if (icon) icon.className = 'fas fa-compress';
-            if (text) text.textContent = 'חזרה לתצוגה רגילה';
-            fullscreenBtn.classList.add('btn-fullscreen-active');
           }
           renderApp();
         } else {
@@ -754,7 +780,7 @@ function setupEventListeners() {
             document.exitFullscreen().catch(() => {});
           }
           if (fullscreenBtn) {
-            fullscreenBtn.style.display = '';
+            fullscreenBtn.style.display = isPhoneLayout() ? 'none' : 'flex';
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-tv';
@@ -771,7 +797,7 @@ function setupEventListeners() {
           setFullscreenMode(!isCurrentlyFs);
         });
 
-        if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) {
+        if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode') || isPhoneLayout()) {
           fullscreenBtn.style.display = 'none';
         }
       }
@@ -816,7 +842,7 @@ function setupEventListeners() {
       };
       checkAndTriggerTvMode();
       let layoutResizeTimer;
-      window.addEventListener('resize', () => {
+      const handleResizeOrRotate = () => {
         clearTimeout(layoutResizeTimer);
         layoutResizeTimer = setTimeout(() => {
           if (isPhoneLayout()) {
@@ -824,27 +850,31 @@ function setupEventListeners() {
             document.body.classList.remove('fullscreen-mode');
             localStorage.removeItem('tv_mode');
           }
-          if (fullscreenBtn) fullscreenBtn.style.display = isPhoneLayout() ? 'none' : '';
           renderApp();
-        }, 120);
-      });
+        }, 100);
+      };
+      window.addEventListener('resize', handleResizeOrRotate);
+      window.addEventListener('orientationchange', handleResizeOrRotate);
+
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
         const grid = document.querySelector('.calendar-days-grid');
-        if (grid) Calendar.fitTvLayout(grid);
+        if (grid && document.body.classList.contains('fullscreen-mode')) Calendar.fitTvLayout(grid);
       });
 
       // Periodic silent auto-refresh every 3 minutes (picks up all updates seamlessly)
-  const triggerSilentRefresh = async () => {
-    try {
-      if (typeof DB !== 'undefined' && DB.refreshFromRemote) {
-        await DB.refreshFromRemote();
+      const triggerSilentRefresh = async () => {
+        try {
+          if (typeof DB !== 'undefined' && DB.refreshFromRemote) {
+            await DB.refreshFromRemote();
+          }
+        } catch (e) {
+          console.warn('Silent refresh error:', e);
+        }
+        renderApp();
+      };
+      if (!window._silentRefreshTimer) {
+        window._silentRefreshTimer = setInterval(triggerSilentRefresh, 3 * 60 * 1000);
       }
-    } catch (e) {
-      console.warn('Silent refresh error:', e);
-    }
-    renderApp();
-  };
-  setInterval(triggerSilentRefresh, 3 * 60 * 1000);
 
   // Add Event trigger button (+ Add Event)
   const addEventBtn = document.getElementById('add-event-btn');

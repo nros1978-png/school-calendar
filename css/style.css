@@ -2955,7 +2955,9 @@ body.fullscreen-mode .live-day-text {
 
 
 
-/* TV density: half-width sidebar, measured text fit, and reserved holiday space. */
+/* ====================================================
+   TV KIOSK PRESENTATION MODE (155px side panel, wrapping, minimum font)
+   ==================================================== */
 body.fullscreen-mode .tv-side-panel {
   width: 155px !important; min-width: 155px !important; max-width: 155px !important;
 }
@@ -2972,29 +2974,458 @@ body.fullscreen-mode .tv-duty-role, body.fullscreen-mode .tv-duty-teacher {
 body.fullscreen-mode .tv-duty-teacher { padding: 1px 3px; }
 body.fullscreen-mode .calendar-week-row { height: 0; min-height: 0 !important; }
 body.fullscreen-mode .calendar-day-header { min-height: 0; }
-body.fullscreen-mode .event-bar { min-height: 0 !important; height: auto !important; align-self: stretch; }
+body.fullscreen-mode .event-bar {
+  min-height: 0 !important;
+  height: auto !important;
+  align-self: stretch;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
 body.fullscreen-mode .holiday-cell-label, body.fullscreen-mode .special-cell-label {
   min-height: 0; flex-shrink: 1; overflow-wrap: anywhere !important;
 }
-/* Phones always retain the interactive day list and event dialogs. */
-@media (max-width: 768px) {
-  body:not(.fullscreen-mode) #cal-fullscreen-btn { display: none !important; }
-  body:not(.fullscreen-mode) .app-container { width: 100%; height: 100dvh; }
-  body:not(.fullscreen-mode) .content-area { width: 100%; min-width: 0; height: 100%; }
-  body:not(.fullscreen-mode) .calendar-grid-wrapper { min-height: 0 !important; }
-  body:not(.fullscreen-mode) .calendar-controls { flex-wrap: wrap; gap: 8px; padding: 8px; }
-  body:not(.fullscreen-mode) .calendar-month-name { min-width: 0; flex-wrap: wrap; }
-  body:not(.fullscreen-mode) .calendar-week-row { flex: 0 0 auto; }
-  body:not(.fullscreen-mode) .modal-overlay { z-index: 1000000; }
+body.fullscreen-mode .tv-page-indicator {
+  font-size: 0.68rem;
+  color: var(--primary-color, #2563eb);
+  font-weight: 700;
+  margin-right: 4px;
 }
 
-@media (max-width: 768px) {
-  body:not(.fullscreen-mode) .calendar-grid-wrapper { flex: 0 0 auto; height: auto; }
-  body:not(.fullscreen-mode) .calendar-days-grid { flex: 0 0 auto; overflow: visible; }
-  body:not(.fullscreen-mode) .calendar-week-row { height: 55px; }
-  body:not(.fullscreen-mode) .calendar-and-panel-wrapper { flex: 0 0 auto; }
-  body:not(.fullscreen-mode) .dashboard-content { flex: 0 0 auto; height: auto; }
+/* ====================================================
+   PHONE PRESENTATION MODE (Strictly isolated & scoped)
+   ==================================================== */
+body.phone-layout {
+  overflow-x: hidden !important;
 }
 
-body.phone-layout #cal-fullscreen-btn { display: none !important; }
-body.phone-layout .mobile-events-list-container { display: block; }
+body.phone-layout .app-container {
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 100dvh !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.phone-layout .content-area {
+  width: 100% !important;
+  max-width: 100vw !important;
+  min-width: 0 !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+}
+
+body.phone-layout .dashboard-content {
+  width: 100% !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  padding: 8px 8px 80px 8px !important;
+  flex: 0 0 auto !important;
+}
+
+body.phone-layout .sidebar {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  width: 100% !important;
+  height: 60px !important;
+  flex-direction: row !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08) !important;
+  z-index: 99 !important;
+  padding: 0 !important;
+  border-top: 1px solid var(--border-color) !important;
+  border-right: none !important;
+  border-left: none !important;
+}
+
+body.phone-layout .sidebar-header,
+body.phone-layout .user-profile-card,
+body.phone-layout .sidebar-footer {
+  display: none !important;
+}
+
+body.phone-layout nav {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+body.phone-layout .sidebar-menu {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-around !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.phone-layout .menu-item {
+  flex-grow: 1 !important;
+  margin: 0 !important;
+}
+
+/* Hide TV & desktop controls on phone */
+body.phone-layout #live-datetime-widget,
+body.phone-layout #cal-fullscreen-btn,
+body.phone-layout #cal-reload-btn,
+body.phone-layout .tv-side-panel,
+body.phone-layout .calendar-weekdays,
+body.phone-layout .mobile-events-list-container {
+  display: none !important;
+}
+
+/* Header & navigation on phone */
+body.phone-layout .calendar-controls {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  padding: 8px 4px !important;
+  width: 100% !important;
+}
+
+body.phone-layout .calendar-header-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+body.phone-layout .school-cal-logo {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+}
+
+body.phone-layout .school-cal-name {
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+body.phone-layout .school-cal-dedication {
+  font-size: 0.72rem !important;
+  color: var(--text-secondary, #64748b) !important;
+}
+
+body.phone-layout .calendar-month-name {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  padding: 4px 0 !important;
+}
+
+body.phone-layout .nav-arrows {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+body.phone-layout .nav-arrow-btn {
+  height: 38px !important;
+  min-width: 38px !important;
+  font-size: 0.9rem !important;
+}
+
+body.phone-layout .cal-mode-toggle {
+  margin-left: 4px !important;
+}
+
+body.phone-layout .calendar-and-panel-wrapper {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+}
+
+body.phone-layout .calendar-grid-wrapper {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+
+/* 2 Cards Per Row Phone Calendar Grid */
+body.phone-layout .calendar-days-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  direction: rtl !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 4px 0 !important;
+}
+
+/* Phone Day Card */
+body.phone-layout .phone-day-card {
+  background: white;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  min-height: 110px;
+}
+
+body.phone-layout .phone-day-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body.phone-layout .phone-day-card.selected-day {
+  border: 2px solid var(--primary-color, #2563eb) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18) !important;
+  background-color: #f8faff;
+}
+
+body.phone-layout .phone-day-card.is-today {
+  border-color: #3b82f6;
+  background-color: #f0f7ff;
+}
+
+body.phone-layout .phone-day-card.is-holiday {
+  border-color: #fca5a5;
+  background-color: #fffaf0;
+}
+
+body.phone-layout .phone-day-card.is-special-day {
+  border-color: #fde047;
+  background-color: #fefce8;
+}
+
+/* Phone Card Header */
+body.phone-layout .phone-card-header {
+  padding: 7px 9px 5px 9px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(248, 250, 252, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+body.phone-layout .phone-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+body.phone-layout .phone-card-weekday {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-primary, #1e293b);
+}
+
+body.phone-layout .phone-card-date-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #475569);
+  font-weight: 600;
+}
+
+body.phone-layout .phone-card-greg-num {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+body.phone-layout .phone-card-heb-date {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+body.phone-layout .phone-today-pill {
+  background: var(--primary-color, #2563eb);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 999px;
+  margin-right: 2px;
+}
+
+/* Holiday & Special Day Badges */
+body.phone-layout .phone-holiday-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+body.phone-layout .phone-special-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a16207;
+  background: #fef08a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+/* Events Container inside Phone Card */
+body.phone-layout .phone-card-events {
+  padding: 6px 7px 8px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 auto;
+}
+
+/* Event Item on Phone */
+body.phone-layout .phone-event-item {
+  border-radius: 6px;
+  padding: 5px 7px;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.1s;
+  border-right: 3px solid transparent;
+  background: #f1f5f9;
+}
+
+body.phone-layout .phone-event-item:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+body.phone-layout .phone-event-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #0f172a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Event Category Colors */
+body.phone-layout .phone-event-item.evt-staff {
+  background: #e0f2fe;
+  border-right-color: #0284c7;
+}
+body.phone-layout .phone-event-item.evt-admin {
+  background: #f3e8ff;
+  border-right-color: #9333ea;
+}
+body.phone-layout .phone-event-item.evt-social {
+  background: #ffedd5;
+  border-right-color: #ea580c;
+}
+body.phone-layout .phone-event-item.evt-academic {
+  background: #dcfce7;
+  border-right-color: #16a34a;
+}
+body.phone-layout .phone-event-item.evt-trip {
+  background: #fce7f3;
+  border-right-color: #db2777;
+}
+body.phone-layout .phone-event-item.evt-other {
+  background: #f1f5f9;
+  border-right-color: #64748b;
+}
+
+/* More Events Button & Collapsible Container */
+body.phone-layout .phone-more-events-btn {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-color, #2563eb);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 2px;
+}
+
+body.phone-layout .phone-more-events-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+body.phone-layout .phone-extra-events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+/* Mobile Floating Action Button */
+body.phone-layout .mobile-fab {
+  position: fixed !important;
+  bottom: 22px !important;
+  left: 22px !important;
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 50% !important;
+  background: var(--primary-color, #2563eb) !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.3rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  z-index: 99999 !important;
+  transition: transform 0.15s, background-color 0.15s !important;
+}
+
+body.phone-layout .mobile-fab:active {
+  transform: scale(0.92) !important;
+}
+
+/* Modals & Dialogs on Phone */
+body.phone-layout .modal-overlay {
+  padding: 10px !important;
+  z-index: 100000 !important;
+}
+
+body.phone-layout .modal-card,
+body.phone-layout .event-details-dialog {
+  max-width: 95vw !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  margin: auto !important;
+  overflow-y: auto !important;
+}
+
+/* Media Query Baseline for Narrow Viewports */
+@media (max-width: 768px) {
+  body:not(.fullscreen-mode) #live-datetime-widget,
+  body:not(.fullscreen-mode) #cal-fullscreen-btn,
+  body:not(.fullscreen-mode) #cal-reload-btn,
+  body:not(.fullscreen-mode) .tv-side-panel {
+    display: none !important;
+  }
+}
+
