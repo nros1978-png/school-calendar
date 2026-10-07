@@ -414,7 +414,14 @@ export const Calendar = {
       // Row 1: auto (for date numbers & holiday labels)
       // Row 2 to (numSlots + 1): slot height for each event slot
       // Last Row: bottom spacing
-      const slotTrackHeight = isFullscreen ? '21px' : '26px';
+      let slotTrackHeight = '26px';
+      if (isFullscreen) {
+        if (numSlots <= 1) slotTrackHeight = '34px';
+        else if (numSlots === 2) slotTrackHeight = '30px';
+        else if (numSlots === 3) slotTrackHeight = '25px';
+        else if (numSlots === 4) slotTrackHeight = '22px';
+        else slotTrackHeight = '19px';
+      }
       const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
       const rowTemplates = ['auto'];
       for (let s = 0; s < numSlots; s++) {
@@ -494,11 +501,29 @@ export const Calendar = {
             const holidayLabel = document.createElement('div');
             holidayLabel.className = 'holiday-cell-label';
             holidayLabel.textContent = dateInfo.description;
+            if (isFullscreen) {
+              const descLen = (dateInfo.description || '').length;
+              let hFont = 0.74;
+              if (numSlots >= 4 || descLen > 25) hFont = 0.60;
+              else if (numSlots >= 3 || descLen > 18) hFont = 0.65;
+              else if (descLen > 12) hFont = 0.70;
+              holidayLabel.style.fontSize = `${hFont}rem`;
+              holidayLabel.style.lineHeight = '1.12';
+            }
             header.appendChild(holidayLabel);
           } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
             const specialLabel = document.createElement('div');
             specialLabel.className = 'special-cell-label';
             specialLabel.textContent = dateInfo.description;
+            if (isFullscreen) {
+              const descLen = (dateInfo.description || '').length;
+              let sFont = 0.74;
+              if (numSlots >= 4 || descLen > 25) sFont = 0.60;
+              else if (numSlots >= 3 || descLen > 18) sFont = 0.65;
+              else if (descLen > 12) sFont = 0.70;
+              specialLabel.style.fontSize = `${sFont}rem`;
+              specialLabel.style.lineHeight = '1.12';
+            }
             header.appendChild(specialLabel);
           }
         } else {
@@ -557,6 +582,19 @@ export const Calendar = {
           const titleSuffix = (!item.startsThisWeek && item.span > 1) ? ' (המשך)' : '';
           eventBar.textContent = item.event.title + titleSuffix;
           eventBar.title = `${item.event.title} (${item.event.eventType})`;
+
+          if (isFullscreen) {
+            const titleLen = (item.event.title || '').length;
+            let evFont = 0.82;
+            if (numSlots <= 1) evFont = titleLen > 20 ? 0.76 : 0.85;
+            else if (numSlots === 2) evFont = titleLen > 20 ? 0.72 : 0.80;
+            else if (numSlots === 3) evFont = titleLen > 20 ? 0.65 : 0.72;
+            else if (numSlots === 4) evFont = titleLen > 20 ? 0.58 : 0.65;
+            else evFont = titleLen > 20 ? 0.52 : 0.58;
+
+            eventBar.style.fontSize = `${evFont}rem`;
+            eventBar.style.lineHeight = evFont < 0.65 ? '1.05' : '1.15';
+          }
 
           eventBar.addEventListener('click', (e) => {
             e.stopPropagation();

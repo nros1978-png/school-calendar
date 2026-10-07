@@ -725,10 +725,11 @@ function setupEventListeners() {
         document.documentElement.requestFullscreen().catch(() => {});
       }
       if (fullscreenBtn) {
+        fullscreenBtn.style.display = 'none';
         const icon = fullscreenBtn.querySelector('i');
         const text = document.getElementById('cal-fullscreen-text');
         if (icon) icon.className = 'fas fa-compress';
-        if (text) text.textContent = 'יציאה ממסך מלא';
+        if (text) text.textContent = 'חזרה לתצוגה רגילה';
         fullscreenBtn.classList.add('btn-fullscreen-active');
       }
       renderApp();
@@ -739,10 +740,11 @@ function setupEventListeners() {
         document.exitFullscreen().catch(() => {});
       }
       if (fullscreenBtn) {
+        fullscreenBtn.style.display = '';
         const icon = fullscreenBtn.querySelector('i');
         const text = document.getElementById('cal-fullscreen-text');
-        if (icon) icon.className = 'fas fa-expand';
-        if (text) text.textContent = 'מסך מלא';
+        if (icon) icon.className = 'fas fa-tv';
+        if (text) text.textContent = 'מסך מלא (טלוויזיה)';
         fullscreenBtn.classList.remove('btn-fullscreen-active');
       }
       renderApp();
@@ -760,11 +762,14 @@ function setupEventListeners() {
       if (!document.fullscreenElement && document.body.classList.contains('fullscreen-mode')) {
         document.body.classList.remove('fullscreen-mode');
         localStorage.setItem('tv_mode', 'false');
-        const icon = fullscreenBtn.querySelector('i');
-        const text = document.getElementById('cal-fullscreen-text');
-        if (icon) icon.className = 'fas fa-expand';
-        if (text) text.textContent = 'מסך מלא';
-        fullscreenBtn.classList.remove('btn-fullscreen-active');
+        if (fullscreenBtn) {
+          fullscreenBtn.style.display = '';
+          const icon = fullscreenBtn.querySelector('i');
+          const text = document.getElementById('cal-fullscreen-text');
+          if (icon) icon.className = 'fas fa-tv';
+          if (text) text.textContent = 'מסך מלא (טלוויזיה)';
+          fullscreenBtn.classList.remove('btn-fullscreen-active');
+        }
         renderApp();
       }
     });
@@ -797,12 +802,18 @@ function setupEventListeners() {
   };
   checkAndTriggerTvMode();
 
-  // Periodic auto-refresh for TV kiosk display (keeps rolling 5 weeks and events live)
-  setInterval(() => {
-    if (document.body.classList.contains('fullscreen-mode')) {
-      renderApp();
+  // Periodic silent auto-refresh every 3 minutes (picks up all updates seamlessly)
+  const triggerSilentRefresh = async () => {
+    try {
+      if (typeof DB !== 'undefined' && DB.refreshFromRemote) {
+        await DB.refreshFromRemote();
+      }
+    } catch (e) {
+      console.warn('Silent refresh error:', e);
     }
-  }, 10 * 60 * 1000);
+    renderApp();
+  };
+  setInterval(triggerSilentRefresh, 3 * 60 * 1000);
 
   // Add Event trigger button (+ Add Event)
   const addEventBtn = document.getElementById('add-event-btn');

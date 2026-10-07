@@ -2,7 +2,7 @@
 // Manages Firestore persistence for Users, Calendar_Base, and Events tables with real-time snapshot updates.
 
 import { db } from './firebase.js';
-import { collection, onSnapshot, doc, getDoc, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { collection, onSnapshot, doc, getDoc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 const DEFAULT_CALENDAR_BASE = [
   { date: '2026-09-01', hebrewDate: "י\"ט באלול תשפ\"ו", status: 'Regular', description: 'פתיחת שנת הלימודים תשפ"ז' },
@@ -21,6 +21,7 @@ const DEFAULT_CALENDAR_BASE = [
   { date: '2026-10-02', hebrewDate: "כ\"א בתשרי תשפ\"ז", status: 'Holiday', description: 'הושענא רבה' },
   { date: '2026-10-03', hebrewDate: "כ\"ב בתשרי תשפ\"ז", status: 'Holiday', description: 'שמיני עצרת / שמחת תורה' },
   { date: '2026-10-23', hebrewDate: "י\"ב בחשוון תשפ\"ז", status: 'Special Day', description: 'יום הזיכרון ליצחק רבין' },
+  { date: '2026-10-27', hebrewDate: "ט\"ז בחשוון תשפ\"ז", status: 'Holiday', description: 'יום הבחירות' },
   { date: '2026-12-05', hebrewDate: "כ\"ה בכסלו תשפ\"ז", status: 'Special Day', description: 'חנוכה - נר ראשון' },
   { date: '2026-12-06', hebrewDate: "כ\"ו בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
   { date: '2026-12-07', hebrewDate: "כ\"ז בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
@@ -173,6 +174,13 @@ export const DB = {
       cachedCalendarBase = snapshot.docs.map(doc => doc.data());
       if (cachedCalendarBase.length === 0) {
         this.seedCalendarBase();
+      } else if (!cachedCalendarBase.find(e => e.date === '2026-10-27')) {
+        setDoc(doc(db, 'calendar_base', '2026-10-27'), {
+          date: '2026-10-27',
+          hebrewDate: "ט\"ז בחשוון תשפ\"ז",
+          status: 'Holiday',
+          description: 'יום הבחירות'
+        }).catch(() => {});
       }
       if (onUpdate) onUpdate();
     });
@@ -189,6 +197,26 @@ export const DB = {
     }, (error) => {
       console.warn("Firestore duty_roster listener warning:", error);
     });
+  },
+
+  async refreshFromRemote() {
+    try {
+      const [eventsSnap, calSnap, rosterSnap] = await Promise.all([
+        getDocs(collection(db, 'events')).catch(() => null),
+        getDocs(collection(db, 'calendar_base')).catch(() => null),
+        getDoc(doc(db, 'settings', 'duty_roster')).catch(() => null)
+      ]);
+      if (eventsSnap && eventsSnap.docs) {
+        cachedEvents = eventsSnap.docs.map(d => d.data());
+      }
+      if (calSnap && calSnap.docs) {
+        cachedCalendarBase = calSnap.docs.map(d => d.data());
+      }
+      if (rosterSnap && rosterSnap.exists()) {
+        cachedDutyRoster = rosterSnap.data();
+        try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+      }
+    } catch(e) {}
   },
 
   // --- Duty Roster & Announcements API ---
@@ -295,7 +323,7 @@ export const DB = {
   },
 
   getHebrewDateInfo(dateStr) {
-    const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr);
+    const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr) || DEFAULT_CALENDAR_BASE.find(entry => entry.date === dateStr);
     let hebrewDate = '';
     let status = baseEntry ? baseEntry.status : 'Regular';
     let description = baseEntry ? (baseEntry.description || '') : '';

@@ -2178,23 +2178,21 @@
     }
 
     body.fullscreen-mode .school-cal-logo {
-      width: 42px !important;
-      height: 42px !important;
+      width: 48px !important;
+      height: 48px !important;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
     }
 
+    body.fullscreen-mode .school-cal-text {
+      display: none !important;
+    }
+
     body.fullscreen-mode .school-cal-name {
-      font-size: 1.15rem !important;
-      font-weight: 900 !important;
-      color: #1e3a8a !important;
-      line-height: 1.2 !important;
+      display: none !important;
     }
 
     body.fullscreen-mode .school-cal-dedication {
-      font-size: 0.76rem !important;
-      color: #475569 !important;
-      font-weight: 700 !important;
-      line-height: 1.2 !important;
+      display: none !important;
     }
 
     body.fullscreen-mode .calendar-month-name {
@@ -2312,31 +2310,35 @@
       font-weight: 700 !important;
       padding: 1px 4px !important;
       line-height: 1.15 !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      text-overflow: clip !important;
     }
 
     body.fullscreen-mode .event-bar {
       display: flex !important;
       align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
       margin: 1px 2px !important;
-      padding: 1px 5px !important;
-      font-size: 0.78rem !important;
+      padding: 1px 4px !important;
+      font-size: 0.76rem !important;
       font-weight: 700 !important;
-      min-height: 20px !important;
-      height: 20px !important;
-      line-height: 1.2 !important;
+      min-height: 18px !important;
+      height: 100% !important;
+      line-height: 1.15 !important;
       box-sizing: border-box !important;
       overflow: hidden !important;
-      white-space: nowrap !important;
-      text-overflow: ellipsis !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      text-overflow: clip !important;
     }
 
-    body.fullscreen-mode .btn-fullscreen-active,
-    html.fullscreen-mode .btn-fullscreen-active {
-      background-color: var(--primary-color) !important;
-      color: white !important;
+    body.fullscreen-mode #cal-fullscreen-btn,
+    html.fullscreen-mode #cal-fullscreen-btn {
+      display: none !important;
     }
 
     body.fullscreen-mode #cal-reload-btn,
@@ -2413,6 +2415,31 @@
       flex: 0 0 auto;
       max-height: 40%;
       min-height: 120px;
+    }
+
+    body.fullscreen-mode .tv-announcements-card {
+      flex: 0 0 auto !important;
+      max-height: 20% !important;
+      min-height: 60px !important;
+    }
+
+    body.fullscreen-mode .tv-announcements-card .tv-card-header {
+      padding: 5px 10px !important;
+    }
+
+    body.fullscreen-mode .tv-announcements-card .tv-card-title {
+      font-size: 0.85rem !important;
+    }
+
+    body.fullscreen-mode .tv-announcements-content {
+      padding: 5px 10px !important;
+      font-size: 0.82rem !important;
+      line-height: 1.35 !important;
+    }
+
+    body.fullscreen-mode .tv-announcements-card .tv-empty-state {
+      padding: 6px 4px !important;
+      font-size: 0.8rem !important;
     }
 
     .tv-card-header {
@@ -3590,6 +3617,7 @@
       { date: '2026-10-02', hebrewDate: "כ\"א בתשרי תשפ\"ז", status: 'Holiday', description: 'הושענא רבה' },
       { date: '2026-10-03', hebrewDate: "כ\"ב בתשרי תשפ\"ז", status: 'Holiday', description: 'שמיני עצרת / שמחת תורה' },
       { date: '2026-10-23', hebrewDate: "י\"ב בחשוון תשפ\"ז", status: 'Special Day', description: 'יום הזיכרון ליצחק רבין' },
+      { date: '2026-10-27', hebrewDate: "ט\"ז בחשוון תשפ\"ז", status: 'Holiday', description: 'יום הבחירות' },
       { date: '2026-12-05', hebrewDate: "כ\"ה בכסלו תשפ\"ז", status: 'Special Day', description: 'חנוכה - נר ראשון' },
       { date: '2026-12-06', hebrewDate: "כ\"ו בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
       { date: '2026-12-07', hebrewDate: "כ\"ז בכסלו תשפ\"ז", status: 'Holiday', description: 'חנוכה - חופשת בית ספר' },
@@ -3883,6 +3911,13 @@
           cachedCalendarBase = snapshot.docs.map(doc => doc.data());
           if (cachedCalendarBase.length === 0) {
             this.seedCalendarBase();
+          } else if (!cachedCalendarBase.find(e => e.date === '2026-10-27')) {
+            db.collection('calendar_base').doc('2026-10-27').set({
+              date: '2026-10-27',
+              hebrewDate: "ט\"ז בחשוון תשפ\"ז",
+              status: 'Holiday',
+              description: 'יום הבחירות'
+            }).catch(() => {});
           }
           if (onUpdate) onUpdate();
         }, (error) => {
@@ -3906,6 +3941,34 @@
         }, (error) => {
           console.warn("Firestore duty_roster listener warning:", error);
         });
+      },
+
+      async refreshFromRemote() {
+        try {
+          if (typeof db !== 'undefined' && db.collection) {
+            const [eventsSnap, calSnap, rosterSnap] = await Promise.all([
+              db.collection('events').get({ source: 'server' }).catch(() => db.collection('events').get()),
+              db.collection('calendar_base').get({ source: 'server' }).catch(() => db.collection('calendar_base').get()),
+              db.collection('settings').doc('duty_roster').get({ source: 'server' }).catch(() => db.collection('settings').doc('duty_roster').get())
+            ]);
+
+            if (eventsSnap && eventsSnap.docs) {
+              cachedEvents = eventsSnap.docs.map(doc => doc.data());
+            }
+            if (calSnap && calSnap.docs) {
+              cachedCalendarBase = calSnap.docs.map(doc => doc.data());
+            }
+            if (rosterSnap && rosterSnap.exists) {
+              const data = rosterSnap.data();
+              if (!isDemoDutyRoster(data)) {
+                cachedDutyRoster = data;
+                try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Silent background fetch warning:", err);
+        }
       },
 
       // --- Duty Roster & Announcements API ---
@@ -4010,7 +4073,7 @@
       },
 
       getHebrewDateInfo(dateStr) {
-        const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr);
+        const baseEntry = cachedCalendarBase.find(entry => entry.date === dateStr) || DEFAULT_CALENDAR_BASE.find(entry => entry.date === dateStr);
         let hebrewDate = '';
         let status = baseEntry ? baseEntry.status : 'Regular';
         let description = baseEntry ? (baseEntry.description || '') : '';
@@ -4602,7 +4665,14 @@
           // Row 1: auto (for date numbers & holiday labels)
           // Row 2 to (numSlots + 1): slot height for each event slot
           // Last Row: bottom spacing
-          const slotTrackHeight = isFullscreen ? '21px' : '26px';
+          let slotTrackHeight = '26px';
+          if (isFullscreen) {
+            if (numSlots <= 1) slotTrackHeight = '34px';
+            else if (numSlots === 2) slotTrackHeight = '30px';
+            else if (numSlots === 3) slotTrackHeight = '25px';
+            else if (numSlots === 4) slotTrackHeight = '22px';
+            else slotTrackHeight = '19px';
+          }
           const bottomSpacing = isFullscreen ? 'minmax(2px, 1fr)' : 'minmax(8px, 1fr)';
           const rowTemplates = ['auto'];
           for (let s = 0; s < numSlots; s++) {
@@ -4682,11 +4752,29 @@
                 const holidayLabel = document.createElement('div');
                 holidayLabel.className = 'holiday-cell-label';
                 holidayLabel.textContent = dateInfo.description;
+                if (isFullscreen) {
+                  const descLen = (dateInfo.description || '').length;
+                  let hFont = 0.74;
+                  if (numSlots >= 4 || descLen > 25) hFont = 0.60;
+                  else if (numSlots >= 3 || descLen > 18) hFont = 0.65;
+                  else if (descLen > 12) hFont = 0.70;
+                  holidayLabel.style.fontSize = `${hFont}rem`;
+                  holidayLabel.style.lineHeight = '1.12';
+                }
                 header.appendChild(holidayLabel);
               } else if (dateInfo.status === 'Special Day' && dateInfo.description) {
                 const specialLabel = document.createElement('div');
                 specialLabel.className = 'special-cell-label';
                 specialLabel.textContent = dateInfo.description;
+                if (isFullscreen) {
+                  const descLen = (dateInfo.description || '').length;
+                  let sFont = 0.74;
+                  if (numSlots >= 4 || descLen > 25) sFont = 0.60;
+                  else if (numSlots >= 3 || descLen > 18) sFont = 0.65;
+                  else if (descLen > 12) sFont = 0.70;
+                  specialLabel.style.fontSize = `${sFont}rem`;
+                  specialLabel.style.lineHeight = '1.12';
+                }
                 header.appendChild(specialLabel);
               }
             } else {
@@ -4744,6 +4832,19 @@
               const titleSuffix = (!item.startsThisWeek && item.span > 1) ? ' (המשך)' : '';
               eventBar.textContent = item.event.title + titleSuffix;
               eventBar.title = `${item.event.title} (${item.event.eventType})`;
+
+              if (isFullscreen) {
+                const titleLen = (item.event.title || '').length;
+                let evFont = 0.82;
+                if (numSlots <= 1) evFont = titleLen > 20 ? 0.76 : 0.85;
+                else if (numSlots === 2) evFont = titleLen > 20 ? 0.72 : 0.80;
+                else if (numSlots === 3) evFont = titleLen > 20 ? 0.65 : 0.72;
+                else if (numSlots === 4) evFont = titleLen > 20 ? 0.58 : 0.65;
+                else evFont = titleLen > 20 ? 0.52 : 0.58;
+
+                eventBar.style.fontSize = `${evFont}rem`;
+                eventBar.style.lineHeight = evFont < 0.65 ? '1.05' : '1.15';
+              }
 
               eventBar.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -5357,6 +5458,7 @@
             "2026-10-03,כ\"ב בתשרי תשפ\"ז,Holiday,שמיני עצרת / שמחת תורה\n" +
             "2026-10-04,כ\"ג בתשרי תשפ\"ז,Holiday,אסרו חג סוכות\n" +
             "2026-10-23,י\"ב בחשוון תשפ\"ז,Special Day,יום הזיכרון ליצחק רבין\n" +
+            "2026-10-27,ט\"ז בחשוון תשפ\"ז,Holiday,יום הבחירות\n" +
             "2026-12-04,כ\"ה בכסלו תשפ\"ז,Holiday,חנוכה - נר ראשון\n" +
             "2026-12-05,כ\"ו בכסלו תשפ\"ז,Holiday,חנוכה - יום א'\n" +
             "2026-12-06,כ\"ז בכסלו תשפ\"ז,Holiday,חנוכה - יום ב'\n" +
@@ -6327,6 +6429,7 @@
             document.documentElement.requestFullscreen().catch(() => {});
           }
           if (fullscreenBtn) {
+            fullscreenBtn.style.display = 'none';
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-compress';
@@ -6342,6 +6445,7 @@
             document.exitFullscreen().catch(() => {});
           }
           if (fullscreenBtn) {
+            fullscreenBtn.style.display = '';
             const icon = fullscreenBtn.querySelector('i');
             const text = document.getElementById('cal-fullscreen-text');
             if (icon) icon.className = 'fas fa-tv';
@@ -6359,11 +6463,7 @@
         });
 
         if (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode')) {
-          const icon = fullscreenBtn.querySelector('i');
-          const text = document.getElementById('cal-fullscreen-text');
-          if (icon) icon.className = 'fas fa-compress';
-          if (text) text.textContent = 'חזרה לתצוגה רגילה';
-          fullscreenBtn.classList.add('btn-fullscreen-active');
+          fullscreenBtn.style.display = 'none';
         }
       }
 
@@ -6400,12 +6500,18 @@
       };
       checkAndTriggerTvMode();
 
-      // Periodic auto-refresh for TV kiosk display (keeps rolling 5 weeks and events live)
-      setInterval(() => {
-        if (document.body.classList.contains('fullscreen-mode')) {
-          renderApp();
+      // Periodic silent auto-refresh every 3 minutes (picks up all remote updates seamlessly)
+      const triggerSilentRefresh = async () => {
+        try {
+          if (typeof DB !== 'undefined' && DB.refreshFromRemote) {
+            await DB.refreshFromRemote();
+          }
+        } catch (e) {
+          console.warn('Silent refresh error:', e);
         }
-      }, 10 * 60 * 1000);
+        renderApp();
+      };
+      setInterval(triggerSilentRefresh, 3 * 60 * 1000);
 
       document.getElementById('add-event-btn').addEventListener('click', () => openAddEventModal());
 
