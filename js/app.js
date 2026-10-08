@@ -106,7 +106,7 @@ function renderApp() {
 
   const liveWidget = document.getElementById('live-datetime-widget');
   if (liveWidget) {
-    liveWidget.style.display = isPhone ? 'none' : 'flex';
+    liveWidget.style.display = isTv ? 'flex' : 'none';
   }
 
   const events = DB.getEvents();

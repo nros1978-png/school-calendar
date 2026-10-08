@@ -536,6 +536,7 @@ export const Calendar = {
           const holidayLabel = document.createElement('div');
           holidayLabel.className = 'holiday-cell-label';
           holidayLabel.textContent = dateInfo.description;
+          holidayLabel.title = dateInfo.description;
           if (isFullscreen) {
             holidayLabel.style.fontSize = '0.72rem';
             holidayLabel.style.lineHeight = '1.12';
@@ -545,6 +546,7 @@ export const Calendar = {
           const specialLabel = document.createElement('div');
           specialLabel.className = 'special-cell-label';
           specialLabel.textContent = dateInfo.description;
+          specialLabel.title = dateInfo.description;
           if (isFullscreen) {
             specialLabel.style.fontSize = '0.72rem';
             specialLabel.style.lineHeight = '1.12';
