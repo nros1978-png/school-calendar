@@ -364,10 +364,31 @@ function renderTvSidePanel() {
       `;
     } else {
       const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
-      if (todayDuties.length === 0) {
+      const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
+      const hasDuties = todayDuties.length > 0 && todayDuties.some(d => (d.teacher || '').trim() !== '');
+
+      if (!hasDuties && !todayTransport) {
         dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
       } else {
+        if (todayTransport) {
+          const transportCard = document.createElement('div');
+          transportCard.className = 'tv-break-card tv-transport-card';
+          transportCard.innerHTML = `
+            <div class="tv-break-title tv-transport-title">
+              <i class="fas fa-bus-alt"></i> תורנות הסעות (יומית)
+            </div>
+            <div class="tv-break-items">
+              <div class="tv-duty-item">
+                <div class="tv-duty-role"><i class="fas fa-bus"></i> הסעות</div>
+                <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${todayTransport}</div>
+              </div>
+            </div>
+          `;
+          dutiesContainer.appendChild(transportCard);
+        }
+
         todayDuties.forEach(d => {
+          if (!(d.teacher || '').trim() && !(d.role || '').trim()) return;
           const item = document.createElement('div');
           item.className = 'tv-duty-item';
           item.innerHTML = `
@@ -397,6 +418,9 @@ function openDutyRosterModal() {
   const modal = document.getElementById('duty-roster-modal');
   const raw = DB.getDutyRoster();
   dutyModalData = JSON.parse(JSON.stringify(raw));
+  if (!dutyModalData.transportation || typeof dutyModalData.transportation !== 'object') {
+    dutyModalData.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+  }
   if (!dutyModalData.duties) dutyModalData.duties = {};
   for (let i = 0; i <= 5; i++) {
     if (!dutyModalData.duties[String(i)]) dutyModalData.duties[String(i)] = [];
@@ -417,6 +441,10 @@ function switchDutyModalDay(dayIdx) {
       tab.classList.remove('active');
     }
   });
+  const transportInput = document.getElementById('roster-transport-input');
+  if (transportInput && dutyModalData && dutyModalData.transportation) {
+    transportInput.value = dutyModalData.transportation[String(dayIdx)] || '';
+  }
   renderDutyModalRows();
 }
 
@@ -1051,6 +1079,16 @@ function setupEventListeners() {
     });
   }
 
+  // Daily Transportation Input listener
+  const transportInput = document.getElementById('roster-transport-input');
+  if (transportInput) {
+    transportInput.addEventListener('input', (e) => {
+      if (!dutyModalData) return;
+      if (!dutyModalData.transportation) dutyModalData.transportation = {};
+      dutyModalData.transportation[String(currentDutyModalDay)] = e.target.value.trim();
+    });
+  }
+
   // Save Duty Roster
   const rosterSaveBtn = document.getElementById('duty-roster-save-btn');
   if (rosterSaveBtn) {
@@ -1058,6 +1096,20 @@ function setupEventListeners() {
       if (!dutyModalData) return;
       const annInput = document.getElementById('roster-announcements-input');
       dutyModalData.announcements = annInput ? annInput.value.trim() : '';
+
+      // Sync transportation input
+      const curTransportInput = document.getElementById('roster-transport-input');
+      if (curTransportInput) {
+        if (!dutyModalData.transportation) dutyModalData.transportation = {};
+        dutyModalData.transportation[String(currentDutyModalDay)] = curTransportInput.value.trim();
+      }
+
+      // Clean transportation
+      const cleanTransport = {};
+      for (let i = 0; i <= 5; i++) {
+        cleanTransport[String(i)] = ((dutyModalData.transportation && dutyModalData.transportation[String(i)]) || '').trim();
+      }
+      dutyModalData.transportation = cleanTransport;
 
       for (let i = 0; i <= 5; i++) {
         if (dutyModalData.duties[String(i)]) {

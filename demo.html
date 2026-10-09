@@ -2781,6 +2781,77 @@ function isPhoneLayout() {
       flex: 1;
     }
 
+    /* Transportation Duty (Daily, independent of recesses) */
+    .roster-transport-card {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .roster-transport-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .roster-transport-label {
+      font-weight: 800;
+      color: #166534;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .roster-transport-label i {
+      font-size: 1.05rem;
+      color: #15803d;
+    }
+
+    .roster-transport-badge {
+      font-size: 0.72rem;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid #bbf7d0;
+    }
+
+    .roster-transport-input {
+      background: #ffffff;
+      font-weight: 600;
+      border: 1px solid #86efac;
+    }
+
+    .roster-transport-input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+
+    .tv-break-card.tv-transport-card {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .tv-break-title.tv-transport-title {
+      background: #dcfce7;
+      color: #166534;
+      border-bottom-color: #bbf7d0;
+    }
+
+    .tv-break-title.tv-transport-title i {
+      color: #15803d;
+    }
+
+    .tv-transport-card .tv-duty-item {
+      border-right-color: #16a34a;
+    }
+
     /* Live Clock & Date Widget (Always visible in regular & fullscreen TV mode) */
     .live-datetime-widget {
       display: flex;
@@ -4123,15 +4194,6 @@ body.desktop-mode .event-bar {
 
         <!-- Tab 1: Schedule (שיבוץ שבועי) -->
         <div id="duty-tab-schedule" class="duty-modal-tab-section active">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <label class="form-label" style="font-weight: 800; margin-bottom: 0;">
-              תורנויות שבועיות לפי הפסקות ומיקומים (ראשון - שישי):
-            </label>
-            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את רשימת ההפסקות של יום זה לכל שאר ימות השבוע">
-              <i class="fas fa-clone"></i> שכפל הפסקות לכל הימים
-            </button>
-          </div>
-
           <!-- Day Tabs -->
           <div class="duty-day-tabs" id="duty-day-tabs">
             <button type="button" class="duty-day-tab active" data-day="0">יום ראשון</button>
@@ -4140,6 +4202,29 @@ body.desktop-mode .event-bar {
             <button type="button" class="duty-day-tab" data-day="3">יום רביעי</button>
             <button type="button" class="duty-day-tab" data-day="4">יום חמישי</button>
             <button type="button" class="duty-day-tab" data-day="5">יום שישי</button>
+          </div>
+
+          <!-- Transportation Duty (Daily, independent of recesses) -->
+          <div class="roster-transport-card">
+            <div class="roster-transport-header">
+              <label for="roster-transport-input" class="roster-transport-label">
+                <i class="fas fa-bus-alt"></i>
+                <span>תורנות הסעות (יומית ליום זה):</span>
+              </label>
+              <span class="roster-transport-badge">פעם ביום • ללא תלות בהפסקות</span>
+            </div>
+            <div class="roster-transport-body">
+              <input type="text" id="roster-transport-input" class="form-control roster-transport-input" placeholder="שם המורה התורן להסעות (למשל: דני כהן)...">
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="font-weight: 800; margin-bottom: 0;">
+              תורנויות מגרשים וחצרות לפי הפסקות:
+            </label>
+            <button type="button" id="copy-roles-template-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 10px;" title="מעתיק את רשימת ההפסקות של יום זה לכל שאר ימות השבוע">
+              <i class="fas fa-clone"></i> שכפל הפסקות לכל הימים
+            </button>
           </div>
 
           <!-- Duty Rows Container for Active Day (Breaks & Locations) -->
@@ -4491,6 +4576,14 @@ body.desktop-mode .event-bar {
     let cachedDutyRoster = {
       announcements: '',
       locations: [],
+      transportation: {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': ''
+      },
       duties: {
         '0': [],
         '1': [],
@@ -4604,6 +4697,9 @@ body.desktop-mode .event-bar {
       getDutyRoster() {
         if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations)) {
           cachedDutyRoster.locations = [];
+        }
+        if (!cachedDutyRoster.transportation || typeof cachedDutyRoster.transportation !== 'object') {
+          cachedDutyRoster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
         }
         if (!cachedDutyRoster.duties) {
           cachedDutyRoster.duties = { '0': [], '1': [], '2': [], '3': [], '4': [], '5': [] };
@@ -6791,9 +6887,10 @@ function isPhoneLayout() {
         } else {
           const rawDayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
           const breaks = normalizeDutyDay(rawDayDuties);
-          const hasAnyAssigned = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
+          const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
+          const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
 
-          if (breaks.length === 0 || !hasAnyAssigned) {
+          if (!hasAnyAssignedBreaks && !todayTransport) {
             dutiesContainer.innerHTML = `
               <div class="tv-empty-state">
                 <i class="fas fa-clipboard-list" style="font-size: 1.4rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
@@ -6801,34 +6898,53 @@ function isPhoneLayout() {
               </div>
             `;
           } else {
-            breaks.forEach(b => {
-              const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
-              if (assignedDuties.length === 0) return; // Only show breaks that have active assigned duties
+            if (todayTransport) {
+              const transportCard = document.createElement('div');
+              transportCard.className = 'tv-break-card tv-transport-card';
+              transportCard.innerHTML = `
+                <div class="tv-break-title tv-transport-title">
+                  <i class="fas fa-bus-alt"></i> תורנות הסעות (יומית)
+                </div>
+                <div class="tv-break-items">
+                  <div class="tv-duty-item">
+                    <div class="tv-duty-role"><i class="fas fa-bus"></i> הסעות</div>
+                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${todayTransport}</div>
+                  </div>
+                </div>
+              `;
+              dutiesContainer.appendChild(transportCard);
+            }
 
-              const breakCard = document.createElement('div');
-              breakCard.className = 'tv-break-card';
+            if (hasAnyAssignedBreaks) {
+              breaks.forEach(b => {
+                const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
+                if (assignedDuties.length === 0) return; // Only show breaks that have active assigned duties
 
-              const breakTitle = document.createElement('div');
-              breakTitle.className = 'tv-break-title';
-              breakTitle.innerHTML = `<i class="fas fa-bell"></i> ${b.name || 'הפסקה'}`;
-              breakCard.appendChild(breakTitle);
+                const breakCard = document.createElement('div');
+                breakCard.className = 'tv-break-card';
 
-              const breakItems = document.createElement('div');
-              breakItems.className = 'tv-break-items';
+                const breakTitle = document.createElement('div');
+                breakTitle.className = 'tv-break-title';
+                breakTitle.innerHTML = `<i class="fas fa-bell"></i> ${b.name || 'הפסקה'}`;
+                breakCard.appendChild(breakTitle);
 
-              assignedDuties.forEach(d => {
-                const item = document.createElement('div');
-                item.className = 'tv-duty-item';
-                item.innerHTML = `
-                  <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
-                  <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher}</div>
-                `;
-                breakItems.appendChild(item);
+                const breakItems = document.createElement('div');
+                breakItems.className = 'tv-break-items';
+
+                assignedDuties.forEach(d => {
+                  const item = document.createElement('div');
+                  item.className = 'tv-duty-item';
+                  item.innerHTML = `
+                    <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
+                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher}</div>
+                  `;
+                  breakItems.appendChild(item);
+                });
+
+                breakCard.appendChild(breakItems);
+                dutiesContainer.appendChild(breakCard);
               });
-
-              breakCard.appendChild(breakItems);
-              dutiesContainer.appendChild(breakCard);
-            });
+            }
           }
         }
       }
@@ -6858,6 +6974,15 @@ function isPhoneLayout() {
       
       if (!dutyModalData.locations || !Array.isArray(dutyModalData.locations)) {
         dutyModalData.locations = [];
+      }
+
+      if (!dutyModalData.transportation || typeof dutyModalData.transportation !== 'object') {
+        dutyModalData.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+      }
+      for (let i = 0; i <= 5; i++) {
+        if (typeof dutyModalData.transportation[String(i)] !== 'string') {
+          dutyModalData.transportation[String(i)] = '';
+        }
       }
 
       if (!dutyModalData.duties) dutyModalData.duties = {};
@@ -6907,6 +7032,10 @@ function isPhoneLayout() {
           tab.classList.remove('active');
         }
       });
+      const transportInput = document.getElementById('roster-transport-input');
+      if (transportInput && dutyModalData && dutyModalData.transportation) {
+        transportInput.value = dutyModalData.transportation[String(dayIdx)] || '';
+      }
       renderDutyModalRows();
     }
 
@@ -7652,6 +7781,16 @@ function isPhoneLayout() {
         });
       }
 
+      // Daily Transportation Input listener
+      const transportInput = document.getElementById('roster-transport-input');
+      if (transportInput) {
+        transportInput.addEventListener('input', (e) => {
+          if (!dutyModalData) return;
+          if (!dutyModalData.transportation) dutyModalData.transportation = {};
+          dutyModalData.transportation[String(currentDutyModalDay)] = e.target.value.trim();
+        });
+      }
+
       // Save Duty Roster
       const rosterSaveBtn = document.getElementById('duty-roster-save-btn');
       if (rosterSaveBtn) {
@@ -7659,6 +7798,20 @@ function isPhoneLayout() {
           if (!dutyModalData) return;
           const annInput = document.getElementById('roster-announcements-input');
           dutyModalData.announcements = annInput ? annInput.value.trim() : '';
+
+          // Sync current day's transportation input
+          const curTransportInput = document.getElementById('roster-transport-input');
+          if (curTransportInput) {
+            if (!dutyModalData.transportation) dutyModalData.transportation = {};
+            dutyModalData.transportation[String(currentDutyModalDay)] = curTransportInput.value.trim();
+          }
+
+          // Clean transportation map
+          const cleanTransport = {};
+          for (let i = 0; i <= 5; i++) {
+            cleanTransport[String(i)] = ((dutyModalData.transportation && dutyModalData.transportation[String(i)]) || '').trim();
+          }
+          dutyModalData.transportation = cleanTransport;
 
           // Clean empty locations in central list
           dutyModalData.locations = (dutyModalData.locations || [])

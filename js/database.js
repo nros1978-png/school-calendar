@@ -121,6 +121,14 @@ function isDemoDutyRoster(data) {
 let cachedDutyRoster = {
   announcements: '',
   locations: [],
+  transportation: {
+    '0': '',
+    '1': '',
+    '2': '',
+    '3': '',
+    '4': '',
+    '5': ''
+  },
   duties: {
     '0': [],
     '1': [],
@@ -223,6 +231,9 @@ export const DB = {
   getDutyRoster() {
     if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations) || cachedDutyRoster.locations.length === 0) {
       cachedDutyRoster.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
+    }
+    if (!cachedDutyRoster.transportation || typeof cachedDutyRoster.transportation !== 'object') {
+      cachedDutyRoster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
     }
     return cachedDutyRoster;
   },
