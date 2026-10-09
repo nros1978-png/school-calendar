@@ -1127,7 +1127,12 @@ function setupEventListeners() {
         alert('לוח התורנויות וההודעות נשמרו בהצלחה בענן!');
       } catch (err) {
         console.error('Failed to save duty roster:', err);
-        alert('שגיאה בשמירת הנתונים: ' + (err.message || err));
+        const msg = (err.message || '') + (err.code || '');
+        if (msg.includes('permission') || msg.includes('Permission')) {
+          alert('שגיאת הרשאות בענן (Firebase):\n\nהנתונים נשמרו מקומית בדפדפן זה, אך כדי שיסונכרנו בענן למסך הטלוויזיה, יש לעדכן את חוקי האבטחה (Rules) ב-Firebase Console.');
+        } else {
+          alert('שגיאה בשמירת הנתונים: ' + (err.message || err));
+        }
       } finally {
         rosterSaveBtn.disabled = false;
         rosterSaveBtn.innerHTML = '<i class="fas fa-save"></i> שמור שינויים';
