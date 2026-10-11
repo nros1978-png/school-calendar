@@ -2557,36 +2557,36 @@ function isPhoneLayout() {
 
     .tv-duty-item {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
-      padding: 6px 10px;
+      gap: 4px;
+      padding: 3px 6px;
       background: white;
       border: 1px solid #e2e8f0;
-      border-radius: 6px;
+      border-radius: 4px;
       border-right: 3px solid var(--primary-color);
+      line-height: 1.25;
     }
 
     .tv-duty-role {
       font-weight: 700;
       color: #1e293b;
-      font-size: 0.88rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tv-duty-role i {
-      color: #64748b;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tv-duty-teacher {
       font-weight: 800;
       color: #0f766e;
       background: #ccfbf1;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.80rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tv-announcements-content {
@@ -2961,22 +2961,74 @@ function isPhoneLayout() {
     }
   
 /* ====================================================
-   TV KIOSK PRESENTATION MODE (155px side panel, wrapping, minimum font)
+   TV KIOSK PRESENTATION MODE (Ultra-compact side panel, unified 1-line duties)
    ==================================================== */
 body.fullscreen-mode .tv-side-panel {
-  width: 155px !important; min-width: 155px !important; max-width: 155px !important;
+  width: 170px !important; min-width: 160px !important; max-width: 175px !important;
+  gap: 5px !important;
 }
-body.fullscreen-mode .tv-card-header { padding: 5px !important; flex-wrap: wrap; gap: 3px; }
-body.fullscreen-mode .tv-card-title { font-size: 0.75rem; gap: 3px; }
-body.fullscreen-mode .tv-duties-list { padding: 4px; gap: 4px; }
-body.fullscreen-mode .tv-break-card { flex-shrink: 0; }
-body.fullscreen-mode .tv-break-title { padding: 3px 4px; font-size: 0.7rem; overflow-wrap: anywhere; }
-body.fullscreen-mode .tv-break-items { padding: 3px; gap: 3px; }
-body.fullscreen-mode .tv-duty-item { padding: 3px; gap: 3px; flex-wrap: wrap; }
-body.fullscreen-mode .tv-duty-role, body.fullscreen-mode .tv-duty-teacher {
-  font-size: 0.68rem; min-width: 0; overflow-wrap: anywhere;
+body.fullscreen-mode .tv-card-header { padding: 4px 6px !important; flex-wrap: wrap; gap: 3px; }
+body.fullscreen-mode .tv-card-title { font-size: 0.72rem !important; gap: 3px; }
+body.fullscreen-mode .tv-day-badge { font-size: 0.65rem !important; padding: 1px 5px !important; }
+body.fullscreen-mode .tv-duties-list { padding: 3px !important; gap: 3px !important; }
+body.fullscreen-mode .tv-break-card { flex-shrink: 0; border-radius: 4px !important; }
+body.fullscreen-mode .tv-break-title { padding: 2px 4px !important; font-size: 0.66rem !important; line-height: 1.15 !important; }
+body.fullscreen-mode .tv-break-items { padding: 2px !important; gap: 2px !important; }
+body.fullscreen-mode .tv-duty-item {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  padding: 1.5px 4px !important;
+  gap: 3px !important;
+  border-radius: 3px !important;
+  line-height: 1.15 !important;
 }
-body.fullscreen-mode .tv-duty-teacher { padding: 1px 3px; }
+body.fullscreen-mode .tv-duty-role {
+  font-size: 0.64rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+}
+body.fullscreen-mode .tv-duty-teacher {
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  color: #0f766e !important;
+  background: #ccfbf1 !important;
+  padding: 0.5px 3px !important;
+  border-radius: 2.5px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex-shrink: 0 !important;
+  max-width: 55% !important;
+  text-align: left !important;
+}
+
+/* Ultra-tight duties mode when 7+ duties exist */
+body.fullscreen-mode .tv-duties-list.tv-tight-duties { gap: 2px !important; padding: 2px !important; }
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-title { font-size: 0.60rem !important; padding: 1px 3px !important; }
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-items { gap: 1.5px !important; padding: 1.5px !important; }
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-item { padding: 1px 3px !important; }
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-role,
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-teacher {
+  font-size: 0.58rem !important;
+}
+
+/* Empty Announcements minimized footprint on TV */
+body.fullscreen-mode .tv-announcements-card.tv-empty-announcements {
+  min-height: 28px !important;
+  max-height: 32px !important;
+  overflow: hidden !important;
+}
+body.fullscreen-mode .tv-announcements-card.tv-empty-announcements .tv-announcements-content {
+  display: none !important;
+}
 body.fullscreen-mode .calendar-week-row { height: 0; min-height: 0 !important; }
 body.fullscreen-mode .calendar-day-header { min-height: 0; }
 body.fullscreen-mode .event-bar {
@@ -6890,6 +6942,13 @@ function isPhoneLayout() {
           const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
           const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
 
+          const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0) + (todayTransport ? 1 : 0);
+          if (totalAssigned >= 7) {
+            dutiesContainer.classList.add('tv-tight-duties');
+          } else {
+            dutiesContainer.classList.remove('tv-tight-duties');
+          }
+
           if (!hasAnyAssignedBreaks && !todayTransport) {
             dutiesContainer.innerHTML = `
               <div class="tv-empty-state">
@@ -6898,23 +6957,7 @@ function isPhoneLayout() {
               </div>
             `;
           } else {
-            if (todayTransport) {
-              const transportCard = document.createElement('div');
-              transportCard.className = 'tv-break-card tv-transport-card';
-              transportCard.innerHTML = `
-                <div class="tv-break-title tv-transport-title">
-                  <i class="fas fa-bus-alt"></i> תורנות הסעות (יומית)
-                </div>
-                <div class="tv-break-items">
-                  <div class="tv-duty-item">
-                    <div class="tv-duty-role"><i class="fas fa-bus"></i> הסעות</div>
-                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${todayTransport}</div>
-                  </div>
-                </div>
-              `;
-              dutiesContainer.appendChild(transportCard);
-            }
-
+            // 1. Recess/playground duties first
             if (hasAnyAssignedBreaks) {
               breaks.forEach(b => {
                 const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
@@ -6934,9 +6977,10 @@ function isPhoneLayout() {
                 assignedDuties.forEach(d => {
                   const item = document.createElement('div');
                   item.className = 'tv-duty-item';
+                  const locText = (d.location || d.role || 'מיקום').trim();
                   item.innerHTML = `
-                    <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.location || d.role || 'מיקום'}</div>
-                    <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher}</div>
+                    <span class="tv-duty-role" title="${locText}">${locText}:</span>
+                    <span class="tv-duty-teacher" title="${d.teacher}">${d.teacher}</span>
                   `;
                   breakItems.appendChild(item);
                 });
@@ -6945,16 +6989,37 @@ function isPhoneLayout() {
                 dutiesContainer.appendChild(breakCard);
               });
             }
+
+            // 2. Transportation duty at the end! (תורנות הסעות בסוף)
+            if (todayTransport) {
+              const transportCard = document.createElement('div');
+              transportCard.className = 'tv-break-card tv-transport-card';
+              transportCard.innerHTML = `
+                <div class="tv-break-title tv-transport-title">
+                  <i class="fas fa-bus-alt"></i> תורנות הסעות (סוף יום)
+                </div>
+                <div class="tv-break-items">
+                  <div class="tv-duty-item">
+                    <span class="tv-duty-role">הסעות:</span>
+                    <span class="tv-duty-teacher" title="${todayTransport}">${todayTransport}</span>
+                  </div>
+                </div>
+              `;
+              dutiesContainer.appendChild(transportCard);
+            }
           }
         }
       }
 
       const annContent = document.getElementById('tv-announcements-content');
+      const annCard = document.getElementById('tv-announcements-card') || (annContent ? annContent.closest('.tv-announcements-card') : null);
       if (annContent) {
         if (rosterData.announcements && rosterData.announcements.trim()) {
           annContent.textContent = rosterData.announcements.trim();
+          if (annCard) annCard.classList.remove('tv-empty-announcements');
         } else {
           annContent.innerHTML = '<span style="color: #94a3b8; font-style: italic;">אין הודעות כרגע.</span>';
+          if (annCard) annCard.classList.add('tv-empty-announcements');
         }
       }
     }

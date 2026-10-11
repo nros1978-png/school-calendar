@@ -365,45 +365,63 @@ function renderTvSidePanel() {
     } else {
       const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
       const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
-      const hasDuties = todayDuties.length > 0 && todayDuties.some(d => (d.teacher || '').trim() !== '');
+      const validDuties = todayDuties.filter(d => (d.teacher || '').trim() !== '');
 
-      if (!hasDuties && !todayTransport) {
+      const totalAssigned = validDuties.length + (todayTransport ? 1 : 0);
+      if (totalAssigned >= 7) {
+        dutiesContainer.classList.add('tv-tight-duties');
+      } else {
+        dutiesContainer.classList.remove('tv-tight-duties');
+      }
+
+      if (validDuties.length === 0 && !todayTransport) {
         dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
       } else {
+        // 1. Recess/playground duties first
+        if (validDuties.length > 0) {
+          validDuties.forEach(d => {
+            const item = document.createElement('div');
+            item.className = 'tv-duty-item';
+            const locText = (d.location || d.role || 'מיקום').trim();
+            item.innerHTML = `
+              <span class="tv-duty-role" title="${locText}">${locText}:</span>
+              <span class="tv-duty-teacher" title="${d.teacher}">${d.teacher}</span>
+            `;
+            dutiesContainer.appendChild(item);
+          });
+        }
+
+        // 2. Transportation duty at the end
         if (todayTransport) {
           const transportCard = document.createElement('div');
           transportCard.className = 'tv-break-card tv-transport-card';
           transportCard.innerHTML = `
             <div class="tv-break-title tv-transport-title">
-              <i class="fas fa-bus-alt"></i> תורנות הסעות (יומית)
+              <i class="fas fa-bus-alt"></i> תורנות הסעות (סוף יום)
             </div>
             <div class="tv-break-items">
               <div class="tv-duty-item">
-                <div class="tv-duty-role"><i class="fas fa-bus"></i> הסעות</div>
-                <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${todayTransport}</div>
+                <span class="tv-duty-role">הסעות:</span>
+                <span class="tv-duty-teacher" title="${todayTransport}">${todayTransport}</span>
               </div>
             </div>
           `;
           dutiesContainer.appendChild(transportCard);
         }
-
-        todayDuties.forEach(d => {
-          if (!(d.teacher || '').trim() && !(d.role || '').trim()) return;
-          const item = document.createElement('div');
-          item.className = 'tv-duty-item';
-          item.innerHTML = `
-            <div class="tv-duty-role"><i class="fas fa-map-marker-alt"></i> ${d.role || 'תורנות'}</div>
-            <div class="tv-duty-teacher"><i class="fas fa-user-check"></i> ${d.teacher || 'לא שובץ'}</div>
-          `;
-          dutiesContainer.appendChild(item);
-        });
       }
     }
   }
 
   const annContent = document.getElementById('tv-announcements-content');
+  const annCard = document.getElementById('tv-announcements-card') || (annContent ? annContent.closest('.tv-announcements-card') : null);
   if (annContent) {
-    annContent.textContent = rosterData.announcements || 'אין הודעות מיוחדות כרגע.';
+    if (rosterData.announcements && rosterData.announcements.trim()) {
+      annContent.textContent = rosterData.announcements.trim();
+      if (annCard) annCard.classList.remove('tv-empty-announcements');
+    } else {
+      annContent.innerHTML = '<span style="color: #94a3b8; font-style: italic;">אין הודעות כרגע.</span>';
+      if (annCard) annCard.classList.add('tv-empty-announcements');
+    }
   }
 }
 
