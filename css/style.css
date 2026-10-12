@@ -2405,6 +2405,19 @@ html.fullscreen-mode #cal-reload-btn {
   border: 1px solid var(--border-color) !important;
 }
 
+body.fullscreen-mode:not(.tv-device) #cal-exit-tv-btn,
+html.fullscreen-mode:not(.tv-device) #cal-exit-tv-btn {
+  display: flex !important;
+  background: white !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+body.fullscreen-mode.tv-device #cal-exit-tv-btn,
+html.fullscreen-mode.tv-device #cal-exit-tv-btn {
+  display: none !important;
+}
+
 /* ====================================================
    TV KIOSK SIDE PANEL & DUTY ROSTER STYLING
    ==================================================== */

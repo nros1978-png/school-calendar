@@ -88,12 +88,15 @@ function getHebrewMonthHeaderString(year, month) {
  */
 function renderApp() {
   const isPhone = isPhoneLayout();
+  const isTvDev = isTvDevice();
   const isTv = !isPhone && (document.body.classList.contains('fullscreen-mode') || document.documentElement.classList.contains('fullscreen-mode'));
 
   document.body.classList.toggle('phone-layout', isPhone);
   document.body.classList.toggle('desktop-mode', !isPhone && !isTv);
   document.body.classList.toggle('fullscreen-mode', isTv);
   document.documentElement.classList.toggle('fullscreen-mode', isTv);
+  document.body.classList.toggle('tv-device', isTvDev);
+  document.documentElement.classList.toggle('tv-device', isTvDev);
 
   if (isPhone) {
     localStorage.removeItem('tv_mode');
@@ -102,6 +105,16 @@ function renderApp() {
   const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
   if (fullscreenBtn) {
     fullscreenBtn.style.display = (isPhone || isTv) ? 'none' : 'flex';
+  }
+
+  const exitTvBtn = document.getElementById('cal-exit-tv-btn');
+  if (exitTvBtn) {
+    exitTvBtn.style.display = (isTv && !isTvDev) ? 'flex' : 'none';
+  }
+
+  const reloadBtn = document.getElementById('cal-reload-btn');
+  if (reloadBtn) {
+    reloadBtn.style.display = isTv ? 'flex' : 'none';
   }
 
   const liveWidget = document.getElementById('live-datetime-widget');
@@ -794,6 +807,13 @@ function setupEventListeners() {
   // Fullscreen projection toggle for staff room TV display
   const fullscreenBtn = document.getElementById('cal-fullscreen-btn');
 
+      const reloadBtn = document.getElementById('cal-reload-btn');
+      if (reloadBtn) {
+        reloadBtn.addEventListener('click', () => {
+          window.location.reload(true);
+        });
+      }
+
       const setFullscreenMode = (enable) => {
         if (enable && isPhoneLayout()) return;
         if (enable) {
@@ -817,11 +837,38 @@ function setupEventListeners() {
           if (fullscreenBtn) {
             fullscreenBtn.style.display = 'none';
           }
+          const exitTvBtn = document.getElementById('cal-exit-tv-btn');
+          if (exitTvBtn) {
+            exitTvBtn.style.display = !isTvDevice() ? 'flex' : 'none';
+          }
+          if (reloadBtn) {
+            reloadBtn.style.display = 'flex';
+          }
           renderApp();
         } else {
           document.documentElement.classList.remove('fullscreen-mode');
           document.body.classList.remove('fullscreen-mode');
+          document.body.classList.remove('phone-layout');
+          if (!isPhoneLayout()) {
+            document.body.classList.add('desktop-mode');
+          }
+          localStorage.removeItem('tv_mode');
           localStorage.setItem('tv_mode', 'false');
+          window.__IS_TV_INITIAL__ = false;
+
+          try {
+            if (window.history && window.history.replaceState) {
+              const url = new URL(window.location.href);
+              if (url.searchParams.has('tv') || url.searchParams.has('kiosk') || url.searchParams.has('fullscreen') || url.hash === '#tv') {
+                url.searchParams.delete('tv');
+                url.searchParams.delete('kiosk');
+                url.searchParams.delete('fullscreen');
+                if (url.hash === '#tv') url.hash = '';
+                window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
+              }
+            }
+          } catch (e) {}
+
           if (document.exitFullscreen && document.fullscreenElement) {
             document.exitFullscreen().catch(() => {});
           }
@@ -832,6 +879,13 @@ function setupEventListeners() {
             if (icon) icon.className = 'fas fa-tv';
             if (text) text.textContent = 'מסך מלא (טלוויזיה)';
             fullscreenBtn.classList.remove('btn-fullscreen-active');
+          }
+          const exitTvBtn = document.getElementById('cal-exit-tv-btn');
+          if (exitTvBtn) {
+            exitTvBtn.style.display = 'none';
+          }
+          if (reloadBtn) {
+            reloadBtn.style.display = 'none';
           }
           renderApp();
         }
@@ -847,6 +901,42 @@ function setupEventListeners() {
           fullscreenBtn.style.display = 'none';
         }
       }
+
+      const exitTvBtn = document.getElementById('cal-exit-tv-btn');
+      if (exitTvBtn) {
+        exitTvBtn.addEventListener('click', () => {
+          setFullscreenMode(false);
+        });
+      }
+
+      // Exit TV mode when pressing ESC (or close active modal)
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+          const activeModal = document.querySelector('.modal.active');
+          if (activeModal) {
+            activeModal.classList.remove('active');
+            return;
+          }
+          const isTvMode = document.body.classList.contains('fullscreen-mode') ||
+                           document.documentElement.classList.contains('fullscreen-mode') ||
+                           localStorage.getItem('tv_mode') === 'true';
+          if (isTvMode) {
+            e.preventDefault();
+            setFullscreenMode(false);
+          }
+        }
+      });
+
+      // Exit TV mode if browser native fullscreen is exited (e.g. by pressing Esc or browser exit banner on desktop)
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+          const isTvMode = document.body.classList.contains('fullscreen-mode') ||
+                           document.documentElement.classList.contains('fullscreen-mode');
+          if (isTvMode && !isTvDevice()) {
+            setFullscreenMode(false);
+          }
+        }
+      });
 
       // Check and automatically trigger TV fullscreen kiosk mode
       const checkAndTriggerTvMode = () => {
