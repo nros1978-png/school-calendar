@@ -1,7 +1,7 @@
 // App Orchestration Module for School Calendar & Gantt Application
 // Coordinates state management, view switching, filter changes, and modal operations.
 
-import { DB, convertHebrewDateStringToLetters } from './database.js';
+import { DB, convertHebrewDateStringToLetters, ensureRosterPopulated } from './database.js';
 import { Auth } from './auth.js';
 import { Calendar } from './calendar.js';
 import { Gantt } from './gantt.js';
@@ -468,20 +468,7 @@ function openDutyRosterModal() {
   }
   const modal = document.getElementById('duty-roster-modal');
   const raw = DB.getDutyRoster();
-  dutyModalData = JSON.parse(JSON.stringify(raw));
-  if (!dutyModalData.transportation || typeof dutyModalData.transportation !== 'object') {
-    dutyModalData.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
-  }
-  if (!Array.isArray(dutyModalData.feedingDays)) {
-    dutyModalData.feedingDays = [];
-  }
-  if (!dutyModalData.feeding || typeof dutyModalData.feeding !== 'object') {
-    dutyModalData.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
-  }
-  if (!dutyModalData.duties) dutyModalData.duties = {};
-  for (let i = 0; i <= 5; i++) {
-    if (!dutyModalData.duties[String(i)]) dutyModalData.duties[String(i)] = [];
-  }
+  dutyModalData = ensureRosterPopulated(JSON.parse(JSON.stringify(raw)));
 
   document.getElementById('roster-announcements-input').value = dutyModalData.announcements || '';
   currentDutyModalDay = 0;

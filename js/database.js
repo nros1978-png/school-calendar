@@ -112,15 +112,14 @@ export function normalizeDutyDay(dayData) {
   ];
 }
 
-function isDemoDutyRoster(data) {
-  if (!data) return false;
-  const str = JSON.stringify(data);
-  return str.includes('משה כהן') || str.includes('רחל לוי') || str.includes('נא להקפיד על נוכחות בזמן בתורנויות');
-}
-
-let cachedDutyRoster = {
+export const DEFAULT_DUTY_ROSTER = {
   announcements: '',
-  locations: [],
+  locations: [
+    'שער ראשי',
+    'חצר עליונה',
+    'חצר תחתונה',
+    'מסדרון קומה א\''
+  ],
   transportation: {
     '0': '',
     '1': '',
@@ -139,24 +138,149 @@ let cachedDutyRoster = {
     '5': ''
   },
   duties: {
-    '0': [],
-    '1': [],
-    '2': [],
-    '3': [],
-    '4': [],
-    '5': []
+    '0': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'משה כהן' },
+          { location: 'חצר עליונה', teacher: 'רחל לוי' },
+          { location: 'חצר תחתונה', teacher: 'דוד ישראלי' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יעקב גולד' },
+          { location: 'מסדרון קומה א\'', teacher: 'מיכל שטרן' }
+        ]
+      }
+    ],
+    '1': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יעקב גולד' },
+          { location: 'חצר עליונה', teacher: 'חנה פריד' },
+          { location: 'חצר תחתונה', teacher: 'יוסי כץ' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'אברהם לוין' },
+          { location: 'מסדרון קומה א\'', teacher: 'תמר שפירא' }
+        ]
+      }
+    ],
+    '2': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'אברהם לוין' },
+          { location: 'חצר עליונה', teacher: 'לאה אבני' },
+          { location: 'חצר תחתונה', teacher: 'נועם רוזנברג' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'דניאל שר' },
+          { location: 'מסדרון קומה א\'', teacher: 'אסתר דהן' }
+        ]
+      }
+    ],
+    '3': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'דניאל שר' },
+          { location: 'חצר עליונה', teacher: 'רבקה מזרחי' },
+          { location: 'חצר תחתונה', teacher: 'איתמר גבע' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יונתן גל' },
+          { location: 'מסדרון קומה א\'', teacher: 'שלומית בר' }
+        ]
+      }
+    ],
+    '4': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'יונתן גל' },
+          { location: 'חצר עליונה', teacher: 'שרה אהרוני' },
+          { location: 'חצר תחתונה', teacher: 'אליעזר שוורץ' }
+        ]
+      },
+      {
+        name: 'הפסקה שנייה (12:00 - 12:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'מאיר סגל' },
+          { location: 'מסדרון קומה א\'', teacher: 'מרים כרמל' }
+        ]
+      }
+    ],
+    '5': [
+      {
+        name: 'הפסקה ראשונה (10:00 - 10:30)',
+        duties: [
+          { location: 'שער ראשי', teacher: 'מאיר סגל' },
+          { location: 'חצר עליונה', teacher: 'אורית רון' },
+          { location: 'חצר תחתונה', teacher: 'בנימין דגן' }
+        ]
+      }
+    ]
   }
 };
+
+export function ensureRosterPopulated(roster) {
+  if (!roster || typeof roster !== 'object') {
+    roster = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER));
+  }
+  if (!Array.isArray(roster.locations) || roster.locations.length === 0) {
+    roster.locations = [...DEFAULT_DUTY_ROSTER.locations];
+  }
+  if (!roster.transportation || typeof roster.transportation !== 'object') {
+    roster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+  }
+  if (!Array.isArray(roster.feedingDays)) {
+    roster.feedingDays = [];
+  }
+  if (!roster.feeding || typeof roster.feeding !== 'object') {
+    roster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+  }
+  if (!roster.duties || typeof roster.duties !== 'object') {
+    roster.duties = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER.duties));
+  }
+
+  let totalAssignedBreaks = 0;
+  for (let i = 0; i <= 5; i++) {
+    const dayBreaks = normalizeDutyDay(roster.duties[String(i)]);
+    roster.duties[String(i)] = dayBreaks;
+    dayBreaks.forEach(b => {
+      totalAssignedBreaks += (b.duties || []).filter(d => (d.teacher || '').trim()).length;
+    });
+  }
+
+  if (totalAssignedBreaks === 0) {
+    for (let i = 0; i <= 5; i++) {
+      roster.duties[String(i)] = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER.duties[String(i)]));
+    }
+  }
+
+  return roster;
+}
+
+let cachedDutyRoster = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER));
 
 try {
   const storedRoster = localStorage.getItem('school_duty_roster');
   if (storedRoster) {
     const parsed = JSON.parse(storedRoster);
-    if (isDemoDutyRoster(parsed)) {
-      localStorage.removeItem('school_duty_roster');
-    } else {
-      cachedDutyRoster = parsed;
-    }
+    cachedDutyRoster = ensureRosterPopulated(parsed);
   }
 } catch (e) {}
 
@@ -205,10 +329,15 @@ export const DB = {
     // 4. Listen to Settings / Duty Roster document
     onSnapshot(doc(db, 'settings', 'duty_roster'), (docSnap) => {
       if (docSnap.exists()) {
-        cachedDutyRoster = docSnap.data();
+        const data = docSnap.data();
+        cachedDutyRoster = ensureRosterPopulated(data);
         try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+        if (!data.locations || data.locations.length === 0 || !data.duties || Object.keys(data.duties).length === 0) {
+          setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster, { merge: true }).catch(() => {});
+        }
         if (onUpdate) onUpdate();
       } else {
+        cachedDutyRoster = ensureRosterPopulated(cachedDutyRoster);
         setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster).catch(() => {});
       }
     }, (error) => {
@@ -230,7 +359,8 @@ export const DB = {
         cachedCalendarBase = calSnap.docs.map(d => d.data());
       }
       if (rosterSnap && rosterSnap.exists()) {
-        cachedDutyRoster = rosterSnap.data();
+        const data = rosterSnap.data();
+        cachedDutyRoster = ensureRosterPopulated(data);
         try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
       }
     } catch(e) {}
@@ -238,25 +368,14 @@ export const DB = {
 
   // --- Duty Roster & Announcements API ---
   getDutyRoster() {
-    if (!cachedDutyRoster.locations || !Array.isArray(cachedDutyRoster.locations) || cachedDutyRoster.locations.length === 0) {
-      cachedDutyRoster.locations = ['שער ראשי', 'חצר עליונה', 'חצר תחתונה', 'מסדרון קומה א\''];
-    }
-    if (!cachedDutyRoster.transportation || typeof cachedDutyRoster.transportation !== 'object') {
-      cachedDutyRoster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
-    }
-    if (!Array.isArray(cachedDutyRoster.feedingDays)) {
-      cachedDutyRoster.feedingDays = [];
-    }
-    if (!cachedDutyRoster.feeding || typeof cachedDutyRoster.feeding !== 'object') {
-      cachedDutyRoster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
-    }
+    cachedDutyRoster = ensureRosterPopulated(cachedDutyRoster);
     return cachedDutyRoster;
   },
 
   async saveDutyRoster(rosterData) {
-    cachedDutyRoster = rosterData;
-    try { localStorage.setItem('school_duty_roster', JSON.stringify(rosterData)); } catch(e) {}
-    await setDoc(doc(db, 'settings', 'duty_roster'), rosterData, { merge: true });
+    cachedDutyRoster = ensureRosterPopulated(rosterData);
+    try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
+    await setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster, { merge: true });
   },
 
   // --- Users Collection API ---
