@@ -378,16 +378,18 @@ function renderTvSidePanel() {
     } else {
       const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
       const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
+      const isFeedingDay = Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex));
+      const todayFeeding = isFeedingDay ? ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim() : '';
       const validDuties = todayDuties.filter(d => (d.teacher || '').trim() !== '');
 
-      const totalAssigned = validDuties.length + (todayTransport ? 1 : 0);
+      const totalAssigned = validDuties.length + (todayFeeding ? 1 : 0) + (todayTransport ? 1 : 0);
       if (totalAssigned >= 7) {
         dutiesContainer.classList.add('tv-tight-duties');
       } else {
         dutiesContainer.classList.remove('tv-tight-duties');
       }
 
-      if (validDuties.length === 0 && !todayTransport) {
+      if (validDuties.length === 0 && !todayFeeding && !todayTransport) {
         dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
       } else {
         // 1. Recess/playground duties first
@@ -404,7 +406,25 @@ function renderTvSidePanel() {
           });
         }
 
-        // 2. Transportation duty at the end
+        // 2. Feeding duty (only on active feeding days with an assigned teacher)
+        if (todayFeeding) {
+          const feedingCard = document.createElement('div');
+          feedingCard.className = 'tv-break-card tv-feeding-card';
+          feedingCard.innerHTML = `
+            <div class="tv-break-title tv-feeding-title">
+              <i class="fas fa-utensils"></i> תורנות הזנה
+            </div>
+            <div class="tv-break-items">
+              <div class="tv-duty-item">
+                <span class="tv-duty-role">הזנה:</span>
+                <span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>
+              </div>
+            </div>
+          `;
+          dutiesContainer.appendChild(feedingCard);
+        }
+
+        // 3. Transportation duty strictly at the end
         if (todayTransport) {
           const transportCard = document.createElement('div');
           transportCard.className = 'tv-break-card tv-transport-card';
@@ -452,6 +472,12 @@ function openDutyRosterModal() {
   if (!dutyModalData.transportation || typeof dutyModalData.transportation !== 'object') {
     dutyModalData.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
   }
+  if (!Array.isArray(dutyModalData.feedingDays)) {
+    dutyModalData.feedingDays = [];
+  }
+  if (!dutyModalData.feeding || typeof dutyModalData.feeding !== 'object') {
+    dutyModalData.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+  }
   if (!dutyModalData.duties) dutyModalData.duties = {};
   for (let i = 0; i <= 5; i++) {
     if (!dutyModalData.duties[String(i)]) dutyModalData.duties[String(i)] = [];
@@ -460,7 +486,69 @@ function openDutyRosterModal() {
   document.getElementById('roster-announcements-input').value = dutyModalData.announcements || '';
   currentDutyModalDay = 0;
   switchDutyModalDay(0);
+  renderFeedingDaysConfig();
   modal.classList.add('active');
+}
+
+function renderFeedingDaysConfig() {
+  const container = document.getElementById('feeding-days-checkboxes-container');
+  if (!container || !dutyModalData) return;
+  container.innerHTML = '';
+
+  const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
+  dayNames.forEach((name, dIdx) => {
+    const dStr = String(dIdx);
+    const isChecked = Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(dStr);
+
+    const label = document.createElement('label');
+    label.className = 'roster-day-check-label' + (isChecked ? ' active' : '');
+    label.innerHTML = `
+      <input type="checkbox" value="${dStr}" ${isChecked ? 'checked' : ''}>
+      <span>יום ${name}</span>
+    `;
+
+    const chk = label.querySelector('input');
+    chk.addEventListener('change', (e) => {
+      if (!Array.isArray(dutyModalData.feedingDays)) dutyModalData.feedingDays = [];
+      if (e.target.checked) {
+        if (!dutyModalData.feedingDays.includes(dStr)) {
+          dutyModalData.feedingDays.push(dStr);
+          dutyModalData.feedingDays.sort();
+        }
+        label.classList.add('active');
+      } else {
+        dutyModalData.feedingDays = dutyModalData.feedingDays.filter(d => d !== dStr);
+        label.classList.remove('active');
+      }
+      if (currentDutyModalDay === dIdx) {
+        updateFeedingScheduleVisibility(currentDutyModalDay);
+      }
+    });
+
+    container.appendChild(label);
+  });
+}
+
+function updateFeedingScheduleVisibility(dayIdx) {
+  const feedingCard = document.getElementById('roster-feeding-card');
+  const feedingCardOff = document.getElementById('roster-feeding-card-off');
+  const feedingInput = document.getElementById('roster-feeding-input');
+  const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
+
+  const isDayActive = Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(dayIdx));
+  if (isDayActive) {
+    if (feedingCard) feedingCard.style.display = 'block';
+    if (feedingCardOff) feedingCardOff.style.display = 'none';
+    if (feedingInput && dutyModalData && dutyModalData.feeding) {
+      feedingInput.value = dutyModalData.feeding[String(dayIdx)] || '';
+    }
+  } else {
+    if (feedingCard) feedingCard.style.display = 'none';
+    if (feedingCardOff) {
+      feedingCardOff.style.display = 'block';
+      feedingCardOff.innerHTML = `<i class="fas fa-utensils" style="margin-left: 6px; opacity: 0.6;"></i><span>תורנות הזנה אינה מוגדרת ליום ${dayNames[dayIdx] || ''}. (ניתן להפעיל בלשונית "הגדרות עמדות והזנה")</span>`;
+    }
+  }
 }
 
 function switchDutyModalDay(dayIdx) {
@@ -476,6 +564,7 @@ function switchDutyModalDay(dayIdx) {
   if (transportInput && dutyModalData && dutyModalData.transportation) {
     transportInput.value = dutyModalData.transportation[String(dayIdx)] || '';
   }
+  updateFeedingScheduleVisibility(dayIdx);
   renderDutyModalRows();
 }
 
@@ -1187,6 +1276,16 @@ function setupEventListeners() {
     });
   }
 
+  // Daily Feeding Input listener
+  const feedingInput = document.getElementById('roster-feeding-input');
+  if (feedingInput) {
+    feedingInput.addEventListener('input', (e) => {
+      if (!dutyModalData) return;
+      if (!dutyModalData.feeding) dutyModalData.feeding = {};
+      dutyModalData.feeding[String(currentDutyModalDay)] = e.target.value.trim();
+    });
+  }
+
   // Daily Transportation Input listener
   const transportInput = document.getElementById('roster-transport-input');
   if (transportInput) {
@@ -1204,6 +1303,25 @@ function setupEventListeners() {
       if (!dutyModalData) return;
       const annInput = document.getElementById('roster-announcements-input');
       dutyModalData.announcements = annInput ? annInput.value.trim() : '';
+
+      // Sync feeding input
+      const curFeedingInput = document.getElementById('roster-feeding-input');
+      if (curFeedingInput && Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(currentDutyModalDay))) {
+        if (!dutyModalData.feeding) dutyModalData.feeding = {};
+        dutyModalData.feeding[String(currentDutyModalDay)] = curFeedingInput.value.trim();
+      }
+
+      // Clean feeding map and days
+      const cleanFeeding = {};
+      for (let i = 0; i <= 5; i++) {
+        cleanFeeding[String(i)] = ((dutyModalData.feeding && dutyModalData.feeding[String(i)]) || '').trim();
+      }
+      dutyModalData.feeding = cleanFeeding;
+      if (!Array.isArray(dutyModalData.feedingDays)) {
+        dutyModalData.feedingDays = [];
+      } else {
+        dutyModalData.feedingDays = [...dutyModalData.feedingDays].filter(d => typeof d === 'string').sort();
+      }
 
       // Sync transportation input
       const curTransportInput = document.getElementById('roster-transport-input');

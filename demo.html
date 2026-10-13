@@ -2865,6 +2865,136 @@ function isPhoneLayout() {
       border-right-color: #16a34a;
     }
 
+    /* Feeding Duty (תורנות הזנה) */
+    .roster-feeding-card {
+      background: #fffbeb;
+      border: 1.5px solid #fde68a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .roster-feeding-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .roster-feeding-label {
+      font-weight: 800;
+      color: #b45309;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .roster-feeding-label i {
+      font-size: 1.05rem;
+      color: #d97706;
+    }
+
+    .roster-feeding-badge {
+      font-size: 0.72rem;
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid #fde68a;
+    }
+
+    .roster-feeding-input {
+      background: #ffffff;
+      font-weight: 600;
+      border: 1px solid #fde68a;
+    }
+
+    .roster-feeding-input:focus {
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+
+    .roster-feeding-card-off {
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    /* Feeding Days Config Box in Settings Tab */
+    .roster-feeding-config-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+
+    .roster-feeding-days-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .roster-day-check-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #1e293b;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .roster-day-check-label:hover {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+
+    .roster-day-check-label.active {
+      background: #fef3c7;
+      border-color: #d97706;
+      color: #92400e;
+    }
+
+    .roster-day-check-label input[type="checkbox"] {
+      accent-color: #d97706;
+      cursor: pointer;
+    }
+
+    /* TV Feeding Card */
+    .tv-break-card.tv-feeding-card {
+      border-color: #fde68a;
+      background: #fffbeb;
+    }
+
+    .tv-break-title.tv-feeding-title {
+      background: #fef3c7;
+      color: #92400e;
+      border-bottom-color: #fde68a;
+    }
+
+    .tv-break-title.tv-feeding-title i {
+      color: #d97706;
+    }
+
+    .tv-feeding-card .tv-duty-item {
+      border-right-color: #d97706;
+    }
+
     /* Live Clock & Date Widget (Always visible in regular & fullscreen TV mode) */
     .live-datetime-widget {
       display: flex;
@@ -4253,7 +4383,7 @@ body.desktop-mode .event-bar {
             <i class="fas fa-calendar-check"></i> שיבוץ תורנים שבועי
           </button>
           <button type="button" class="duty-modal-nav-tab" data-tab="locations">
-            <i class="fas fa-map-marker-alt"></i> ניהול מיקומי תורנות
+            <i class="fas fa-sliders-h"></i> הגדרות עמדות והזנה
           </button>
           <button type="button" class="duty-modal-nav-tab" data-tab="announcements">
             <i class="fas fa-bullhorn"></i> הודעות מסך לצוות
@@ -4270,6 +4400,24 @@ body.desktop-mode .event-bar {
             <button type="button" class="duty-day-tab" data-day="3">יום רביעי</button>
             <button type="button" class="duty-day-tab" data-day="4">יום חמישי</button>
             <button type="button" class="duty-day-tab" data-day="5">יום שישי</button>
+          </div>
+
+          <!-- Feeding Duty (Daily, active only on selected days) -->
+          <div id="roster-feeding-card" class="roster-feeding-card" style="display: none;">
+            <div class="roster-feeding-header">
+              <label for="roster-feeding-input" class="roster-feeding-label">
+                <i class="fas fa-utensils"></i>
+                <span>תורנות הזנה (יומית ליום זה):</span>
+              </label>
+              <span class="roster-feeding-badge">מופעל ליום זה</span>
+            </div>
+            <div class="roster-feeding-body">
+              <input type="text" id="roster-feeding-input" class="form-control roster-feeding-input" placeholder="שם המורה תורן הזנה (למשל: שרה לוי)...">
+            </div>
+          </div>
+          <div id="roster-feeding-card-off" class="roster-feeding-card-off" style="display: none;">
+            <i class="fas fa-utensils" style="margin-left: 6px; opacity: 0.6;"></i>
+            <span>תורנות הזנה אינה מוגדרת ליום זה. (ניתן להפעיל בלשונית "הגדרות עמדות והזנה")</span>
           </div>
 
           <!-- Transportation Duty (Daily, independent of recesses) -->
@@ -4305,8 +4453,25 @@ body.desktop-mode .event-bar {
           </button>
         </div>
 
-        <!-- Tab 2: Locations (ניהול מיקומים) -->
+        <!-- Tab 2: Locations & Feeding Settings (ניהול מיקומים והזנה) -->
         <div id="duty-tab-locations" class="duty-modal-tab-section">
+          <!-- Feeding Duty Days Configuration -->
+          <div class="roster-feeding-config-box">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <label class="form-label" style="font-weight: 800; color: #b45309; margin-bottom: 0;">
+                <i class="fas fa-utensils" style="margin-left: 6px; color: #d97706;"></i>
+                ימי פעילות תורנות הזנה:
+              </label>
+              <span class="roster-feeding-badge">הגדרה שבועית</span>
+            </div>
+            <p style="font-size: 0.82rem; color: #78350f; margin-bottom: 8px;">
+              סמן באילו ימים מתקיימת תורנות הזנה בבית הספר. בטאב השיבוץ יופיע שדה שיבוץ תורן רק בימים אלו:
+            </p>
+            <div id="feeding-days-checkboxes-container" class="roster-feeding-days-grid">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
           <div style="padding: 10px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 0.88rem; color: #1e40af; margin-bottom: 14px;">
             <i class="fas fa-info-circle"></i>
             <strong>מיקומי תורנות קבועים:</strong> כל מיקום שמוגדר כאן מתווסף באופן אוטומטי לכל הפסקה ולכל יום במערכת. בלוח השיבוצים פשוט מזינים את שם המורה המשובץ.
@@ -4652,6 +4817,15 @@ body.desktop-mode .event-bar {
         '4': '',
         '5': ''
       },
+      feedingDays: [],
+      feeding: {
+        '0': '',
+        '1': '',
+        '2': '',
+        '3': '',
+        '4': '',
+        '5': ''
+      },
       duties: {
         '0': [],
         '1': [],
@@ -4768,6 +4942,12 @@ body.desktop-mode .event-bar {
         }
         if (!cachedDutyRoster.transportation || typeof cachedDutyRoster.transportation !== 'object') {
           cachedDutyRoster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+        }
+        if (!Array.isArray(cachedDutyRoster.feedingDays)) {
+          cachedDutyRoster.feedingDays = [];
+        }
+        if (!cachedDutyRoster.feeding || typeof cachedDutyRoster.feeding !== 'object') {
+          cachedDutyRoster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
         }
         if (!cachedDutyRoster.duties) {
           cachedDutyRoster.duties = { '0': [], '1': [], '2': [], '3': [], '4': [], '5': [] };
@@ -6970,15 +7150,19 @@ function isPhoneLayout() {
           const breaks = normalizeDutyDay(rawDayDuties);
           const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
           const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
+          const isFeedingDay = Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex));
+          const todayFeeding = isFeedingDay ? ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim() : '';
 
-          const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0) + (todayTransport ? 1 : 0);
+          const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0)
+            + (todayFeeding ? 1 : 0)
+            + (todayTransport ? 1 : 0);
           if (totalAssigned >= 7) {
             dutiesContainer.classList.add('tv-tight-duties');
           } else {
             dutiesContainer.classList.remove('tv-tight-duties');
           }
 
-          if (!hasAnyAssignedBreaks && !todayTransport) {
+          if (!hasAnyAssignedBreaks && !todayFeeding && !todayTransport) {
             dutiesContainer.innerHTML = `
               <div class="tv-empty-state">
                 <i class="fas fa-clipboard-list" style="font-size: 1.4rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
@@ -7019,7 +7203,25 @@ function isPhoneLayout() {
               });
             }
 
-            // 2. Transportation duty at the end! (תורנות הסעות בסוף)
+            // 2. Feeding duty (only on active feeding days with an assigned teacher)
+            if (todayFeeding) {
+              const feedingCard = document.createElement('div');
+              feedingCard.className = 'tv-break-card tv-feeding-card';
+              feedingCard.innerHTML = `
+                <div class="tv-break-title tv-feeding-title">
+                  <i class="fas fa-utensils"></i> תורנות הזנה
+                </div>
+                <div class="tv-break-items">
+                  <div class="tv-duty-item">
+                    <span class="tv-duty-role">הזנה:</span>
+                    <span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>
+                  </div>
+                </div>
+              `;
+              dutiesContainer.appendChild(feedingCard);
+            }
+
+            // 3. Transportation duty strictly at the end! (תורנות הסעות בסוף)
             if (todayTransport) {
               const transportCard = document.createElement('div');
               transportCard.className = 'tv-break-card tv-transport-card';
@@ -7079,6 +7281,18 @@ function isPhoneLayout() {
         }
       }
 
+      if (!Array.isArray(dutyModalData.feedingDays)) {
+        dutyModalData.feedingDays = [];
+      }
+      if (!dutyModalData.feeding || typeof dutyModalData.feeding !== 'object') {
+        dutyModalData.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+      }
+      for (let i = 0; i <= 5; i++) {
+        if (typeof dutyModalData.feeding[String(i)] !== 'string') {
+          dutyModalData.feeding[String(i)] = '';
+        }
+      }
+
       if (!dutyModalData.duties) dutyModalData.duties = {};
       for (let i = 0; i <= 5; i++) {
         dutyModalData.duties[String(i)] = normalizeDutyDay(dutyModalData.duties[String(i)]);
@@ -7089,6 +7303,7 @@ function isPhoneLayout() {
       currentDutyModalDay = 0;
       switchDutyModalDay(0);
       renderLocationsTabList();
+      renderFeedingDaysConfig();
       modal.classList.add('active');
     }
 
@@ -7114,6 +7329,7 @@ function isPhoneLayout() {
         renderDutyModalRows();
       } else if (tabName === 'locations') {
         renderLocationsTabList();
+        renderFeedingDaysConfig();
       }
     }
 
@@ -7130,7 +7346,69 @@ function isPhoneLayout() {
       if (transportInput && dutyModalData && dutyModalData.transportation) {
         transportInput.value = dutyModalData.transportation[String(dayIdx)] || '';
       }
+      updateFeedingScheduleVisibility(dayIdx);
       renderDutyModalRows();
+    }
+
+    function renderFeedingDaysConfig() {
+      const container = document.getElementById('feeding-days-checkboxes-container');
+      if (!container || !dutyModalData) return;
+      container.innerHTML = '';
+
+      const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
+      dayNames.forEach((name, dIdx) => {
+        const dStr = String(dIdx);
+        const isChecked = Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(dStr);
+
+        const label = document.createElement('label');
+        label.className = 'roster-day-check-label' + (isChecked ? ' active' : '');
+        label.innerHTML = `
+          <input type="checkbox" value="${dStr}" ${isChecked ? 'checked' : ''}>
+          <span>יום ${name}</span>
+        `;
+
+        const chk = label.querySelector('input');
+        chk.addEventListener('change', (e) => {
+          if (!Array.isArray(dutyModalData.feedingDays)) dutyModalData.feedingDays = [];
+          if (e.target.checked) {
+            if (!dutyModalData.feedingDays.includes(dStr)) {
+              dutyModalData.feedingDays.push(dStr);
+              dutyModalData.feedingDays.sort();
+            }
+            label.classList.add('active');
+          } else {
+            dutyModalData.feedingDays = dutyModalData.feedingDays.filter(d => d !== dStr);
+            label.classList.remove('active');
+          }
+          if (currentDutyModalDay === dIdx) {
+            updateFeedingScheduleVisibility(currentDutyModalDay);
+          }
+        });
+
+        container.appendChild(label);
+      });
+    }
+
+    function updateFeedingScheduleVisibility(dayIdx) {
+      const feedingCard = document.getElementById('roster-feeding-card');
+      const feedingCardOff = document.getElementById('roster-feeding-card-off');
+      const feedingInput = document.getElementById('roster-feeding-input');
+      const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
+
+      const isDayActive = Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(dayIdx));
+      if (isDayActive) {
+        if (feedingCard) feedingCard.style.display = 'block';
+        if (feedingCardOff) feedingCardOff.style.display = 'none';
+        if (feedingInput && dutyModalData && dutyModalData.feeding) {
+          feedingInput.value = dutyModalData.feeding[String(dayIdx)] || '';
+        }
+      } else {
+        if (feedingCard) feedingCard.style.display = 'none';
+        if (feedingCardOff) {
+          feedingCardOff.style.display = 'block';
+          feedingCardOff.innerHTML = `<i class="fas fa-utensils" style="margin-left: 6px; opacity: 0.6;"></i><span>תורנות הזנה אינה מוגדרת ליום ${dayNames[dayIdx] || ''}. (ניתן להפעיל בלשונית "הגדרות עמדות והזנה")</span>`;
+        }
+      }
     }
 
     function renderLocationsTabList() {
@@ -7940,6 +8218,16 @@ function isPhoneLayout() {
         });
       }
 
+      // Daily Feeding Input listener
+      const feedingInput = document.getElementById('roster-feeding-input');
+      if (feedingInput) {
+        feedingInput.addEventListener('input', (e) => {
+          if (!dutyModalData) return;
+          if (!dutyModalData.feeding) dutyModalData.feeding = {};
+          dutyModalData.feeding[String(currentDutyModalDay)] = e.target.value.trim();
+        });
+      }
+
       // Daily Transportation Input listener
       const transportInput = document.getElementById('roster-transport-input');
       if (transportInput) {
@@ -7957,6 +8245,25 @@ function isPhoneLayout() {
           if (!dutyModalData) return;
           const annInput = document.getElementById('roster-announcements-input');
           dutyModalData.announcements = annInput ? annInput.value.trim() : '';
+
+          // Sync current day's feeding input
+          const curFeedingInput = document.getElementById('roster-feeding-input');
+          if (curFeedingInput && Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(currentDutyModalDay))) {
+            if (!dutyModalData.feeding) dutyModalData.feeding = {};
+            dutyModalData.feeding[String(currentDutyModalDay)] = curFeedingInput.value.trim();
+          }
+
+          // Clean feeding map and days
+          const cleanFeeding = {};
+          for (let i = 0; i <= 5; i++) {
+            cleanFeeding[String(i)] = ((dutyModalData.feeding && dutyModalData.feeding[String(i)]) || '').trim();
+          }
+          dutyModalData.feeding = cleanFeeding;
+          if (!Array.isArray(dutyModalData.feedingDays)) {
+            dutyModalData.feedingDays = [];
+          } else {
+            dutyModalData.feedingDays = [...dutyModalData.feedingDays].filter(d => typeof d === 'string').sort();
+          }
 
           // Sync current day's transportation input
           const curTransportInput = document.getElementById('roster-transport-input');

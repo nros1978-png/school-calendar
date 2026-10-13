@@ -129,6 +129,15 @@ let cachedDutyRoster = {
     '4': '',
     '5': ''
   },
+  feedingDays: [],
+  feeding: {
+    '0': '',
+    '1': '',
+    '2': '',
+    '3': '',
+    '4': '',
+    '5': ''
+  },
   duties: {
     '0': [],
     '1': [],
@@ -234,6 +243,12 @@ export const DB = {
     }
     if (!cachedDutyRoster.transportation || typeof cachedDutyRoster.transportation !== 'object') {
       cachedDutyRoster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
+    }
+    if (!Array.isArray(cachedDutyRoster.feedingDays)) {
+      cachedDutyRoster.feedingDays = [];
+    }
+    if (!cachedDutyRoster.feeding || typeof cachedDutyRoster.feeding !== 'object') {
+      cachedDutyRoster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
     }
     return cachedDutyRoster;
   },

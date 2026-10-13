@@ -2928,6 +2928,136 @@ body.fullscreen-mode .tv-announcements-card .tv-empty-state {
   border-right-color: #16a34a;
 }
 
+/* Feeding Duty (תורנות הזנה) */
+.roster-feeding-card {
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.roster-feeding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.roster-feeding-label {
+  font-weight: 800;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.roster-feeding-label i {
+  font-size: 1.05rem;
+  color: #d97706;
+}
+
+.roster-feeding-badge {
+  font-size: 0.72rem;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid #fde68a;
+}
+
+.roster-feeding-input {
+  background: #ffffff;
+  font-weight: 600;
+  border: 1px solid #fde68a;
+}
+
+.roster-feeding-input:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+.roster-feeding-card-off {
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+/* Feeding Days Config Box in Settings Tab */
+.roster-feeding-config-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.roster-feeding-days-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.roster-day-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.roster-day-check-label:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.roster-day-check-label.active {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+}
+
+.roster-day-check-label input[type="checkbox"] {
+  accent-color: #d97706;
+  cursor: pointer;
+}
+
+/* TV Feeding Card */
+.tv-break-card.tv-feeding-card {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.tv-break-title.tv-feeding-title {
+  background: #fef3c7;
+  color: #92400e;
+  border-bottom-color: #fde68a;
+}
+
+.tv-break-title.tv-feeding-title i {
+  color: #d97706;
+}
+
+.tv-feeding-card .tv-duty-item {
+  border-right-color: #d97706;
+}
+
 /* Live Clock & Date Widget (Always visible in regular & fullscreen TV mode) */
 .live-datetime-widget {
   display: flex;
