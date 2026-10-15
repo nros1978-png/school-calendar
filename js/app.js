@@ -1,7 +1,7 @@
 // App Orchestration Module for School Calendar & Gantt Application
 // Coordinates state management, view switching, filter changes, and modal operations.
 
-import { DB, convertHebrewDateStringToLetters, ensureRosterPopulated } from './database.js';
+import { DB, convertHebrewDateStringToLetters, ensureRosterPopulated, normalizeDutyDay } from './database.js';
 import { Auth } from './auth.js';
 import { Calendar } from './calendar.js';
 import { Gantt } from './gantt.js';
@@ -376,34 +376,75 @@ function renderTvSidePanel() {
         </div>
       `;
     } else {
-      const todayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
+      const rawDayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
+      const breaks = normalizeDutyDay(rawDayDuties);
+      const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
       const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
       const isFeedingDay = Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex));
       const todayFeeding = isFeedingDay ? ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim() : '';
-      const validDuties = todayDuties.filter(d => (d.teacher || '').trim() !== '');
 
-      const totalAssigned = validDuties.length + (todayFeeding ? 1 : 0) + (todayTransport ? 1 : 0);
+      const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0)
+        + (todayFeeding ? 1 : 0)
+        + (todayTransport ? 1 : 0);
       if (totalAssigned >= 7) {
         dutiesContainer.classList.add('tv-tight-duties');
       } else {
         dutiesContainer.classList.remove('tv-tight-duties');
       }
 
-      if (validDuties.length === 0 && !todayFeeding && !todayTransport) {
-        dutiesContainer.innerHTML = `<div class="tv-empty-state">לא הוגדרו תורנויות ליום זה.</div>`;
+      if (!hasAnyAssignedBreaks && !todayFeeding && !todayTransport) {
+        dutiesContainer.innerHTML = `
+          <div class="tv-empty-state">
+            <i class="fas fa-clipboard-list" style="font-size: 1.4rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
+            טרם הוגדרו תורנויות להיום.
+          </div>
+        `;
       } else {
         // 1. Recess/playground duties first
-        if (validDuties.length > 0) {
-          validDuties.forEach(d => {
-            const item = document.createElement('div');
-            item.className = 'tv-duty-item';
-            const locText = (d.location || d.role || 'מיקום').trim();
-            item.innerHTML = `
-              <span class="tv-duty-role" title="${locText}">${locText}:</span>
-              <span class="tv-duty-teacher" title="${d.teacher}">${d.teacher}</span>
-            `;
-            dutiesContainer.appendChild(item);
+        if (hasAnyAssignedBreaks) {
+          breaks.forEach(b => {
+            const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
+            if (assignedDuties.length === 0) return; // Only show breaks that have active assigned duties
+
+            const breakCard = document.createElement('div');
+            breakCard.className = 'tv-break-card';
+
+            const breakTitle = document.createElement('div');
+            breakTitle.className = 'tv-break-title';
+            breakTitle.innerHTML = `<i class="fas fa-bell"></i> ${b.name || 'הפסקה'}`;
+            breakCard.appendChild(breakTitle);
+
+            const breakItems = document.createElement('div');
+            breakItems.className = 'tv-break-items';
+
+            assignedDuties.forEach(d => {
+              const item = document.createElement('div');
+              item.className = 'tv-duty-item';
+              const locText = (d.location || d.role || 'מיקום').trim();
+              item.innerHTML = `
+                <span class="tv-duty-role" title="${locText}">${locText}:</span>
+                <span class="tv-duty-teacher" title="${d.teacher}">${d.teacher}</span>
+              `;
+              breakItems.appendChild(item);
+            });
+
+            breakCard.appendChild(breakItems);
+            dutiesContainer.appendChild(breakCard);
           });
+        } else {
+          const emptyRecessCard = document.createElement('div');
+          emptyRecessCard.className = 'tv-break-card tv-empty-recess-card';
+          emptyRecessCard.innerHTML = `
+            <div class="tv-break-title" style="color: var(--text-muted);">
+              <i class="fas fa-bell"></i> תורנויות חצר
+            </div>
+            <div class="tv-break-items">
+              <div class="tv-duty-item" style="color: var(--text-muted); font-size: 0.85rem; font-style: italic; justify-content: center;">
+                לא שובצו תורני חצר ליום זה
+              </div>
+            </div>
+          `;
+          dutiesContainer.appendChild(emptyRecessCard);
         }
 
         // 2. Feeding duty (only on active feeding days with an assigned teacher)

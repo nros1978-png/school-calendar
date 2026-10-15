@@ -243,6 +243,8 @@ export function ensureRosterPopulated(roster) {
   if (!Array.isArray(roster.locations) || roster.locations.length === 0) {
     roster.locations = [...DEFAULT_DUTY_ROSTER.locations];
   }
+  const activeLocations = roster.locations;
+
   if (!roster.transportation || typeof roster.transportation !== 'object') {
     roster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
   }
@@ -253,22 +255,37 @@ export function ensureRosterPopulated(roster) {
     roster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
   }
   if (!roster.duties || typeof roster.duties !== 'object') {
-    roster.duties = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER.duties));
+    roster.duties = {};
   }
 
-  let totalAssignedBreaks = 0;
   for (let i = 0; i <= 5; i++) {
-    const dayBreaks = normalizeDutyDay(roster.duties[String(i)]);
-    roster.duties[String(i)] = dayBreaks;
-    dayBreaks.forEach(b => {
-      totalAssignedBreaks += (b.duties || []).filter(d => (d.teacher || '').trim()).length;
-    });
-  }
+    const dayKey = String(i);
+    let dayBreaks = normalizeDutyDay(roster.duties[dayKey]);
+    
+    // Check if this day has any assigned duties
+    const assignedCount = dayBreaks.reduce((sum, b) => 
+      sum + (b.duties || []).filter(d => (d.teacher || '').trim() !== '').length, 0);
 
-  if (totalAssignedBreaks === 0) {
-    for (let i = 0; i <= 5; i++) {
-      roster.duties[String(i)] = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER.duties[String(i)]));
+    // If day has no breaks or no assigned duties at all, populate from defaults adapting to active locations!
+    if (dayBreaks.length === 0 || assignedCount === 0) {
+      const defaultDayBreaks = DEFAULT_DUTY_ROSTER.duties[dayKey] || [];
+      if (defaultDayBreaks.length > 0) {
+        dayBreaks = defaultDayBreaks.map(defB => {
+          const duties = activeLocations.map((loc, locIdx) => {
+            const defDuty = (defB.duties && defB.duties[locIdx % defB.duties.length]) || {};
+            return {
+              location: loc,
+              teacher: defDuty.teacher || ''
+            };
+          });
+          return {
+            name: defB.name,
+            duties: duties
+          };
+        });
+      }
     }
+    roster.duties[dayKey] = dayBreaks;
   }
 
   return roster;
@@ -332,7 +349,8 @@ export const DB = {
         const data = docSnap.data();
         cachedDutyRoster = ensureRosterPopulated(data);
         try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
-        if (!data.locations || data.locations.length === 0 || !data.duties || Object.keys(data.duties).length === 0) {
+        const dutiesChanged = JSON.stringify(data.duties) !== JSON.stringify(cachedDutyRoster.duties);
+        if (!data.locations || data.locations.length === 0 || !data.duties || dutiesChanged) {
           setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster, { merge: true }).catch(() => {});
         }
         if (onUpdate) onUpdate();
