@@ -380,11 +380,13 @@ function renderTvSidePanel() {
       const breaks = normalizeDutyDay(rawDayDuties);
       const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
       const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
-      const isFeedingDay = Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex));
-      const todayFeeding = isFeedingDay ? ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim() : '';
+      const isFeedingDay = (Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex)))
+        || (!rosterData.feedingDays || rosterData.feedingDays.length === 0 ? (dayIndex >= 0 && dayIndex <= 4) : false);
+      const todayFeeding = ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim();
+      const showFeeding = isFeedingDay || Boolean(todayFeeding);
 
       const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0)
-        + (todayFeeding ? 1 : 0)
+        + (showFeeding ? 1 : 0)
         + (todayTransport ? 1 : 0);
       if (totalAssigned >= 7) {
         dutiesContainer.classList.add('tv-tight-duties');
@@ -392,7 +394,7 @@ function renderTvSidePanel() {
         dutiesContainer.classList.remove('tv-tight-duties');
       }
 
-      if (!hasAnyAssignedBreaks && !todayFeeding && !todayTransport) {
+      if (!hasAnyAssignedBreaks && !showFeeding && !todayTransport) {
         dutiesContainer.innerHTML = `
           <div class="tv-empty-state">
             <i class="fas fa-clipboard-list" style="font-size: 1.4rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
@@ -447,10 +449,14 @@ function renderTvSidePanel() {
           dutiesContainer.appendChild(emptyRecessCard);
         }
 
-        // 2. Feeding duty (only on active feeding days with an assigned teacher)
-        if (todayFeeding) {
+        // 2. Feeding duty (תורנות הזנה)
+        if (showFeeding) {
           const feedingCard = document.createElement('div');
           feedingCard.className = 'tv-break-card tv-feeding-card';
+          const teacherHtml = todayFeeding
+            ? `<span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>`
+            : `<span class="tv-duty-teacher tv-duty-unassigned" title="טרם שובץ מורה להזנה">טרם שובץ</span>`;
+
           feedingCard.innerHTML = `
             <div class="tv-break-title tv-feeding-title">
               <i class="fas fa-utensils"></i> תורנות הזנה
@@ -458,7 +464,7 @@ function renderTvSidePanel() {
             <div class="tv-break-items">
               <div class="tv-duty-item">
                 <span class="tv-duty-role">הזנה:</span>
-                <span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>
+                ${teacherHtml}
               </div>
             </div>
           `;
@@ -521,6 +527,9 @@ function openDutyRosterModal() {
 function renderFeedingDaysConfig() {
   const container = document.getElementById('feeding-days-checkboxes-container');
   if (!container || !dutyModalData) return;
+  if (!Array.isArray(dutyModalData.feedingDays) || dutyModalData.feedingDays.length === 0) {
+    dutyModalData.feedingDays = ['0', '1', '2', '3', '4'];
+  }
   container.innerHTML = '';
 
   const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
@@ -563,7 +572,10 @@ function updateFeedingScheduleVisibility(dayIdx) {
   const feedingInput = document.getElementById('roster-feeding-input');
   const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
 
-  const isDayActive = Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(dayIdx));
+  const isDayActive = (Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(dayIdx)))
+    || (!dutyModalData.feedingDays || dutyModalData.feedingDays.length === 0 ? (dayIdx >= 0 && dayIdx <= 4) : false)
+    || Boolean((dutyModalData.feeding && dutyModalData.feeding[String(dayIdx)]) || '');
+
   if (isDayActive) {
     if (feedingCard) feedingCard.style.display = 'block';
     if (feedingCardOff) feedingCardOff.style.display = 'none';
@@ -1334,9 +1346,15 @@ function setupEventListeners() {
 
       // Sync feeding input
       const curFeedingInput = document.getElementById('roster-feeding-input');
-      if (curFeedingInput && Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(currentDutyModalDay))) {
+      if (curFeedingInput) {
         if (!dutyModalData.feeding) dutyModalData.feeding = {};
         dutyModalData.feeding[String(currentDutyModalDay)] = curFeedingInput.value.trim();
+        if (curFeedingInput.value.trim()) {
+          if (!Array.isArray(dutyModalData.feedingDays)) dutyModalData.feedingDays = [];
+          if (!dutyModalData.feedingDays.includes(String(currentDutyModalDay))) {
+            dutyModalData.feedingDays.push(String(currentDutyModalDay));
+          }
+        }
       }
 
       // Clean feeding map and days
@@ -1345,8 +1363,8 @@ function setupEventListeners() {
         cleanFeeding[String(i)] = ((dutyModalData.feeding && dutyModalData.feeding[String(i)]) || '').trim();
       }
       dutyModalData.feeding = cleanFeeding;
-      if (!Array.isArray(dutyModalData.feedingDays)) {
-        dutyModalData.feedingDays = [];
+      if (!Array.isArray(dutyModalData.feedingDays) || dutyModalData.feedingDays.length === 0) {
+        dutyModalData.feedingDays = ['0', '1', '2', '3', '4'];
       } else {
         dutyModalData.feedingDays = [...dutyModalData.feedingDays].filter(d => typeof d === 'string').sort();
       }

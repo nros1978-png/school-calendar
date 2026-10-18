@@ -2579,15 +2579,17 @@ function isPhoneLayout() {
       border-radius: 4px;
       border-right: 3px solid var(--primary-color);
       line-height: 1.25;
+      flex-wrap: wrap;
     }
 
     .tv-duty-role {
       font-weight: 700;
       color: #1e293b;
       font-size: 0.82rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      flex-shrink: 0;
     }
 
     .tv-duty-teacher {
@@ -2597,9 +2599,11 @@ function isPhoneLayout() {
       padding: 1px 6px;
       border-radius: 4px;
       font-size: 0.80rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      word-break: break-word;
+      max-width: 100%;
     }
 
     .tv-announcements-content {
@@ -3107,7 +3111,7 @@ function isPhoneLayout() {
    TV KIOSK PRESENTATION MODE (Ultra-compact side panel, unified 1-line duties)
    ==================================================== */
 body.fullscreen-mode .tv-side-panel {
-  width: 170px !important; min-width: 160px !important; max-width: 175px !important;
+  width: 200px !important; min-width: 185px !important; max-width: 220px !important;
   gap: 5px !important;
 }
 body.fullscreen-mode .tv-card-header { padding: 4px 6px !important; flex-wrap: wrap; gap: 3px; }
@@ -3120,37 +3124,37 @@ body.fullscreen-mode .tv-break-items { padding: 2px !important; gap: 2px !import
 body.fullscreen-mode .tv-duty-item {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   align-items: baseline !important;
   justify-content: space-between !important;
   padding: 1.5px 4px !important;
-  gap: 3px !important;
+  gap: 2px 4px !important;
   border-radius: 3px !important;
-  line-height: 1.15 !important;
+  line-height: 1.25 !important;
 }
 body.fullscreen-mode .tv-duty-role {
-  font-size: 0.64rem !important;
+  font-size: 0.65rem !important;
   font-weight: 700 !important;
   color: #334155 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  flex-shrink: 1 !important;
-  min-width: 0 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  flex-shrink: 0 !important;
 }
 body.fullscreen-mode .tv-duty-teacher {
-  font-size: 0.64rem !important;
+  font-size: 0.65rem !important;
   font-weight: 800 !important;
   color: #0f766e !important;
   background: #ccfbf1 !important;
-  padding: 0.5px 3px !important;
+  padding: 1px 4px !important;
   border-radius: 2.5px !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  flex-shrink: 0 !important;
-  max-width: 55% !important;
-  text-align: left !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  text-align: right !important;
+  display: inline-block !important;
 }
 
 /* Ultra-tight duties mode when 7+ duties exist */
@@ -3160,7 +3164,11 @@ body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-items { gap: 1.5p
 body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-item { padding: 1px 3px !important; }
 body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-role,
 body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-teacher {
-  font-size: 0.58rem !important;
+  font-size: 0.60rem !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word !important;
 }
 
 /* Empty Announcements minimized footprint on TV */
@@ -4816,7 +4824,7 @@ body.desktop-mode .event-bar {
         '4': '',
         '5': ''
       },
-      feedingDays: [],
+      feedingDays: ['0', '1', '2', '3', '4'],
       feeding: {
         '0': '',
         '1': '',
@@ -4936,12 +4944,20 @@ body.desktop-mode .event-bar {
       if (!roster.transportation || typeof roster.transportation !== 'object') {
         roster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
       }
-      if (!Array.isArray(roster.feedingDays)) {
-        roster.feedingDays = [];
+      if (!Array.isArray(roster.feedingDays) || roster.feedingDays.length === 0) {
+        roster.feedingDays = ['0', '1', '2', '3', '4'];
       }
       if (!roster.feeding || typeof roster.feeding !== 'object') {
         roster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
       }
+      for (let i = 0; i <= 5; i++) {
+        if (roster.feeding && (roster.feeding[String(i)] || '').trim() !== '') {
+          if (!roster.feedingDays.includes(String(i))) {
+            roster.feedingDays.push(String(i));
+          }
+        }
+      }
+      roster.feedingDays.sort();
       if (!roster.duties || typeof roster.duties !== 'object') {
         roster.duties = {};
       }
@@ -7277,11 +7293,13 @@ function isPhoneLayout() {
           const breaks = normalizeDutyDay(rawDayDuties);
           const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
           const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
-          const isFeedingDay = Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex));
-          const todayFeeding = isFeedingDay ? ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim() : '';
+          const isFeedingDay = (Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex)))
+            || (!rosterData.feedingDays || rosterData.feedingDays.length === 0 ? (dayIndex >= 0 && dayIndex <= 4) : false);
+          const todayFeeding = ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim();
+          const showFeeding = isFeedingDay || Boolean(todayFeeding);
 
           const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0)
-            + (todayFeeding ? 1 : 0)
+            + (showFeeding ? 1 : 0)
             + (todayTransport ? 1 : 0);
           if (totalAssigned >= 7) {
             dutiesContainer.classList.add('tv-tight-duties');
@@ -7289,7 +7307,7 @@ function isPhoneLayout() {
             dutiesContainer.classList.remove('tv-tight-duties');
           }
 
-          if (!hasAnyAssignedBreaks && !todayFeeding && !todayTransport) {
+          if (!hasAnyAssignedBreaks && !showFeeding && !todayTransport) {
             dutiesContainer.innerHTML = `
               <div class="tv-empty-state">
                 <i class="fas fa-clipboard-list" style="font-size: 1.4rem; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>
@@ -7344,10 +7362,14 @@ function isPhoneLayout() {
               dutiesContainer.appendChild(emptyRecessCard);
             }
 
-            // 2. Feeding duty (only on active feeding days with an assigned teacher)
-            if (todayFeeding) {
+            // 2. Feeding duty (תורנות הזנה)
+            if (showFeeding) {
               const feedingCard = document.createElement('div');
               feedingCard.className = 'tv-break-card tv-feeding-card';
+              const teacherHtml = todayFeeding
+                ? `<span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>`
+                : `<span class="tv-duty-teacher tv-duty-unassigned" title="טרם שובץ מורה להזנה">טרם שובץ</span>`;
+
               feedingCard.innerHTML = `
                 <div class="tv-break-title tv-feeding-title">
                   <i class="fas fa-utensils"></i> תורנות הזנה
@@ -7355,7 +7377,7 @@ function isPhoneLayout() {
                 <div class="tv-break-items">
                   <div class="tv-duty-item">
                     <span class="tv-duty-role">הזנה:</span>
-                    <span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>
+                    ${teacherHtml}
                   </div>
                 </div>
               `;
@@ -7464,6 +7486,9 @@ function isPhoneLayout() {
     function renderFeedingDaysConfig() {
       const container = document.getElementById('feeding-days-checkboxes-container');
       if (!container || !dutyModalData) return;
+      if (!Array.isArray(dutyModalData.feedingDays) || dutyModalData.feedingDays.length === 0) {
+        dutyModalData.feedingDays = ['0', '1', '2', '3', '4'];
+      }
       container.innerHTML = '';
 
       const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
@@ -7506,7 +7531,10 @@ function isPhoneLayout() {
       const feedingInput = document.getElementById('roster-feeding-input');
       const dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
 
-      const isDayActive = Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(dayIdx));
+      const isDayActive = (Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(dayIdx)))
+        || (!dutyModalData.feedingDays || dutyModalData.feedingDays.length === 0 ? (dayIdx >= 0 && dayIdx <= 4) : false)
+        || Boolean((dutyModalData.feeding && dutyModalData.feeding[String(dayIdx)]) || '');
+
       if (isDayActive) {
         if (feedingCard) feedingCard.style.display = 'block';
         if (feedingCardOff) feedingCardOff.style.display = 'none';
@@ -8359,9 +8387,15 @@ function isPhoneLayout() {
 
           // Sync current day's feeding input
           const curFeedingInput = document.getElementById('roster-feeding-input');
-          if (curFeedingInput && Array.isArray(dutyModalData.feedingDays) && dutyModalData.feedingDays.includes(String(currentDutyModalDay))) {
+          if (curFeedingInput) {
             if (!dutyModalData.feeding) dutyModalData.feeding = {};
             dutyModalData.feeding[String(currentDutyModalDay)] = curFeedingInput.value.trim();
+            if (curFeedingInput.value.trim()) {
+              if (!Array.isArray(dutyModalData.feedingDays)) dutyModalData.feedingDays = [];
+              if (!dutyModalData.feedingDays.includes(String(currentDutyModalDay))) {
+                dutyModalData.feedingDays.push(String(currentDutyModalDay));
+              }
+            }
           }
 
           // Clean feeding map and days
@@ -8370,8 +8404,8 @@ function isPhoneLayout() {
             cleanFeeding[String(i)] = ((dutyModalData.feeding && dutyModalData.feeding[String(i)]) || '').trim();
           }
           dutyModalData.feeding = cleanFeeding;
-          if (!Array.isArray(dutyModalData.feedingDays)) {
-            dutyModalData.feedingDays = [];
+          if (!Array.isArray(dutyModalData.feedingDays) || dutyModalData.feedingDays.length === 0) {
+            dutyModalData.feedingDays = ['0', '1', '2', '3', '4'];
           } else {
             dutyModalData.feedingDays = [...dutyModalData.feedingDays].filter(d => typeof d === 'string').sort();
           }

@@ -128,7 +128,7 @@ export const DEFAULT_DUTY_ROSTER = {
     '4': '',
     '5': ''
   },
-  feedingDays: [],
+  feedingDays: ['0', '1', '2', '3', '4'],
   feeding: {
     '0': '',
     '1': '',
@@ -248,12 +248,20 @@ export function ensureRosterPopulated(roster) {
   if (!roster.transportation || typeof roster.transportation !== 'object') {
     roster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
   }
-  if (!Array.isArray(roster.feedingDays)) {
-    roster.feedingDays = [];
+  if (!Array.isArray(roster.feedingDays) || roster.feedingDays.length === 0) {
+    roster.feedingDays = ['0', '1', '2', '3', '4'];
   }
   if (!roster.feeding || typeof roster.feeding !== 'object') {
     roster.feeding = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
   }
+  for (let i = 0; i <= 5; i++) {
+    if (roster.feeding && (roster.feeding[String(i)] || '').trim() !== '') {
+      if (!roster.feedingDays.includes(String(i))) {
+        roster.feedingDays.push(String(i));
+      }
+    }
+  }
+  roster.feedingDays.sort();
   if (!roster.duties || typeof roster.duties !== 'object') {
     roster.duties = {};
   }
