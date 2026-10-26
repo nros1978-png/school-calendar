@@ -249,7 +249,6 @@ export function ensureRosterPopulated(roster) {
   if (!Array.isArray(roster.locations) || roster.locations.length === 0) {
     roster.locations = [...DEFAULT_DUTY_ROSTER.locations];
   }
-  const activeLocations = roster.locations;
 
   if (!roster.transportation || typeof roster.transportation !== 'object') {
     roster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };

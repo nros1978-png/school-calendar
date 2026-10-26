@@ -5079,7 +5079,6 @@ body.desktop-mode .event-bar {
       if (!Array.isArray(roster.locations) || roster.locations.length === 0) {
         roster.locations = [...DEFAULT_DUTY_ROSTER.locations];
       }
-      const activeLocations = roster.locations;
 
       if (!roster.transportation || typeof roster.transportation !== 'object') {
         roster.transportation = { '0': '', '1': '', '2': '', '3': '', '4': '', '5': '' };
@@ -7648,7 +7647,6 @@ function isPhoneLayout() {
           setTimeout(fitTvPanelContent, 100);
         }
       });
-    }
     }
 
     let currentDutyModalDay = 0; // 0=Sunday
