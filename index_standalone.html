@@ -3108,76 +3108,210 @@ function isPhoneLayout() {
     }
   
 /* ====================================================
-   TV KIOSK PRESENTATION MODE (Ultra-compact side panel, unified 1-line duties)
+   TV KIOSK PRESENTATION MODE (Auto-fitting side panel & duties)
    ==================================================== */
 body.fullscreen-mode .tv-side-panel {
-  width: 200px !important; min-width: 185px !important; max-width: 220px !important;
-  gap: 5px !important;
+  width: clamp(215px, 14vw, 245px) !important;
+  min-width: 205px !important;
+  max-width: 250px !important;
+  gap: 3px !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
 }
-body.fullscreen-mode .tv-card-header { padding: 4px 6px !important; flex-wrap: wrap; gap: 3px; }
-body.fullscreen-mode .tv-card-title { font-size: 0.72rem !important; gap: 3px; }
-body.fullscreen-mode .tv-day-badge { font-size: 0.65rem !important; padding: 1px 5px !important; }
-body.fullscreen-mode .tv-duties-list { padding: 3px !important; gap: 3px !important; }
-body.fullscreen-mode .tv-break-card { flex-shrink: 0; border-radius: 4px !important; }
-body.fullscreen-mode .tv-break-title { padding: 2px 4px !important; font-size: 0.66rem !important; line-height: 1.15 !important; }
-body.fullscreen-mode .tv-break-items { padding: 2px !important; gap: 2px !important; }
+body.fullscreen-mode .tv-card-header {
+  padding: 3px 6px !important;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+body.fullscreen-mode .tv-card-title {
+  font-size: 0.70rem !important;
+  gap: 3px;
+}
+body.fullscreen-mode .tv-day-badge {
+  font-size: 0.62rem !important;
+  padding: 1px 5px !important;
+}
+body.fullscreen-mode .tv-duties-card {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+body.fullscreen-mode .tv-duties-list {
+  padding: 2px !important;
+  gap: 2px !important;
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+body.fullscreen-mode .tv-break-card {
+  flex-shrink: 0;
+  border-radius: 3px !important;
+  border: 1px solid #e2e8f0 !important;
+  overflow: hidden !important;
+}
+body.fullscreen-mode .tv-break-title {
+  padding: 1.5px 4px !important;
+  font-size: 0.62rem !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+}
+body.fullscreen-mode .tv-break-items {
+  padding: 1.5px !important;
+  gap: 1.5px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
 body.fullscreen-mode .tv-duty-item {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: wrap !important;
-  align-items: baseline !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
   justify-content: space-between !important;
-  padding: 1.5px 4px !important;
-  gap: 2px 4px !important;
-  border-radius: 3px !important;
-  line-height: 1.25 !important;
+  padding: 1px 3.5px !important;
+  gap: 3px !important;
+  border-radius: 2.5px !important;
+  line-height: 1.2 !important;
+  min-width: 0 !important;
 }
 body.fullscreen-mode .tv-duty-role {
-  font-size: 0.65rem !important;
+  font-size: 0.60rem !important;
   font-weight: 700 !important;
   color: #334155 !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
   flex-shrink: 0 !important;
 }
 body.fullscreen-mode .tv-duty-teacher {
-  font-size: 0.65rem !important;
+  font-size: 0.60rem !important;
   font-weight: 800 !important;
   color: #0f766e !important;
   background: #ccfbf1 !important;
-  padding: 1px 4px !important;
-  border-radius: 2.5px !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  word-break: break-word !important;
-  max-width: 100% !important;
+  padding: 0.5px 4px !important;
+  border-radius: 2px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
   text-align: right !important;
   display: inline-block !important;
+  flex-shrink: 1 !important;
 }
 
-/* Ultra-tight duties mode when 7+ duties exist */
-body.fullscreen-mode .tv-duties-list.tv-tight-duties { gap: 2px !important; padding: 2px !important; }
-body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-title { font-size: 0.60rem !important; padding: 1px 3px !important; }
-body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-items { gap: 1.5px !important; padding: 1.5px !important; }
-body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-item { padding: 1px 3px !important; }
+/* Compact Single-Duty Cards (Feeding & Transportation) */
+body.fullscreen-mode .tv-single-duty-card {
+  padding: 0 !important;
+  border-radius: 3px !important;
+}
+body.fullscreen-mode .tv-single-duty-card .tv-duty-item {
+  border: none !important;
+  background: transparent !important;
+  padding: 1.5px 4px !important;
+}
+body.fullscreen-mode .tv-feeding-card.tv-single-duty-card {
+  border: 1px solid #fde68a !important;
+  background: #fffbeb !important;
+}
+body.fullscreen-mode .tv-transport-card.tv-single-duty-card {
+  border: 1px solid #bae6fd !important;
+  background: #f0f9ff !important;
+}
+
+/* Tight duties mode (7-11 duties) */
+body.fullscreen-mode .tv-duties-list.tv-tight-duties {
+  gap: 1.5px !important;
+  padding: 1.5px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-title {
+  font-size: 0.56rem !important;
+  padding: 1px 3px !important;
+  line-height: 1.1 !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-break-items {
+  gap: 1px !important;
+  padding: 1px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-item {
+  padding: 0.5px 3px !important;
+}
 body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-role,
 body.fullscreen-mode .tv-duties-list.tv-tight-duties .tv-duty-teacher {
-  font-size: 0.60rem !important;
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  word-break: break-word !important;
+  font-size: 0.55rem !important;
+  line-height: 1.15 !important;
 }
 
-/* Empty Announcements minimized footprint on TV */
-body.fullscreen-mode .tv-announcements-card.tv-empty-announcements {
-  min-height: 28px !important;
-  max-height: 32px !important;
-  overflow: hidden !important;
+/* Ultra-tight duties mode (12+ duties) */
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties {
+  gap: 1px !important;
+  padding: 1px !important;
 }
-body.fullscreen-mode .tv-announcements-card.tv-empty-announcements .tv-announcements-content {
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-break-card {
+  border-radius: 2px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-break-title {
+  font-size: 0.51rem !important;
+  padding: 0.5px 2px !important;
+  line-height: 1.05 !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-break-items {
+  gap: 0.5px !important;
+  padding: 0.5px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-duty-item {
+  padding: 0.2px 2px !important;
+  line-height: 1.05 !important;
+  border-right-width: 2px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-duty-role,
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-duty-teacher {
+  font-size: 0.50rem !important;
+  line-height: 1.05 !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-ultra-tight-duties .tv-duty-teacher {
+  padding: 0px 2px !important;
+}
+
+/* Micro duties mode (dense layouts / high DPR screens) */
+body.fullscreen-mode .tv-duties-list.tv-micro-duties {
+  gap: 0.5px !important;
+  padding: 0.5px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-micro-duties .tv-break-title {
+  font-size: 0.46rem !important;
+  padding: 0px 1px !important;
+  line-height: 1 !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-micro-duties .tv-duty-item {
+  padding: 0px 1.5px !important;
+  line-height: 1 !important;
+  border-right-width: 1.5px !important;
+}
+body.fullscreen-mode .tv-duties-list.tv-micro-duties .tv-duty-role,
+body.fullscreen-mode .tv-duties-list.tv-micro-duties .tv-duty-teacher {
+  font-size: 0.45rem !important;
+  line-height: 1 !important;
+}
+
+/* Announcements card handling */
+body.fullscreen-mode .tv-announcements-card {
+  flex: 0 0 auto !important;
+  max-height: 22% !important;
+  min-height: 36px !important;
+}
+body.fullscreen-mode .tv-announcements-card .tv-card-header {
+  padding: 2px 6px !important;
+}
+body.fullscreen-mode .tv-announcements-card .tv-card-title {
+  font-size: 0.65rem !important;
+}
+body.fullscreen-mode .tv-announcements-content {
+  padding: 3px 6px !important;
+  font-size: 0.65rem !important;
+  line-height: 1.25 !important;
+}
+body.fullscreen-mode .tv-announcements-card.tv-empty-announcements {
   display: none !important;
 }
 body.fullscreen-mode .calendar-week-row { height: 0; min-height: 0 !important; }
@@ -4791,6 +4925,12 @@ body.desktop-mode .event-bar {
     let cachedEvents = [];
     let cachedUsers = [];
     let cachedCalendarBase = [];
+        function isNoDutyValue(val) {
+      if (!val || typeof val !== 'string') return true;
+      const clean = val.trim().toLowerCase();
+      return clean === '' || /^(אין|אין תורנות|ללא|ביטול|לא פעיל|ריק|-|none|n\/a)$/i.test(clean);
+    }
+
     function normalizeDutyDay(dayData) {
       if (!dayData || !Array.isArray(dayData)) return [];
       if (dayData.length === 0) return [];
@@ -4962,13 +5102,32 @@ body.desktop-mode .event-bar {
         roster.duties = {};
       }
 
+      roster.locations = (roster.locations || []).map(l => (l || '').trim()).filter(Boolean);
+      const activeLocations = roster.locations;
+      const validLocsSet = new Set(activeLocations.map(l => l.toLowerCase()));
+
       for (let i = 0; i <= 5; i++) {
         const dayKey = String(i);
         let dayBreaks = normalizeDutyDay(roster.duties[dayKey]);
         
+        // Purge any duties whose location is no longer in activeLocations or teacher is empty/'אין תורנות'
+        dayBreaks.forEach(b => {
+          if (Array.isArray(b.duties)) {
+            b.duties = b.duties.filter(d => {
+              const loc = (d.location || d.role || '').trim();
+              const teacher = (d.teacher || '').trim();
+              if (isNoDutyValue(teacher)) return false;
+              return loc && validLocsSet.has(loc.toLowerCase());
+            });
+          }
+        });
+
         // Check if this day has any assigned duties
         const assignedCount = dayBreaks.reduce((sum, b) => 
-          sum + (b.duties || []).filter(d => (d.teacher || '').trim() !== '').length, 0);
+          sum + (b.duties || []).filter(d => {
+            const t = (d.teacher || '').trim();
+            return t && !isNoDutyValue(t);
+          }).length, 0);
 
         // If day has no breaks or no assigned duties at all, populate from defaults adapting to active locations!
         if (dayBreaks.length === 0 || assignedCount === 0) {
@@ -5101,7 +5260,7 @@ body.desktop-mode .event-bar {
       async saveDutyRoster(rosterData) {
         cachedDutyRoster = ensureRosterPopulated(rosterData);
         try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
-        await db.collection('settings').doc('duty_roster').set(cachedDutyRoster, { merge: true });
+        await db.collection('settings').doc('duty_roster').set(cachedDutyRoster);
       },
 
       getUsers() {
@@ -7291,21 +7450,21 @@ function isPhoneLayout() {
         } else {
           const rawDayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
           const breaks = normalizeDutyDay(rawDayDuties);
-          const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
+          const activeLocsCheck = Array.isArray(rosterData.locations) && rosterData.locations.length > 0
+            ? new Set(rosterData.locations.map(l => (l || '').trim().toLowerCase()))
+            : null;
+          const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => {
+            const t = (d.teacher || '').trim();
+            const l = (d.location || d.role || '').trim();
+            if (!t || !l || isNoDutyValue(t)) return false;
+            if (activeLocsCheck && !activeLocsCheck.has(l.toLowerCase())) return false;
+            return true;
+          }));
           const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
           const isFeedingDay = (Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex)))
             || (!rosterData.feedingDays || rosterData.feedingDays.length === 0 ? (dayIndex >= 0 && dayIndex <= 4) : false);
           const todayFeeding = ((rosterData.feeding && rosterData.feeding[String(dayIndex)]) || '').trim();
           const showFeeding = isFeedingDay || Boolean(todayFeeding);
-
-          const totalAssigned = breaks.reduce((sum, b) => sum + (b.duties || []).filter(d => (d.teacher || '').trim()).length, 0)
-            + (showFeeding ? 1 : 0)
-            + (todayTransport ? 1 : 0);
-          if (totalAssigned >= 7) {
-            dutiesContainer.classList.add('tv-tight-duties');
-          } else {
-            dutiesContainer.classList.remove('tv-tight-duties');
-          }
 
           if (!hasAnyAssignedBreaks && !showFeeding && !todayTransport) {
             dutiesContainer.innerHTML = `
@@ -7317,8 +7476,18 @@ function isPhoneLayout() {
           } else {
             // 1. Recess/playground duties first
             if (hasAnyAssignedBreaks) {
+              const activeLocationsSet = Array.isArray(rosterData.locations) && rosterData.locations.length > 0
+                ? new Set(rosterData.locations.map(l => (l || '').trim().toLowerCase()))
+                : null;
+
               breaks.forEach(b => {
-                const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
+                const assignedDuties = (b.duties || []).filter(d => {
+                  const teacher = (d.teacher || '').trim();
+                  const loc = (d.location || d.role || '').trim();
+                  if (!teacher || !loc || isNoDutyValue(teacher)) return false;
+                  if (activeLocationsSet && !activeLocationsSet.has(loc.toLowerCase())) return false;
+                  return true;
+                });
                 if (assignedDuties.length === 0) return; // Only show breaks that have active assigned duties
 
                 const breakCard = document.createElement('div');
@@ -7362,41 +7531,31 @@ function isPhoneLayout() {
               dutiesContainer.appendChild(emptyRecessCard);
             }
 
-            // 2. Feeding duty (תורנות הזנה)
+            // 2. Feeding duty (תורנות הזנה) - Compact 1-line card
             if (showFeeding) {
               const feedingCard = document.createElement('div');
-              feedingCard.className = 'tv-break-card tv-feeding-card';
+              feedingCard.className = 'tv-break-card tv-feeding-card tv-single-duty-card';
               const teacherHtml = todayFeeding
                 ? `<span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>`
                 : `<span class="tv-duty-teacher tv-duty-unassigned" title="טרם שובץ מורה להזנה">טרם שובץ</span>`;
 
               feedingCard.innerHTML = `
-                <div class="tv-break-title tv-feeding-title">
-                  <i class="fas fa-utensils"></i> תורנות הזנה
-                </div>
-                <div class="tv-break-items">
-                  <div class="tv-duty-item">
-                    <span class="tv-duty-role">הזנה:</span>
-                    ${teacherHtml}
-                  </div>
+                <div class="tv-duty-item">
+                  <span class="tv-duty-role"><i class="fas fa-utensils" style="color: #d97706; margin-left: 3px;"></i> הזנה:</span>
+                  ${teacherHtml}
                 </div>
               `;
               dutiesContainer.appendChild(feedingCard);
             }
 
-            // 3. Transportation duty strictly at the end! (תורנות הסעות בסוף)
+            // 3. Transportation duty strictly at the end - Compact 1-line card
             if (todayTransport) {
               const transportCard = document.createElement('div');
-              transportCard.className = 'tv-break-card tv-transport-card';
+              transportCard.className = 'tv-break-card tv-transport-card tv-single-duty-card';
               transportCard.innerHTML = `
-                <div class="tv-break-title tv-transport-title">
-                  <i class="fas fa-bus-alt"></i> תורנות הסעות (סוף יום)
-                </div>
-                <div class="tv-break-items">
-                  <div class="tv-duty-item">
-                    <span class="tv-duty-role">הסעות:</span>
-                    <span class="tv-duty-teacher" title="${todayTransport}">${todayTransport}</span>
-                  </div>
+                <div class="tv-duty-item">
+                  <span class="tv-duty-role"><i class="fas fa-bus-alt" style="color: #0284c7; margin-left: 3px;"></i> הסעות:</span>
+                  <span class="tv-duty-teacher" title="${todayTransport}">${todayTransport}</span>
                 </div>
               `;
               dutiesContainer.appendChild(transportCard);
@@ -7416,6 +7575,80 @@ function isPhoneLayout() {
           if (annCard) annCard.classList.add('tv-empty-announcements');
         }
       }
+
+      fitTvPanelContent();
+      if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+        window.requestAnimationFrame(fitTvPanelContent);
+      }
+    }
+
+    /**
+     * Dynamically adjusts font sizes, padding, and scales the TV duty roster
+     * to guarantee that all duties fit completely in the available viewport height without scrolling.
+     */
+    function fitTvPanelContent() {
+      const panel = document.getElementById('tv-side-panel');
+      const dutiesContainer = document.getElementById('tv-duties-list');
+      if (!panel || !dutiesContainer) return;
+
+      // Reset any scale/transform and width adjustments
+      dutiesContainer.classList.remove('tv-tight-duties', 'tv-ultra-tight-duties', 'tv-micro-duties');
+      dutiesContainer.style.transform = '';
+      dutiesContainer.style.transformOrigin = '';
+      dutiesContainer.style.width = '';
+
+      const totalAssigned = dutiesContainer.querySelectorAll('.tv-duty-item').length;
+
+      // Base classification based on duty count
+      if (totalAssigned >= 12) {
+        dutiesContainer.classList.add('tv-ultra-tight-duties');
+      } else if (totalAssigned >= 6) {
+        dutiesContainer.classList.add('tv-tight-duties');
+      }
+
+      function isOverflowing() {
+        const listOverflow = dutiesContainer.scrollHeight > dutiesContainer.clientHeight + 1;
+        const panelOverflow = panel.scrollHeight > panel.clientHeight + 1;
+        return listOverflow || panelOverflow;
+      }
+
+      // Step-wise progressive tightening
+      if (isOverflowing()) {
+        if (!dutiesContainer.classList.contains('tv-tight-duties') && !dutiesContainer.classList.contains('tv-ultra-tight-duties')) {
+          dutiesContainer.classList.add('tv-tight-duties');
+        }
+      }
+      if (isOverflowing()) {
+        dutiesContainer.classList.remove('tv-tight-duties');
+        dutiesContainer.classList.add('tv-ultra-tight-duties');
+      }
+      if (isOverflowing()) {
+        dutiesContainer.classList.remove('tv-ultra-tight-duties');
+        dutiesContainer.classList.add('tv-micro-duties');
+      }
+
+      // Mathematical scale fallback if still overflowing (e.g. extreme low height TV)
+      if (isOverflowing() && dutiesContainer.clientHeight > 40 && dutiesContainer.scrollHeight > 0) {
+        const scale = Math.max(0.60, Math.min(0.99, (dutiesContainer.clientHeight / dutiesContainer.scrollHeight) * 0.98));
+        dutiesContainer.style.transformOrigin = 'top center';
+        dutiesContainer.style.transform = `scale(${scale.toFixed(3)})`;
+        dutiesContainer.style.width = `${(100 / scale).toFixed(1)}%`;
+      }
+    }
+
+    if (typeof window !== 'undefined' && !window.__tvAutoFitBound) {
+      window.__tvAutoFitBound = true;
+      window.addEventListener('resize', () => {
+        if (document.body.classList.contains('fullscreen-mode')) {
+          fitTvPanelContent();
+        }
+      });
+      window.addEventListener('orientationchange', () => {
+        if (document.body.classList.contains('fullscreen-mode')) {
+          setTimeout(fitTvPanelContent, 100);
+        }
+      });
+    }
     }
 
     let currentDutyModalDay = 0; // 0=Sunday
@@ -7592,8 +7825,21 @@ function isPhoneLayout() {
         const removeBtn = item.querySelector('.remove-location-btn');
         removeBtn.addEventListener('click', () => {
           if (confirm(`האם למחוק את המיקום "${loc}"? הוא יוסר מכל ההפסקות.`)) {
+            const removedLoc = (loc || '').trim().toLowerCase();
             dutyModalData.locations.splice(lIdx, 1);
+            // Explicitly purge this location from ALL breaks across all days
+            for (let d = 0; d <= 5; d++) {
+              const breaks = dutyModalData.duties[String(d)] || [];
+              breaks.forEach(b => {
+                if (Array.isArray(b.duties)) {
+                  b.duties = b.duties.filter(duty => 
+                    (duty.location || duty.role || '').trim().toLowerCase() !== removedLoc
+                  );
+                }
+              });
+            }
             renderLocationsTabList();
+            renderDutyModalRows();
           }
         });
 
@@ -7659,8 +7905,8 @@ function isPhoneLayout() {
           dutiesList.appendChild(emptyNotice);
         } else {
           locations.forEach(loc => {
-            let d = b.duties.find(x => (x.location || x.role || '').trim() === loc.trim());
-            const teacherVal = d ? (d.teacher || '') : '';
+            let d = b.duties.find(x => (x.location || x.role || '').trim().toLowerCase() === loc.trim().toLowerCase());
+            const teacherVal = d && !isNoDutyValue(d.teacher) ? (d.teacher || '') : '';
 
             const row = document.createElement('div');
             row.className = 'duty-roster-row';
@@ -7669,17 +7915,33 @@ function isPhoneLayout() {
                 <i class="fas fa-map-marker-alt"></i>
                 <span>${loc}</span>
               </div>
-              <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן (השאר ריק אם אין תורנות)" value="${teacherVal}">
+              <div style="display: flex; gap: 4px; flex: 1;">
+                <input type="text" class="form-control roster-teacher-input" placeholder="שם המורה התורן (השאר ריק אם אין תורנות)" value="${teacherVal}">
+                <button type="button" class="btn btn-secondary clear-duty-teacher-btn" title="נקה שיבוץ (בטל תורנות בהפסקה זו)" style="padding: 4px 10px; font-size: 0.8rem; flex-shrink: 0;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
             `;
 
             const teacherInput = row.querySelector('.roster-teacher-input');
-            teacherInput.addEventListener('input', (e) => {
-              let item = b.duties.find(x => (x.location || x.role || '').trim() === loc.trim());
+            const clearBtn = row.querySelector('.clear-duty-teacher-btn');
+
+            function updateTeacher(val) {
+              let item = b.duties.find(x => (x.location || x.role || '').trim().toLowerCase() === loc.trim().toLowerCase());
               if (!item) {
                 item = { location: loc, teacher: '' };
                 b.duties.push(item);
               }
-              item.teacher = e.target.value;
+              item.teacher = val;
+            }
+
+            teacherInput.addEventListener('input', (e) => {
+              updateTeacher(e.target.value);
+            });
+
+            clearBtn.addEventListener('click', () => {
+              teacherInput.value = '';
+              updateTeacher('');
             });
 
             dutiesList.appendChild(row);
@@ -8429,17 +8691,25 @@ function isPhoneLayout() {
             .map(l => (l || '').trim())
             .filter(Boolean);
 
-          // Clean breaks
+          const validLocsSet = new Set(dutyModalData.locations.map(l => l.toLowerCase()));
+
+          // Clean breaks - strictly enforce that only active locations and valid teachers are saved
           for (let i = 0; i <= 5; i++) {
             const breaks = dutyModalData.duties[String(i)] || [];
             dutyModalData.duties[String(i)] = breaks
               .filter(b => (b.name || '').trim())
               .map(b => ({
                 name: (b.name || '').trim() || 'הפסקה',
-                duties: (b.duties || []).filter(d => (d.location || d.role || '').trim() && (d.teacher || '').trim()).map(d => ({
-                  location: (d.location || d.role || '').trim(),
-                  teacher: (d.teacher || '').trim()
-                }))
+                duties: (b.duties || [])
+                  .filter(d => {
+                    const loc = (d.location || d.role || '').trim();
+                    const teacher = (d.teacher || '').trim();
+                    return loc && teacher && !isNoDutyValue(teacher) && validLocsSet.has(loc.toLowerCase());
+                  })
+                  .map(d => ({
+                    location: (d.location || d.role || '').trim(),
+                    teacher: (d.teacher || '').trim()
+                  }))
               }));
           }
 

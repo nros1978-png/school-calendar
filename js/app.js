@@ -1,3 +1,9 @@
+function isNoDutyValue(val) {
+  if (!val || typeof val !== 'string') return true;
+  const clean = val.trim().toLowerCase();
+  return clean === '' || /^(אין|אין תורנות|ללא|ביטול|לא פעיל|ריק|-|none|n\/a)$/i.test(clean);
+}
+
 // App Orchestration Module for School Calendar & Gantt Application
 // Coordinates state management, view switching, filter changes, and modal operations.
 
@@ -378,7 +384,16 @@ function renderTvSidePanel() {
     } else {
       const rawDayDuties = (rosterData.duties && rosterData.duties[String(dayIndex)]) || [];
       const breaks = normalizeDutyDay(rawDayDuties);
-      const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => (d.teacher || '').trim() !== ''));
+      const activeLocsCheck = Array.isArray(rosterData.locations) && rosterData.locations.length > 0
+        ? new Set(rosterData.locations.map(l => (l || '').trim().toLowerCase()))
+        : null;
+      const hasAnyAssignedBreaks = breaks.some(b => (b.duties || []).some(d => {
+        const t = (d.teacher || '').trim();
+        const l = (d.location || d.role || '').trim();
+        if (!t || !l || isNoDutyValue(t)) return false;
+        if (activeLocsCheck && !activeLocsCheck.has(l.toLowerCase())) return false;
+        return true;
+      }));
       const todayTransport = (rosterData.transportation && rosterData.transportation[String(dayIndex)] || '').trim();
       const isFeedingDay = (Array.isArray(rosterData.feedingDays) && rosterData.feedingDays.includes(String(dayIndex)))
         || (!rosterData.feedingDays || rosterData.feedingDays.length === 0 ? (dayIndex >= 0 && dayIndex <= 4) : false);
@@ -404,8 +419,18 @@ function renderTvSidePanel() {
       } else {
         // 1. Recess/playground duties first
         if (hasAnyAssignedBreaks) {
+          const activeLocationsSet = Array.isArray(rosterData.locations) && rosterData.locations.length > 0
+            ? new Set(rosterData.locations.map(l => (l || '').trim().toLowerCase()))
+            : null;
+
           breaks.forEach(b => {
-            const assignedDuties = (b.duties || []).filter(d => (d.teacher || '').trim() !== '');
+            const assignedDuties = (b.duties || []).filter(d => {
+              const teacher = (d.teacher || '').trim();
+              const loc = (d.location || d.role || '').trim();
+              if (!teacher || !loc || isNoDutyValue(teacher)) return false;
+              if (activeLocationsSet && !activeLocationsSet.has(loc.toLowerCase())) return false;
+              return true;
+            });
             if (assignedDuties.length === 0) return; // Only show breaks that have active assigned duties
 
             const breakCard = document.createElement('div');
@@ -449,41 +474,31 @@ function renderTvSidePanel() {
           dutiesContainer.appendChild(emptyRecessCard);
         }
 
-        // 2. Feeding duty (תורנות הזנה)
+        // 2. Feeding duty (תורנות הזנה) - Compact 1-line card
         if (showFeeding) {
           const feedingCard = document.createElement('div');
-          feedingCard.className = 'tv-break-card tv-feeding-card';
+          feedingCard.className = 'tv-break-card tv-feeding-card tv-single-duty-card';
           const teacherHtml = todayFeeding
             ? `<span class="tv-duty-teacher" title="${todayFeeding}">${todayFeeding}</span>`
             : `<span class="tv-duty-teacher tv-duty-unassigned" title="טרם שובץ מורה להזנה">טרם שובץ</span>`;
 
           feedingCard.innerHTML = `
-            <div class="tv-break-title tv-feeding-title">
-              <i class="fas fa-utensils"></i> תורנות הזנה
-            </div>
-            <div class="tv-break-items">
-              <div class="tv-duty-item">
-                <span class="tv-duty-role">הזנה:</span>
-                ${teacherHtml}
-              </div>
+            <div class="tv-duty-item">
+              <span class="tv-duty-role"><i class="fas fa-utensils" style="color: #d97706; margin-left: 3px;"></i> הזנה:</span>
+              ${teacherHtml}
             </div>
           `;
           dutiesContainer.appendChild(feedingCard);
         }
 
-        // 3. Transportation duty strictly at the end
+        // 3. Transportation duty strictly at the end - Compact 1-line card
         if (todayTransport) {
           const transportCard = document.createElement('div');
-          transportCard.className = 'tv-break-card tv-transport-card';
+          transportCard.className = 'tv-break-card tv-transport-card tv-single-duty-card';
           transportCard.innerHTML = `
-            <div class="tv-break-title tv-transport-title">
-              <i class="fas fa-bus-alt"></i> תורנות הסעות (סוף יום)
-            </div>
-            <div class="tv-break-items">
-              <div class="tv-duty-item">
-                <span class="tv-duty-role">הסעות:</span>
-                <span class="tv-duty-teacher" title="${todayTransport}">${todayTransport}</span>
-              </div>
+            <div class="tv-duty-item">
+              <span class="tv-duty-role"><i class="fas fa-bus-alt" style="color: #0284c7; margin-left: 3px;"></i> הסעות:</span>
+              <span class="tv-duty-teacher" title="${todayTransport}">${todayTransport}</span>
             </div>
           `;
           dutiesContainer.appendChild(transportCard);
@@ -503,6 +518,79 @@ function renderTvSidePanel() {
       if (annCard) annCard.classList.add('tv-empty-announcements');
     }
   }
+
+  fitTvPanelContent();
+  if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+    window.requestAnimationFrame(fitTvPanelContent);
+  }
+}
+
+/**
+ * Dynamically adjusts font sizes, padding, and scales the TV duty roster
+ * to guarantee that all duties fit completely in the available viewport height without scrolling.
+ */
+function fitTvPanelContent() {
+  const panel = document.getElementById('tv-side-panel');
+  const dutiesContainer = document.getElementById('tv-duties-list');
+  if (!panel || !dutiesContainer) return;
+
+  // Reset any scale/transform and width adjustments
+  dutiesContainer.classList.remove('tv-tight-duties', 'tv-ultra-tight-duties', 'tv-micro-duties');
+  dutiesContainer.style.transform = '';
+  dutiesContainer.style.transformOrigin = '';
+  dutiesContainer.style.width = '';
+
+  const totalAssigned = dutiesContainer.querySelectorAll('.tv-duty-item').length;
+
+  // Base classification based on duty count
+  if (totalAssigned >= 12) {
+    dutiesContainer.classList.add('tv-ultra-tight-duties');
+  } else if (totalAssigned >= 6) {
+    dutiesContainer.classList.add('tv-tight-duties');
+  }
+
+  function isOverflowing() {
+    const listOverflow = dutiesContainer.scrollHeight > dutiesContainer.clientHeight + 1;
+    const panelOverflow = panel.scrollHeight > panel.clientHeight + 1;
+    return listOverflow || panelOverflow;
+  }
+
+  // Step-wise progressive tightening
+  if (isOverflowing()) {
+    if (!dutiesContainer.classList.contains('tv-tight-duties') && !dutiesContainer.classList.contains('tv-ultra-tight-duties')) {
+      dutiesContainer.classList.add('tv-tight-duties');
+    }
+  }
+  if (isOverflowing()) {
+    dutiesContainer.classList.remove('tv-tight-duties');
+    dutiesContainer.classList.add('tv-ultra-tight-duties');
+  }
+  if (isOverflowing()) {
+    dutiesContainer.classList.remove('tv-ultra-tight-duties');
+    dutiesContainer.classList.add('tv-micro-duties');
+  }
+
+  // Mathematical scale fallback if still overflowing (e.g. extreme low height TV)
+  if (isOverflowing() && dutiesContainer.clientHeight > 40 && dutiesContainer.scrollHeight > 0) {
+    const scale = Math.max(0.60, Math.min(0.99, (dutiesContainer.clientHeight / dutiesContainer.scrollHeight) * 0.98));
+    dutiesContainer.style.transformOrigin = 'top center';
+    dutiesContainer.style.transform = `scale(${scale.toFixed(3)})`;
+    dutiesContainer.style.width = `${(100 / scale).toFixed(1)}%`;
+  }
+}
+
+if (typeof window !== 'undefined' && !window.__tvAutoFitBound) {
+  window.__tvAutoFitBound = true;
+  window.addEventListener('resize', () => {
+    if (document.body.classList.contains('fullscreen-mode')) {
+      fitTvPanelContent();
+    }
+  });
+  window.addEventListener('orientationchange', () => {
+    if (document.body.classList.contains('fullscreen-mode')) {
+      setTimeout(fitTvPanelContent, 100);
+    }
+  });
 }
 
 let currentDutyModalDay = 0; // 0=Sunday

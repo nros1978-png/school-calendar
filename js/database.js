@@ -236,6 +236,12 @@ export const DEFAULT_DUTY_ROSTER = {
   }
 };
 
+export function isNoDutyValue(val) {
+  if (!val || typeof val !== 'string') return true;
+  const clean = val.trim().toLowerCase();
+  return clean === '' || /^(אין|אין תורנות|ללא|ביטול|לא פעיל|ריק|-|none|n\/a)$/i.test(clean);
+}
+
 export function ensureRosterPopulated(roster) {
   if (!roster || typeof roster !== 'object') {
     roster = JSON.parse(JSON.stringify(DEFAULT_DUTY_ROSTER));
@@ -266,13 +272,32 @@ export function ensureRosterPopulated(roster) {
     roster.duties = {};
   }
 
+  roster.locations = (roster.locations || []).map(l => (l || '').trim()).filter(Boolean);
+  const activeLocations = roster.locations;
+  const validLocsSet = new Set(activeLocations.map(l => l.toLowerCase()));
+
   for (let i = 0; i <= 5; i++) {
     const dayKey = String(i);
     let dayBreaks = normalizeDutyDay(roster.duties[dayKey]);
     
+    // Purge any duties whose location is no longer in activeLocations or teacher is 'אין תורנות'
+    dayBreaks.forEach(b => {
+      if (Array.isArray(b.duties)) {
+        b.duties = b.duties.filter(d => {
+          const loc = (d.location || d.role || '').trim();
+          const teacher = (d.teacher || '').trim();
+          if (isNoDutyValue(teacher)) return false;
+          return loc && validLocsSet.has(loc.toLowerCase());
+        });
+      }
+    });
+
     // Check if this day has any assigned duties
     const assignedCount = dayBreaks.reduce((sum, b) => 
-      sum + (b.duties || []).filter(d => (d.teacher || '').trim() !== '').length, 0);
+      sum + (b.duties || []).filter(d => {
+        const t = (d.teacher || '').trim();
+        return t && !isNoDutyValue(t);
+      }).length, 0);
 
     // If day has no breaks or no assigned duties at all, populate from defaults adapting to active locations!
     if (dayBreaks.length === 0 || assignedCount === 0) {
@@ -401,7 +426,7 @@ export const DB = {
   async saveDutyRoster(rosterData) {
     cachedDutyRoster = ensureRosterPopulated(rosterData);
     try { localStorage.setItem('school_duty_roster', JSON.stringify(cachedDutyRoster)); } catch(e) {}
-    await setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster, { merge: true });
+    await setDoc(doc(db, 'settings', 'duty_roster'), cachedDutyRoster);
   },
 
   // --- Users Collection API ---
