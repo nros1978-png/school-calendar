@@ -841,6 +841,30 @@ button, input, select, textarea {
   word-break: break-word;
 }
 
+/* Weekly Torah Portion (פרשת שבוע) for Friday */
+.parasha-cell-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #581c87;
+  background-color: #f3e8ff;
+  border: 1.5px solid #a855f7;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm, 4px);
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(168, 85, 247, 0.15);
+}
+
+.parasha-cell-label i {
+  color: #7e22ce;
+  font-size: 0.7rem;
+}
+
 /* Event Spanning Bar/Pill */
 .event-bar {
   font-size: 0.76rem;
@@ -2372,6 +2396,20 @@ body.fullscreen-mode .special-cell-label {
   text-overflow: clip !important;
 }
 
+body.fullscreen-mode .parasha-cell-label {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  padding: 1px 4px !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  text-overflow: clip !important;
+  color: #581c87 !important;
+  background-color: #f3e8ff !important;
+  border: 1px solid #a855f7 !important;
+}
+
 body.fullscreen-mode .event-bar {
   display: flex !important;
   align-items: center !important;
@@ -3389,7 +3427,7 @@ body.fullscreen-mode .event-bar {
   white-space: normal !important;
   word-break: break-word !important;
 }
-body.fullscreen-mode .holiday-cell-label, body.fullscreen-mode .special-cell-label {
+body.fullscreen-mode .holiday-cell-label, body.fullscreen-mode .special-cell-label, body.fullscreen-mode .parasha-cell-label {
   min-height: 0; flex-shrink: 1; overflow-wrap: anywhere !important;
 }
 body.fullscreen-mode .tv-page-indicator {
@@ -3696,6 +3734,24 @@ body.phone-layout .phone-special-badge {
   word-break: break-word;
 }
 
+body.phone-layout .phone-parasha-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #581c87;
+  background: #f3e8ff;
+  border: 1px solid #c084fc;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+body.phone-layout .phone-parasha-badge i {
+  color: #7e22ce;
+}
+
 /* Events Container inside Phone Card */
 body.phone-layout .phone-card-events {
   padding: 6px 7px 8px 7px;
@@ -3962,6 +4018,24 @@ body.desktop-mode .special-cell-label {
   line-height: 1.3 !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+}
+
+body.desktop-mode .parasha-cell-label {
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  color: #581c87 !important;
+  background-color: #f3e8ff !important;
+  border: 1.5px solid #a855f7 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.3 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 2px rgba(168, 85, 247, 0.15) !important;
 }
 
 body.desktop-mode .event-bar {
