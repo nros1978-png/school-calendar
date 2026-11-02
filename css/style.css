@@ -644,7 +644,7 @@ button, input, select, textarea {
 /* Day Names Header (RTL: Sunday is far right, Saturday is far left) */
 .calendar-weekdays {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   direction: rtl;
   background-color: var(--primary-light);
   border-bottom: 1px solid var(--border-color);
@@ -675,7 +675,7 @@ button, input, select, textarea {
 
 .calendar-week-row {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-auto-rows: minmax(26px, auto);
   min-height: 120px;
   direction: rtl;
@@ -4049,3 +4049,14 @@ body.desktop-mode .event-bar {
 }
 
 
+
+
+/* Strictly enforce 6-day school week (Sunday to Friday) */
+body.desktop-mode .calendar-weekdays,
+body.desktop-mode .calendar-week-row {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.weekday-shabbat {
+  display: none !important;
+}

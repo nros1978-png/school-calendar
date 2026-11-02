@@ -116,8 +116,9 @@ export const HebrewCalendar = {
     const lastDate = new Date(monthInfo.lastDate);
 
     const startDayOfWeek = firstDate.getDay();
+    // 6-day school week: Sunday (0) to Friday (5). Saturday (6) is strictly excluded.
+    const paddingBefore = (startDayOfWeek === 6) ? 0 : startDayOfWeek;
     const totalDays = monthInfo.daysCount;
-    const totalCellsNeeded = (startDayOfWeek + totalDays > 35) ? 42 : 35;
 
     const formatDateKey = (dt) => {
       const y = dt.getFullYear();
@@ -128,46 +129,57 @@ export const HebrewCalendar = {
 
     const daysList = [];
 
-    for (let i = startDayOfWeek; i > 0; i--) {
+    // Preceding padding days (Sunday to Friday only)
+    for (let i = paddingBefore; i > 0; i--) {
       const padDate = new Date(firstDate);
       padDate.setDate(padDate.getDate() - i);
-      const dateKey = formatDateKey(padDate);
-      const hebInfo = DB.getHebrewDateInfo(dateKey);
-      const hebGematria = hebInfo.hebrewDate ? hebInfo.hebrewDate.split(' ')[0] : '';
-      daysList.push({
-        dayNumber: padDate.getDate(),
-        hebrewDayGematria: hebGematria,
-        dateKey: dateKey,
-        isCurrentMonth: false
-      });
+      if (padDate.getDay() !== 6) {
+        const dateKey = formatDateKey(padDate);
+        const hebInfo = DB.getHebrewDateInfo(dateKey);
+        const hebGematria = hebInfo.hebrewDate ? hebInfo.hebrewDate.split(' ')[0] : '';
+        daysList.push({
+          dayNumber: padDate.getDate(),
+          hebrewDayGematria: hebGematria,
+          dateKey: dateKey,
+          isCurrentMonth: false
+        });
+      }
     }
 
+    // Current month days (skipping Saturday)
     for (let i = 0; i < totalDays; i++) {
       const curDate = new Date(firstDate);
       curDate.setDate(curDate.getDate() + i);
-      const dateKey = formatDateKey(curDate);
-      const hebGematria = convertNumToGematriaDay(i + 1);
-      daysList.push({
-        dayNumber: curDate.getDate(),
-        hebrewDayGematria: hebGematria,
-        dateKey: dateKey,
-        isCurrentMonth: true
-      });
+      if (curDate.getDay() !== 6) {
+        const dateKey = formatDateKey(curDate);
+        const hebGematria = convertNumToGematriaDay(i + 1);
+        daysList.push({
+          dayNumber: curDate.getDate(),
+          hebrewDayGematria: hebGematria,
+          dateKey: dateKey,
+          isCurrentMonth: true
+        });
+      }
     }
 
-    const remainingCells = totalCellsNeeded - daysList.length;
-    for (let i = 1; i <= remainingCells; i++) {
+    // Trailing padding days to complete full 6-day weeks (minimum 30 cells = 5 rows)
+    const minCells = Math.max(30, Math.ceil(daysList.length / 6) * 6);
+    let step = 1;
+    while (daysList.length < minCells) {
       const nextDate = new Date(lastDate);
-      nextDate.setDate(nextDate.getDate() + i);
-      const dateKey = formatDateKey(nextDate);
-      const hebInfo = DB.getHebrewDateInfo(dateKey);
-      const hebGematria = hebInfo.hebrewDate ? hebInfo.hebrewDate.split(' ')[0] : '';
-      daysList.push({
-        dayNumber: nextDate.getDate(),
-        hebrewDayGematria: hebGematria,
-        dateKey: dateKey,
-        isCurrentMonth: false
-      });
+      nextDate.setDate(nextDate.getDate() + step);
+      step++;
+      if (nextDate.getDay() !== 6) {
+        const dateKey = formatDateKey(nextDate);
+        const hebInfo = DB.getHebrewDateInfo(dateKey);
+        const hebGematria = hebInfo.hebrewDate ? hebInfo.hebrewDate.split(' ')[0] : '';
+        daysList.push({
+          dayNumber: nextDate.getDate(),
+          hebrewDayGematria: hebGematria,
+          dateKey: dateKey,
+          isCurrentMonth: false
+        });
+      }
     }
 
     const fmtDate = (dt) => `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`;
@@ -177,6 +189,8 @@ export const HebrewCalendar = {
       gregorianRangeStr: `${fmtDate(firstDate)} - ${fmtDate(lastDate)}`
     };
   },
+
+  
 
   getTodayHebrewInfo() {
     const today = new Date();
@@ -350,49 +364,54 @@ export const Calendar = {
       const firstDayOfMonth = new Date(year, month, 1);
       const lastDayOfMonth = new Date(year, month + 1, 0);
       const daysInMonth = lastDayOfMonth.getDate();
-      const precedingPaddingDays = firstDayOfMonth.getDay();
-      const totalCellsNeeded = precedingPaddingDays + daysInMonth > 35 ? 42 : 35;
+      const startDayOfWeek = firstDayOfMonth.getDay();
+      const paddingBefore = (startDayOfWeek === 6) ? 0 : startDayOfWeek;
 
-      const prevMonthDate = new Date(year, month, 0);
-      const prevMonthDaysCount = prevMonthDate.getDate();
-      const prevMonthYear = prevMonthDate.getFullYear();
-      const prevMonthVal = prevMonthDate.getMonth();
-      for (let i = precedingPaddingDays - 1; i >= 0; i--) {
-        const d = prevMonthDaysCount - i;
-        const dateKey = formatDateKey(prevMonthYear, prevMonthVal, d);
-        const dateInfo = DB.getHebrewDateInfo(dateKey);
-        daysList.push({
-          dayNumber: d,
-          hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
-          dateKey: dateKey,
-          isCurrentMonth: false
-        });
+      for (let i = paddingBefore; i > 0; i--) {
+        const d = new Date(firstDayOfMonth);
+        d.setDate(d.getDate() - i);
+        if (d.getDay() !== 6) {
+          const dateKey = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+          const dateInfo = DB.getHebrewDateInfo(dateKey);
+          daysList.push({
+            dayNumber: d.getDate(),
+            hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
+            dateKey: dateKey,
+            isCurrentMonth: false
+          });
+        }
       }
 
       for (let d = 1; d <= daysInMonth; d++) {
-        const dateKey = formatDateKey(year, month, d);
-        const dateInfo = DB.getHebrewDateInfo(dateKey);
-        daysList.push({
-          dayNumber: d,
-          hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
-          dateKey: dateKey,
-          isCurrentMonth: true
-        });
+        const cur = new Date(year, month, d);
+        if (cur.getDay() !== 6) {
+          const dateKey = formatDateKey(year, month, d);
+          const dateInfo = DB.getHebrewDateInfo(dateKey);
+          daysList.push({
+            dayNumber: d,
+            hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
+            dateKey: dateKey,
+            isCurrentMonth: true
+          });
+        }
       }
 
-      const nextMonthDate = new Date(year, month + 1, 1);
-      const nextMonthYear = nextMonthDate.getFullYear();
-      const nextMonthVal = nextMonthDate.getMonth();
-      const remainingCells = totalCellsNeeded - daysList.length;
-      for (let d = 1; d <= remainingCells; d++) {
-        const dateKey = formatDateKey(nextMonthYear, nextMonthVal, d);
-        const dateInfo = DB.getHebrewDateInfo(dateKey);
-        daysList.push({
-          dayNumber: d,
-          hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
-          dateKey: dateKey,
-          isCurrentMonth: false
-        });
+      const minCells = Math.max(30, Math.ceil(daysList.length / 6) * 6);
+      let step = 1;
+      while (daysList.length < minCells) {
+        const nextDate = new Date(lastDayOfMonth);
+        nextDate.setDate(nextDate.getDate() + step);
+        step++;
+        if (nextDate.getDay() !== 6) {
+          const dateKey = formatDateKey(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate());
+          const dateInfo = DB.getHebrewDateInfo(dateKey);
+          daysList.push({
+            dayNumber: nextDate.getDate(),
+            hebrewDayGematria: dateInfo.hebrewDate ? dateInfo.hebrewDate.split(' ')[0] : '',
+            dateKey: dateKey,
+            isCurrentMonth: false
+          });
+        }
       }
     }
 
@@ -420,7 +439,7 @@ export const Calendar = {
     }
 
     // Group days into weeks (6 days per week in fullscreen, 7 days in standard mode)
-    const daysPerWeek = isFullscreen ? 6 : 7;
+    const daysPerWeek = 6; // Always 6 days per week (Sunday to Friday, no Saturday)
     const weeks = [];
     for (let i = 0; i < daysList.length; i += daysPerWeek) {
       weeks.push(daysList.slice(i, i + daysPerWeek));
